@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 namespace MotorCity.UI
 {
@@ -30,7 +31,7 @@ namespace MotorCity.UI
             // sample nearest texels at fractional canvas scales.
             var atlas = text.font != null ? text.font.material.mainTexture : null;
             if (atlas != null) { atlas.filterMode = FilterMode.Bilinear; atlas.anisoLevel = 1; }
-            text.fontSize = Mathf.Max(15, text.fontSize);
+
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
 
             // Truncate discards entire wrapped lines before TextClip has a
@@ -39,6 +40,93 @@ namespace MotorCity.UI
             text.verticalOverflow = VerticalWrapMode.Overflow;
             if (text.GetComponent<MotorCityTextClip>() == null)
                 text.gameObject.AddComponent<MotorCityTextClip>();
+            if (text.GetComponent<MotorCitySdfLabel>() == null)
+                text.gameObject.AddComponent<MotorCitySdfLabel>();
+        }
+    }
+    // Keep legacy Text as the layout/localization model while TMP owns
+    // the visible glyphs. Existing Text references and layout stay valid.
+    [DisallowMultipleComponent]
+    [RequireComponent(typeof(Text))]
+    internal sealed class MotorCitySdfLabel : MonoBehaviour
+    {
+        private static readonly System.Collections.Generic.Dictionary<Font, TMP_FontAsset> fonts = new();
+        private Text source;
+        private TextMeshProUGUI label;
+        private bool ready;
+        private string lastText;
+
+        private static TMP_FontAsset Resolve(Font font)
+        {
+            if (font == null) return null;
+            if (fonts.TryGetValue(font, out var existing) && existing != null) return existing;
+            var asset = TMP_FontAsset.CreateFontAsset(font, 90, 9,
+                UnityEngine.TextCore.LowLevel.GlyphRenderMode.SDFAA, 1024, 1024,
+                AtlasPopulationMode.Dynamic, true);
+            if (asset == null || asset.material == null || asset.material.shader == null ||
+                !asset.material.shader.isSupported) return null;
+            fonts[font] = asset;
+            return asset;
+        }
+
+        private void LateUpdate()
+        {
+            if (source == null) source = GetComponent<Text>();
+            if (source == null || source.font == null) return;
+            if (!ready)
+            {
+                var asset = Resolve(source.font);
+                if (asset == null) { enabled = false; return; }
+                var child = new GameObject("SDF Glyphs", typeof(RectTransform));
+                child.transform.SetParent(transform, false);
+                var rect = (RectTransform)child.transform;
+                rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one;
+                rect.offsetMin = rect.offsetMax = Vector2.zero;
+                label = child.AddComponent<TextMeshProUGUI>();
+                label.font = asset;
+                label.raycastTarget = false;
+                label.richText = source.supportRichText;
+                label.overflowMode = TextOverflowModes.Truncate;
+                ready = true;
+            }
+            // Do not disable the source component: LayoutGroup and code rely
+            // on its preferred dimensions. Cull only its rendered geometry.
+            source.canvasRenderer.cull = true;
+            label.enabled = source.enabled;
+            var font = Resolve(source.font);
+            if (font != null && label.font != font) label.font = font;
+            if (label.text != source.text) label.text = source.text;
+            if (label.color != source.color) label.color = source.color;
+            if (label.fontSize != source.fontSize) label.fontSize = source.fontSize;
+            label.fontStyle = source.fontStyle switch
+            {
+                FontStyle.Bold => FontStyles.Bold,
+                FontStyle.Italic => FontStyles.Italic,
+                FontStyle.BoldAndItalic => FontStyles.Bold | FontStyles.Italic,
+                _ => FontStyles.Normal
+            };
+            label.alignment = source.alignment switch
+            {
+                TextAnchor.UpperLeft => TextAlignmentOptions.TopLeft,
+                TextAnchor.UpperCenter => TextAlignmentOptions.Top,
+                TextAnchor.UpperRight => TextAlignmentOptions.TopRight,
+                TextAnchor.MiddleLeft => TextAlignmentOptions.Left,
+                TextAnchor.MiddleRight => TextAlignmentOptions.Right,
+                TextAnchor.LowerLeft => TextAlignmentOptions.BottomLeft,
+                TextAnchor.LowerCenter => TextAlignmentOptions.Bottom,
+                TextAnchor.LowerRight => TextAlignmentOptions.BottomRight,
+                _ => TextAlignmentOptions.Center
+            };
+            label.enableAutoSizing = source.resizeTextForBestFit;
+            label.fontSizeMin = source.resizeTextMinSize;
+            label.fontSizeMax = source.resizeTextMaxSize;
+            label.enableWordWrapping = source.horizontalOverflow == HorizontalWrapMode.Wrap;
+            label.richText = source.supportRichText;
+        }
+        private void OnDisable()
+        {
+            if (source != null) source.canvasRenderer.cull = false;
+            if (label != null) label.enabled = false;
         }
     }
 }
