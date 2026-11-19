@@ -30,6 +30,7 @@ namespace MotorCity.World
             warmFailed = false;
             Warm.Clear();
             gameplayBundles.Clear();
+            fleet = null;
             bundle = null;
             prefab = null;
             running = false;
@@ -109,12 +110,56 @@ namespace MotorCity.World
             host.StartCoroutine(Download());
         }
 
+        private const string FleetName = "motorcity-fleet.bundle";
+        private static AssetBundle fleet;
+        private static string FleetVersion()
+        {
+            if (!Enabled) return null;
+            return Resources.Load<TextAsset>(Marker).text.Split(new[] { '\r', '\n' },
+                StringSplitOptions.RemoveEmptyEntries)
+                .Where(line => line.StartsWith(FleetName + "|", StringComparison.Ordinal))
+                .Select(line => line.Split('|')[1]).FirstOrDefault();
+        }
+
+        public static bool FleetReady => fleet != null || string.IsNullOrEmpty(FleetVersion());
+
+        public static IEnumerator LoadFleet(Action<float> progress)
+        {
+            string version = FleetVersion();
+            if (FleetReady) yield break;
+            for (int attempt = 0; attempt < 2; attempt++)
+            {
+                string url = Application.streamingAssetsPath.TrimEnd('/') + "/motorcity-fleet-" + version + ".bundle";
+                using (var request = UnityWebRequestAssetBundle.GetAssetBundle(url, Hash128.Parse(version)))
+                {
+                    request.timeout = 120;
+                    var operation = request.SendWebRequest();
+                    while (!operation.isDone)
+                    {
+                        progress?.Invoke(Mathf.Clamp01(request.downloadProgress));
+                        yield return null;
+                    }
+                    if (request.result == UnityWebRequest.Result.Success)
+                        fleet = DownloadHandlerAssetBundle.GetContent(request);
+                    if (fleet != null) { progress?.Invoke(1f); yield break; }
+                }
+                yield return new WaitForSecondsRealtime(2f);
+            }
+        }
+
         private static IEnumerator Download()
         {
             // Legacy marker: city hash only. New marker: dependency-ordered name|hash lines.
             string marker = Resources.Load<TextAsset>(Marker).text.Trim();
             string[] files = marker.Contains("|") ? marker.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
                 : new[] { "motorcity-city.bundle|" + marker };
+            // Only a new or already migrated starter save can defer the fleet.
+            // Old roster indices must be resolved by the existing migration.
+            bool starter = MotorCity.Persistence.MotorCitySaveService.GetInt("MotorCity.Vehicle.Selected", 0) == 0 &&
+                MotorCity.Persistence.MotorCitySaveService.GetInt("MotorCity.Vehicle.RosterOrderVersion", 0) >= 2;
+            bool fresh = MotorCity.Persistence.MotorCitySaveService.GetInt("MotorCity.Vehicle.Selected", -1) == -1;
+            if (starter || fresh)
+                files = files.Where(line => !line.StartsWith(FleetName + "|", StringComparison.Ordinal)).ToArray();
             for (int attempt = 0; attempt < 2; attempt++)
             {
                 Progress = 0f;
@@ -142,9 +187,11 @@ namespace MotorCity.World
                             if (bundle != null) { bundle.Unload(true); bundle = null; }
                             foreach (var other in gameplayBundles) other.Unload(true);
                             gameplayBundles.Clear();
+                            if (fleet != null) { fleet.Unload(true); fleet = null; }
                             break;
                         }
                         if (name == "motorcity-city.bundle") bundle = loaded;
+                        else if (name == FleetName) fleet = loaded;
                         else gameplayBundles.Add(loaded);
                     }
                 }
@@ -185,6 +232,7 @@ namespace MotorCity.World
                 }
                 foreach (var other in gameplayBundles) other.Unload(true);
                 gameplayBundles.Clear();
+                if (fleet != null) { fleet.Unload(true); fleet = null; }
                 yield return new WaitForSecondsRealtime(2f);
             }
             Failed = true;
@@ -219,6 +267,10 @@ namespace MotorCity.World
         // Native players and Editor use the same original resource addresses.
         public static bool HasGameplayAsset(string path)
         {
+            if (fleet != null && fleet.Contains(path)) return true;
+            if (!FleetReady && (path == "MotorCity/PlayerCarVisual" ||
+                path.StartsWith("MotorCity/Vehicles/Player/", StringComparison.Ordinal) &&
+                path != "MotorCity/Vehicles/Player/Beatall")) return true;
             if (Enabled)
             {
                 foreach (var other in gameplayBundles)
@@ -230,6 +282,7 @@ namespace MotorCity.World
 
         public static T LoadGameplay<T>(string path) where T : UnityEngine.Object
         {
+            if (fleet != null && fleet.Contains(path)) return fleet.LoadAsset<T>(path);
             if (Enabled)
                 foreach (var other in gameplayBundles)
                     if (other.Contains(path)) return other.LoadAsset<T>(path);
