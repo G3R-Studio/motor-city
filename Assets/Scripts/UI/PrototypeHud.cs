@@ -868,32 +868,8 @@ namespace MotorCity.UI
                 UpdateClubOverlay();
             }
 
-            if (storeOpen &&
-                cosmeticStore != null)
-            {
-                SetActiveIfChanged(
-                    garageOverlay,
-                    false);
-                SetActiveIfChanged(
-                    navigatorPanel,
-                    false);
-                SetActiveIfChanged(
-                    driftPanel,
-                    false);
-                SetActiveIfChanged(
-                    statusPanel,
-                    false);
-                SetActiveIfChanged(
-                    storeOverlay,
-                    true);
-
-                UpdateStoreOverlay();
-                return;
-            }
-
-            SetActiveIfChanged(
-                storeOverlay,
-                false);
+            SetActiveIfChanged(storeOverlay, storeOpen);
+            if (storeOpen) UpdateStoreOverlay();
 
             UpdateNotificationQueue();
 
