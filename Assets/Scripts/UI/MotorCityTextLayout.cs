@@ -120,7 +120,8 @@ namespace MotorCity.UI
             label.enableAutoSizing = source.resizeTextForBestFit;
             label.fontSizeMin = source.resizeTextMinSize;
             label.fontSizeMax = source.resizeTextMaxSize;
-            label.enableWordWrapping = source.horizontalOverflow == HorizontalWrapMode.Wrap;
+            label.textWrappingMode = source.horizontalOverflow == HorizontalWrapMode.Wrap
+                ? TextWrappingModes.Normal : TextWrappingModes.NoWrap;
             label.richText = source.supportRichText;
         }
         private void OnDisable()
