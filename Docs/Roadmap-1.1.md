@@ -81,7 +81,7 @@ World/ — относительно Assets/Scripts/. Базовые URP наст
 - [x] P1: Mesh Readability Audit (6cefb29, результат 4486d99); 94 FBX, 82 HOLD, 12 REVIEW без прямого использования в CityVisual. Декор не меняли. Runtime CPU-copy pilot (1be168b, результат 14836f0): 10 мешей, 71.286 FPS, peak Unity memory 378345709 B; per-mesh оценка не изменилась. Не доказана экономия, нет выигрыша FPS. Не включать автоматически.
 - [x] P2: native Mesh LOD, первые 10 моделей/16 renderer (b6cbb01, 3b05aa3, fix fcf8239, отчёты 1f0f44f, ba6975d): OFF 250.087 → ON 261.103 FPS, но один A/B и −0.7% triangles. Расширение (c584a97, результат 8053205): 28/30 новых моделей, 114 renderer; OFF 248.766 → ON 247.842 FPS, triangles не снизились. Не внедрять; native LOD selection не подтверждён.
 - [x] P3: Lamp Instancing Pilot (445d403, результат 47e2b44), 489 renderer; OFF 251.478 → ON 248.273 FPS; SetPass 181.704 → 199.467. Реальные instanced draws не подтверждены. Не внедрять.
-- [ ] P4: SSAO A/B — Editor pilot подготовлен (`d125313`), локальный A/B ожидается; далее остальные эффекты по измерениям.
+- [ ] P4: SSAO A/B — Editor pilot подготовлен (`d125313`), локальный A/B завершён, визуальная проверка и решение о rollout ожидаются; далее остальные эффекты по измерениям.
 - [ ] P5/P6: HLOD, visibility, CPU/traffic/physics/UI; не выполнены.
 - [ ] Перед будущим WebGL checkpoint исключить локальные тестовые LOD-копии Assets/Resources/MotorCityLodPilot и Assets/Resources/MotorCityLodExpanded из сборки (проверить, что это только сгенерированные тестовые данные; не удалять оригиналы). Не коммитить эти папки как production assets.
 
@@ -217,6 +217,10 @@ P3 lamp Editor A/B COMPLETE: 489 body renderers, LOD OFF, 1292×727. OFF 251.478
 ### P4 — приближение Editor Play Mode к WebGL, 19.11.2026
 
 `1c8e718f`: по запросу владельца runtime URP quality применяется в Editor Play Mode к временной копии активного pipeline (HideAndDontSave, QualitySettings.renderPipeline), прежняя ссылка восстанавливается при выходе, reload и quitting. Renderer data остаётся общим; существующий SSAO pilot восстанавливает feature state отдельно. Low/Medium/High используют те же scale, MSAA, shadow distance/cascades/resolution, что player. Выбрать Medium вручную; проверить renderScale=0.72 в отчёте и чистый git status после выхода. Для сопоставимости с прежним WebGL baseline использовать Game View 1512×911, одинаковый маршрут. Это не эмуляция WebAssembly, WebGL backend или browser/Bridge; абсолютные FPS не приравнивать. Компиляция и проверка владельцем ожидаются. Старые Editor baseline получены с другими URP settings, не переоткрывать завершённые пилоты без причины. P4 SSAO ON/OFF остаётся следующим тестом; WebGL не пересобирать.
+
+### P4 — SSAO Editor A/B, 19.11.2026
+
+COMPLETE, два отчёта 151341-611 и 151534-139: RTX2080, Medium, scale .72, 1512×911, target WebGL, LOD/lamp OFF. ON 60.005s: 334.546 FPS, mean 2.989 ms, p95 3.509, p99 3.981, max 13.813, SetPass 134.988, triangles 1228957.926, peak Unity memory 1635900840 B. OFF 60.000s: 363.040 FPS, mean 2.755 ms, p95 3.283, p99 3.705, max 163.390, SetPass 105.169, triangles 678702.169, peak memory 1624006435 B. Observed +8.52% FPS, −44.8% counted triangles; removal of geometry prepass plausible but not verified in Frame Debugger. Draw Calls/Batches zero unreliable, GPU N/A. One pair only; visual comparison absent, OFF outlier 163 ms. Browser-aligned Editor scale confirmed, not browser FPS. Next compare same viewpoint screenshots day/night and inspect SSAO passes outside measurement, repeat ON if needed. Do not change production defaults until visual acceptance; no WebGL rebuild yet.
 
 ### Передача в новый чат — актуальная инструкция
 
