@@ -96,7 +96,7 @@ namespace FCG
             Transform parent, out bool reused)
         {
             reused = false;
-            if (PoolEnabled() && trafficPool.TryGetValue(source, out var pool))
+            if (player != null && PoolEnabled() && trafficPool.TryGetValue(source, out var pool))
             {
                 while (pool.Count > 0)
                 {
