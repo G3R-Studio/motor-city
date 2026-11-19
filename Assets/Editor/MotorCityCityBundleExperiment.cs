@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
+using MotorCity.World;
 using System.Text;
 using UnityEditor;
 using UnityEditor.Build.Profile;
@@ -28,9 +30,112 @@ namespace MotorCity.EditorTools
         [MenuItem("Tools/Motor City/Build/Build Split City Test")]
         private static void BuildSplit() => Run(true);
 
+        private const string DistrictRoot = "Assets/MotorCity_DistrictBuildTemp";
+        private const string DistrictCity = DistrictRoot + "/CityVisual.prefab";
+        private const string DistrictCatalogPath = DistrictRoot + "/DistrictCatalog.json";
+        [MenuItem("Tools/Motor City/Build/Build District Streaming Test")]
+        private static void BuildDistricts() => Run(true, true);
+
+        private static MotorCityCityBundle.DistrictCatalog PrepareDistricts(string directory)
+        {
+            AssetDatabase.CreateFolder("Assets", "MotorCity_DistrictBuildTemp");
+            var source = AssetDatabase.LoadAssetAtPath<GameObject>(TemporaryCity);
+            var clone = (GameObject)PrefabUtility.InstantiatePrefab(source);
+            var districts = new List<MotorCityCityBundle.District>();
+            var builds = new List<AssetBundleBuild>();
+            try
+            {
+                PrefabUtility.UnpackPrefabInstance(clone, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
+                var renderers = clone.GetComponentsInChildren<MeshRenderer>(true);
+                var groups = new Dictionary<Transform, List<int>>();
+                for (int i = 0; i < renderers.Length; i++)
+                {
+                    var r = renderers[i];
+                    var f = r.GetComponent<MeshFilter>();
+                    if (f == null || f.sharedMesh == null || !r.enabled ||
+                        !r.gameObject.activeInHierarchy || r.isPartOfStaticBatch ||
+                        r.GetComponentInParent<LODGroup>() != null ||
+                        r.GetComponentInParent<Rigidbody>() != null ||
+                        r.GetComponentInParent<Animator>() != null ||
+                        r.GetComponent<MonoBehaviour>() != null ||
+                        r.bounds.extents.magnitude <= 7f) continue;
+                    if (r.sharedMaterials.Length == 0 || r.sharedMaterials.Any(m =>
+                        m == null || m.name != "Atlas-1_59aa769b" || m.renderQueue != 2000)) continue;
+                    Transform district = r.transform;
+                    while (district != clone.transform && !district.name.StartsWith("Double-Block-", StringComparison.Ordinal))
+                        district = district.parent;
+                    if (district == null || district == clone.transform) continue;
+                    // Do not touch scripted descendants of a district.
+                    bool scripted = false;
+                    for (Transform t = r.transform; t != district; t = t.parent)
+                        if (t.GetComponent<MonoBehaviour>() != null) { scripted = true; break; }
+                    if (scripted) continue;
+                    if (!groups.TryGetValue(district, out var indices))
+                        groups.Add(district, indices = new List<int>());
+                    indices.Add(i);
+                }
+                foreach (var pair in groups)
+                {
+                    var data = new MotorCityCityBundle.District
+                    {
+                        file = "motorcity-district-" + districts.Count + ".bundle",
+                        rendererIndices = pair.Value.ToArray(),
+                        meshNames = new string[pair.Value.Count],
+                        localBounds = new Bounds[pair.Value.Count]
+                    };
+                    var copies = new Dictionary<Mesh, string>();
+                    var paths = new List<string>();
+                    for (int j = 0; j < pair.Value.Count; j++)
+                    {
+                        var r = renderers[pair.Value[j]];
+                        var filter = r.GetComponent<MeshFilter>();
+                        var mesh = filter.sharedMesh;
+                        if (j == 0) data.bounds = r.bounds; else data.bounds.Encapsulate(r.bounds);
+                        data.localBounds[j] = r.localBounds;
+                        if (!copies.TryGetValue(mesh, out string name))
+                        {
+                            name = "district_" + districts.Count + "_mesh_" + copies.Count;
+                            var copy = UnityEngine.Object.Instantiate(mesh);
+                            copy.name = name;
+                            string path = DistrictRoot + "/" + name + ".asset";
+                            AssetDatabase.CreateAsset(copy, path);
+                            copies.Add(mesh, name);
+                            paths.Add(path);
+                        }
+                        data.meshNames[j] = name;
+                        filter.sharedMesh = null;
+                    }
+                    districts.Add(data);
+                    builds.Add(new AssetBundleBuild { assetBundleName = data.file, assetNames = paths.ToArray() });
+                }
+                if (districts.Count == 0)
+                    throw new InvalidOperationException("No eligible Double-Block district meshes found; original split build remains available.");
+                if (PrefabUtility.SaveAsPrefabAsset(clone, DistrictCity) == null)
+                    throw new InvalidOperationException("Could not save district city skeleton.");
+            }
+            finally { UnityEngine.Object.DestroyImmediate(clone); }
+            AssetDatabase.SaveAssets();
+            Directory.CreateDirectory(directory);
+            var manifest = BuildPipeline.BuildAssetBundles(directory, builds.ToArray(),
+                BuildAssetBundleOptions.ChunkBasedCompression | BuildAssetBundleOptions.StrictMode, BuildTarget.WebGL);
+            if (manifest == null) throw new InvalidOperationException("District bundles failed.");
+            foreach (var district in districts)
+            {
+                district.hash = manifest.GetAssetBundleHash(district.file).ToString();
+                string versioned = Path.GetFileNameWithoutExtension(district.file) + "-" + district.hash + ".bundle";
+                File.Move(Path.Combine(directory, district.file), Path.Combine(directory, versioned));
+                district.file = versioned;
+            }
+            var catalog = new MotorCityCityBundle.DistrictCatalog { districts = districts.ToArray() };
+            File.WriteAllText(DistrictCatalogPath, JsonUtility.ToJson(catalog));
+            AssetDatabase.ImportAsset(DistrictCatalogPath, ImportAssetOptions.ForceSynchronousImport);
+            return catalog;
+        }
+
         private static string Address(string path)
         {
-            if (path == TemporaryCity) return "MotorCity/Environment/CityVisual";
+            if (path == DistrictCatalogPath) return "MotorCity/DistrictCatalog";
+            if (path == TemporaryCity || path == DistrictCity) return "MotorCity/Environment/CityVisual";
             foreach (string name in ExtraRoots)
             {
                 string root = TemporaryRoot(name);
@@ -40,11 +145,11 @@ namespace MotorCity.EditorTools
             throw new InvalidOperationException("Unrecognized bundle root: " + path);
         }
 
-        private static void Run(bool split)
+        private static void Run(bool split, bool districts = false)
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode || BuildPipeline.isBuildingPlayer)
                 throw new InvalidOperationException("Exit Play Mode and finish any current build.");
-            if (File.Exists(MarkerPath) || File.Exists(TemporaryCity) || !File.Exists(City) || ExtraRoots.Any(n => Exists(TemporaryRoot(n)) || !Exists(EnvironmentRoot + n)))
+            if (AssetDatabase.IsValidFolder(DistrictRoot) || File.Exists(MarkerPath) || File.Exists(TemporaryCity) || !File.Exists(City) || ExtraRoots.Any(n => Exists(TemporaryRoot(n)) || !Exists(EnvironmentRoot + n)))
                 throw new InvalidOperationException("City path unexpected. Use Restore City After Experiment before building.");
             var profile = BuildProfile.GetActiveBuildProfile();
             if (profile == null || AssetDatabase.GetAssetPath(profile) != Profile ||
@@ -93,7 +198,10 @@ namespace MotorCity.EditorTools
 
                 // Preserve every original reference. Unity still includes assets
                 // referenced by the remaining Resources or scenes in the player.
-                var roots = new System.Collections.Generic.List<string> { TemporaryCity };
+                string districtDirectory = Path.Combine(root, "DistrictBundles");
+                var catalog = districts ? PrepareDistricts(districtDirectory) : null;
+                var roots = new System.Collections.Generic.List<string> { districts ? DistrictCity : TemporaryCity };
+                if (districts) roots.Add(DistrictCatalogPath);
                 foreach (string name in ExtraRoots)
                 {
                     string moved = TemporaryRoot(name);
@@ -133,6 +241,13 @@ namespace MotorCity.EditorTools
                     Directory.CreateDirectory(streaming);
                     File.Copy(Path.Combine(bundles, "motorcity-city.bundle"),
                         Path.Combine(streaming, "motorcity-city-" + hash + ".bundle"));
+                    if (catalog != null)
+                    {
+                        foreach (var district in catalog.districts)
+                            File.Copy(Path.Combine(districtDirectory, district.file), Path.Combine(streaming, district.file));
+                        log.AppendLine("District bundles: " + catalog.districts.Length);
+                        log.AppendLine("District streamed renderers: " + catalog.districts.Sum(d => d.rendererIndices.Length));
+                    }
                     log.AppendLine("Split test output: " + stripped);
                     log.AppendLine("Split data bytes: " + DataBytes(stripped));
                     log.AppendLine("Split wasm bytes: " + WasmBytes(stripped));
@@ -171,6 +286,7 @@ namespace MotorCity.EditorTools
                 try
                 {
                     if (File.Exists(MarkerPath)) AssetDatabase.DeleteAsset(MarkerPath);
+                    if (AssetDatabase.IsValidFolder(DistrictRoot)) AssetDatabase.DeleteAsset(DistrictRoot);
                     Restore();
                     if (AssetDatabase.AssetPathToGUID(City) != guid)
                         throw new InvalidOperationException("Restored city GUID mismatch.");
@@ -191,6 +307,7 @@ namespace MotorCity.EditorTools
         [MenuItem("Tools/Motor City/Build/Restore City After Experiment")]
         private static void Restore()
         {
+            if (AssetDatabase.IsValidFolder(DistrictRoot)) AssetDatabase.DeleteAsset(DistrictRoot);
             if (File.Exists(MarkerPath)) AssetDatabase.DeleteAsset(MarkerPath);
             foreach (string name in ExtraRoots.Reverse())
             {
