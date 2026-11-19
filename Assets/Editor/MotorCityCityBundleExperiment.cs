@@ -40,10 +40,22 @@ namespace MotorCity.EditorTools
             "Markers/SprintMarkerVfx",
             "Markers/UndergroundMarkerVfx",
             "Markers/CircuitMarkerVfx",
-            "Markers/DriftMarkerVfx"
+            "Markers/DriftMarkerVfx",
+            "UI/Characters/avatar_vitya",
+            "UI/Characters/avatar_turbo",
+            "UI/Characters/avatar_nika",
+            "UI/Characters/avatar_bublik",
+            "VehiclePaints/StarterPaint_0",
+            "VehiclePaints/StarterPaint_1",
+            "VehiclePaints/StarterPaint_2",
+            "VehiclePaints/StarterPaint_3",
+            "VehiclePaints/StarterPaint_4"
         };
-        private static string GameplayOriginal(string name) => "Assets/Resources/MotorCity/" + name + ".prefab";
-        private static string GameplayParked(string name) => "Assets/MotorCity_GameplayStream_" + name.Replace('/', '_') + ".prefab";
+        private static string GameplayExtension(string name) =>
+            name.StartsWith("UI/Characters/", StringComparison.Ordinal) ? ".png" :
+            name.StartsWith("VehiclePaints/", StringComparison.Ordinal) ? ".mat" : ".prefab";
+        private static string GameplayOriginal(string name) => "Assets/Resources/MotorCity/" + name + GameplayExtension(name);
+        private static string GameplayParked(string name) => "Assets/MotorCity_GameplayStream_" + name.Replace('/', '_') + GameplayExtension(name);
 
         private static bool Exists(string path) => File.Exists(path) || Directory.Exists(path);
         private const string Profile = "Assets/Settings/Build Profiles/Web - Desktop - Release.asset";
