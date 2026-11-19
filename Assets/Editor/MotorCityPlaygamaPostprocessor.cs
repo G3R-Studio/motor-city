@@ -15,6 +15,11 @@ namespace MotorCity.EditorTools
         public void OnPreprocessBuild(BuildReport report)
         {
             if (report.summary.platform != BuildTarget.WebGL) return;
+            if (PlayerSettings.WebGL.template != "APPLICATION:Default")
+                throw new BuildFailedException("Motor City: select Default WebGL Template, not Bridge.");
+            if (!File.Exists("Assets/Resources/MotorCityCityBundleVersion.txt") &&
+                UnityEditor.PackageManager.PackageInfo.FindForAssetPath("Packages/com.playgama.bridge/package.json") != null)
+                throw new BuildFailedException("Motor City: use the normal Build button in Web - Desktop - Release. Playgama Build & Analyze / Build for Release bypass city streaming.");
             if (!File.Exists("Assets/Resources/MotorCityCityBundleVersion.txt") &&
                 !File.Exists("Assets/Resources/MotorCity/Environment/CityVisual.prefab"))
                 throw new BuildFailedException("Motor City: original city missing. Run Restore City After Experiment.");
