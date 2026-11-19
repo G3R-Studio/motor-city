@@ -22,9 +22,6 @@ namespace MotorCity.EditorTools
         private static double start, last;
         private static int lastFrame;
         private static string context;
-        private static ScriptableRendererFeature ssaoOverride;
-        private static bool ssaoOriginal;
-
         private static ScriptableRendererFeature FindSsao()
         {
             var pipeline = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
@@ -36,38 +33,6 @@ namespace MotorCity.EditorTools
             var matches = renderer.rendererFeatures.Where(f => f != null && f.GetType().FullName ==
                 "UnityEngine.Rendering.Universal.ScreenSpaceAmbientOcclusion").ToArray();
             return matches.Length == 1 ? matches[0] : null;
-        }
-
-        [MenuItem("Tools/Motor City/Audit/SSAO Pilot OFF")]
-        private static void SsaoOff() => SetSsao(false);
-        [MenuItem("Tools/Motor City/Audit/SSAO Pilot ON")]
-        private static void SsaoOn() => SetSsao(true);
-        [MenuItem("Tools/Motor City/Audit/SSAO Pilot OFF", true)]
-        [MenuItem("Tools/Motor City/Audit/SSAO Pilot ON", true)]
-        private static bool CanSetSsao() => CanBegin();
-
-        private static void SetSsao(bool active)
-        {
-            if (!CanSetSsao()) return;
-            var feature = FindSsao();
-            if (feature == null || (ssaoOverride != null && ssaoOverride != feature))
-            {
-                Debug.LogWarning("SSAO pilot: expected exactly one SSAO feature in the active single-renderer URP asset.");
-                return;
-            }
-            if (ssaoOverride == null)
-            {
-                ssaoOverride = feature;
-                ssaoOriginal = feature.isActive;
-            }
-            feature.SetActive(active);
-            Debug.Log("SSAO pilot: " + (feature.isActive ? "ON" : "OFF") + "; verify passes in Frame Debugger.");
-        }
-
-        private static void RestoreSsao()
-        {
-            if (ssaoOverride != null) ssaoOverride.SetActive(ssaoOriginal);
-            ssaoOverride = null;
         }
 
         private static string SsaoState()
@@ -91,15 +56,12 @@ namespace MotorCity.EditorTools
                 if (state == PlayModeStateChange.ExitingPlayMode)
                 {
                     if (running) Finish(false);
-                    RestoreSsao();
                 }
             };
             AssemblyReloadEvents.beforeAssemblyReload += () =>
             {
                 if (running) Finish(false);
-                RestoreSsao();
             };
-            EditorApplication.quitting += RestoreSsao;
         }
 
         [MenuItem("Tools/Motor City/Audit/Start Performance Baseline (60s)")]
