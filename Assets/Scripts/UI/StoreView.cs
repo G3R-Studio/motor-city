@@ -287,8 +287,8 @@ namespace MotorCity.UI
                     14,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
-                    new Vector2(24f, -170f),
-                    new Vector2(382f, 50f),
+                    new Vector2(24f, -162f),
+                    new Vector2(382f, 38f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     new Color(0.24f, 0.88f, 1f, 1f));
@@ -310,11 +310,11 @@ namespace MotorCity.UI
                     16,
                     FontStyle.Bold,
                     TextAnchor.LowerLeft,
-                    new Vector2(24f, 26f),
-                    new Vector2(350f, 38f),
+                    new Vector2(24f, 60f),
+                    new Vector2(382f, 30f),
                     new Vector2(0f, 0f),
                     new Vector2(0f, 0f),
-                    DriftAccent);
+                    TextColor);
 
             GameObject currencyIconObject =
                 new(
@@ -384,19 +384,19 @@ namespace MotorCity.UI
             // longer float detached below the window.
             storeBuyButton =
                 CreateLocalizedTouchPulseButton(
-                    panel,
+                    detailCard,
                     "Store Buy",
                     "touch.store.buy",
                     MotorCityInputAction.Interact,
-                    new Vector2(-92f, 34f),
-                    new Vector2(170f, 44f));
+                    new Vector2(0f, 29f),
+                    new Vector2(250f, 42f));
 
             CreateLocalizedTouchPulseButton(
                 panel,
                 "Store Close",
                 "touch.modal.close",
                 MotorCityInputAction.ToggleStore,
-                new Vector2(102f, 34f),
+                new Vector2(0f, 34f),
                 new Vector2(170f, 44f));
         }
 
@@ -423,7 +423,7 @@ namespace MotorCity.UI
                 cosmeticStore.ProductDetailsLine;
 
             storeOwnershipText.text =
-                cosmeticStore.ShowMessage ? cosmeticStore.StatusText : cosmeticStore.SelectedOwnershipLine;
+                cosmeticStore.ShowMessage ? cosmeticStore.StatusText : cosmeticStore.SelectedProgressLine;
 
             if (storeBuyButton != null)
             {
@@ -432,6 +432,8 @@ namespace MotorCity.UI
                 var label = storeBuyButton.transform.Find("Label")?.GetComponent<Text>();
                 if (label != null) label.text = MotorCityLocalization.Text(cosmeticStore.SelectedAdProduct ? "store.watch_ad" : "touch.store.buy");
 
+                var button = storeBuyButton.GetComponent<Button>();
+                if (button != null) button.interactable = !cosmeticStore.SelectedBlocked;
                 SetActiveIfChanged(
                     storeBuyButton,
                     showBuy);
