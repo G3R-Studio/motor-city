@@ -49,9 +49,13 @@ namespace MotorCity.EditorTools
             "VehiclePaints/StarterPaint_1",
             "VehiclePaints/StarterPaint_2",
             "VehiclePaints/StarterPaint_3",
-            "VehiclePaints/StarterPaint_4"
+            "VehiclePaints/StarterPaint_4",
+            "Audio/CarEngine",
+            "Audio/TireSkid"
         };
         private static string GameplayExtension(string name) =>
+            name == "Audio/CarEngine" ? ".wav" :
+            name == "Audio/TireSkid" ? ".ogg" :
             name.StartsWith("UI/Characters/", StringComparison.Ordinal) ? ".png" :
             name.StartsWith("VehiclePaints/", StringComparison.Ordinal) ? ".mat" : ".prefab";
         private static string GameplayOriginal(string name) => "Assets/Resources/MotorCity/" + name + GameplayExtension(name);
