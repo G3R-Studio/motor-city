@@ -136,7 +136,7 @@ namespace MotorCity.Platform
                 stored >= 0 &&
                 stored <= 2
                     ? (MotorCityQualityPreset)stored
-                    : DetectRecommendedPreset();
+                    : MotorCityQualityPreset.High;
 
             Apply(
                 preset,
