@@ -26,6 +26,7 @@ namespace MotorCity.World
         private static void ResetState()
         {
             enabledCache = null;
+            packageVersions = null;
             catalog = null;
             warmFailed = false;
             Warm.Clear();
@@ -114,10 +115,23 @@ namespace MotorCity.World
         private const string SupporterName = "motorcity-supporter.bundle";
         private static AssetBundle supporter;
         public static bool SupporterReady => supporter != null || string.IsNullOrEmpty(SupporterVersion());
-        private static string SupporterVersion() => !Enabled ? null : Resources.Load<TextAsset>(Marker).text
-            .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
-            .Where(line => line.StartsWith(SupporterName + "|", StringComparison.Ordinal))
-            .Select(line => line.Split('|')[1]).FirstOrDefault();
+        private static Dictionary<string, string> packageVersions;
+        private static string PackageVersion(string name)
+        {
+            if (!Enabled) return null;
+            if (packageVersions == null)
+            {
+                packageVersions = new Dictionary<string, string>(StringComparer.Ordinal);
+                foreach (string line in Resources.Load<TextAsset>(Marker).text.Split(
+                    new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    string[] parts = line.Split('|');
+                    if (parts.Length == 2) packageVersions[parts[0]] = parts[1];
+                }
+            }
+            return packageVersions.TryGetValue(name, out string version) ? version : null;
+        }
+        private static string SupporterVersion() => PackageVersion(SupporterName);
         public static IEnumerator LoadSupporter()
         {
             string version = SupporterVersion();
@@ -137,14 +151,7 @@ namespace MotorCity.World
         }
         private const string FleetName = "motorcity-fleet.bundle";
         private static AssetBundle fleet;
-        private static string FleetVersion()
-        {
-            if (!Enabled) return null;
-            return Resources.Load<TextAsset>(Marker).text.Split(new[] { '\r', '\n' },
-                StringSplitOptions.RemoveEmptyEntries)
-                .Where(line => line.StartsWith(FleetName + "|", StringComparison.Ordinal))
-                .Select(line => line.Split('|')[1]).FirstOrDefault();
-        }
+        private static string FleetVersion() => PackageVersion(FleetName);
 
         public static bool FleetReady => fleet != null || string.IsNullOrEmpty(FleetVersion());
 
