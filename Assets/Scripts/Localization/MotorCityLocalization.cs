@@ -373,7 +373,7 @@ namespace MotorCity.Localization
                 { "common.rep", E("Репутация", "Reputation") },
                 { "common.level", E("Ур.", "Lvl") },
                 { "common.xp", E("Опыт", "XP") },
-                { "common.kmh", E("Км/Ч", "Km/H") },
+                { "common.kmh", E("КМ/Ч", "KM/H") },
                 { "common.gold", E("Золото", "Gold") },
                 { "common.silver", E("Серебро", "Silver") },
                 { "common.bronze", E("Бронза", "Bronze") },
