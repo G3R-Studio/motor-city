@@ -8,7 +8,7 @@ Motor City — открытый городской автомобильный с
 
 Владелец тестирует Unity и Windows-браузер локально. Ассистент читает приватный GitHub, проверяет актуальный HEAD, вносит малые согласованные изменения в main, сообщает SHA и точные действия. Не утверждать, что Unity запускалась дистанционно. После каждого принятого эксперимента обновлять этот roadmap: дата, SHA, методика, до/после, результат, известные ошибки, следующий шаг. Не начинать новый этап без результатов предыдущего.
 
-**Точка остановки:** загрузка оптимизирована и проверена в Sandbox. Следующая задача — измерить runtime baseline после успешного Render Audit; затем определить CPU/GPU/память-узкое место и выбрать первый измеримый рендер-эксперимент. Никаких массовых изменений импорта, LOD, материалов или коллайдеров до аудита.
+**Актуальная точка остановки (19.11.2026, после P3):** визуальное оформление завершено владельцем; загрузка split city подтверждена в Sandbox. P0 — базовый инвентарь и Editor/WebGL baseline выполнены; расширенная диагностика GPU/Draw Calls, мобильные устройства и повторяемость остаются открытыми. P1 — аудит Read/Write и пилот 10 мешей завершены, rollout отклонён. P2 — два LOD-пилота завершены, rollout отложен. P3 — 489 фонарей A/B завершён, rollout отклонён. **Следующий шаг P4: обратимый SSAO A/B в Unity Play Mode**, сначала проверить актуальные URP renderer feature и runtime quality overrides, затем отдельный ON/OFF без изменения ассетов. Не повторять P0–P3 без новых оснований. WebGL собирать только на значимых контрольных точках по согласованию с владельцем.
 
 ## 1. Цели и исходная база
 
@@ -72,7 +72,23 @@ World/ — относительно Assets/Scripts/. Базовые URP наст
 
 ## 4. Очередь оптимизации рендера
 
-### P0 — аудит и контрольная точка (следующий шаг)
+### Сводный статус на 19.11.2026
+
+Отметка [x] означает выполнение конкретной задачи или завершение эксперимента, а не принятие экспериментальной оптимизации в релиз. Подробные цифры и ограничения сохранены ниже в журнале.
+
+- [x] Визуальное оформление: адаптивное главное меню, резкость текста, отступы glow в настройках, удаление лишних разделителей настроек/паузы. Владелец завершил визуальный этап. Коммиты dd81bea, 0222f2f, 82db998, 944853d.
+- [x] P0: Render Audit (d3ba106, fix 1cc31e9, результат 58c5eb6); Editor baseline (6f99d53, f2b71fe), WebGL baseline (f1b00d5, fix 91f56a1, результат 09b4040). Editor 256.612 FPS, WebGL 78.705 FPS (Medium, 1512×911, RTX2080, p95 16 ms, p99 18 ms, 383391981 B peak Unity memory). Разрешения/маршруты различались. GPU time/Draw Calls/Batches не подтверждены; полная диагностика открыта.
+- [x] P1: Mesh Readability Audit (6cefb29, результат 4486d99); 94 FBX, 82 HOLD, 12 REVIEW без прямого использования в CityVisual. Декор не меняли. Runtime CPU-copy pilot (1be168b, результат 14836f0): 10 мешей, 71.286 FPS, peak Unity memory 378345709 B; per-mesh оценка не изменилась. Не доказана экономия, нет выигрыша FPS. Не включать автоматически.
+- [x] P2: native Mesh LOD, первые 10 моделей/16 renderer (b6cbb01, 3b05aa3, fix fcf8239, отчёты 1f0f44f, ba6975d): OFF 250.087 → ON 261.103 FPS, но один A/B и −0.7% triangles. Расширение (c584a97, результат 8053205): 28/30 новых моделей, 114 renderer; OFF 248.766 → ON 247.842 FPS, triangles не снизились. Не внедрять; native LOD selection не подтверждён.
+- [x] P3: Lamp Instancing Pilot (445d403, результат 47e2b44), 489 renderer; OFF 251.478 → ON 248.273 FPS; SetPass 181.704 → 199.467. Реальные instanced draws не подтверждены. Не внедрять.
+- [ ] P4: SSAO A/B — начинать здесь; далее остальные эффекты по измерениям.
+- [ ] P5/P6: HLOD, visibility, CPU/traffic/physics/UI; не выполнены.
+- [ ] Перед будущим WebGL checkpoint исключить локальные тестовые LOD-копии Assets/Resources/MotorCityLodPilot и Assets/Resources/MotorCityLodExpanded из сборки (проверить, что это только сгенерированные тестовые данные; не удалять оригиналы). Не коммитить эти папки как production assets.
+
+**Рабочий процесс:** владелец просит не пересобирать WebGL на каждый пилот. Использовать Unity Play Mode, A/B в одном положении и разрешении, остальные пилоты OFF, 60 секунд после прогрева, отдельные timestamped отчёты. Editor baseline не является доказательством выигрыша в браузере. Финальная WebGL проверка — после значимого этапа, не после каждого коммита.
+
+
+### P0 — аудит и контрольная точка (базовые проверки выполнены)
 - [x] Проверить добавленный Tools > Motor City > Audit > Render Audit (название предложено), вывод Library/MotorCityRenderAudit.txt; **только чтение**, никаких SaveAssets, перемещений, правок импорта.
 - [ ] Сканировать сцены, CityVisual и все реальные runtime roots/Resources, включая содержимое отдельного bundle, автомобили, гараж, персонажей, UI, динамические пути Resources.Load/LoadAll. Отличать authoring от runtime. Не путать исходный размер/packed/HTTP/память.
 - [ ] Текстуры: GUID, пути, тип, размер импортированного изображения, формат и platform overrides Desktop/Mobile, mipmaps, Read/Write, alpha/sRGB, estimated GPU/CPU memory; одинаковые GUID и отдельные GUID с визуально одинаковым содержимым — различные случаи. Отчёт по потребителям (материалы, префабы, сцены); не удалять.
@@ -82,10 +98,10 @@ World/ — относительно Assets/Scripts/. Базовые URP наст
 - [ ] Контрольный маршрут: одинаковые сохранение, положение/камера, пресет, разрешение/DPR, дальность, транспорт, день и ночь, одинаковая сцена трафика и 30–60 с измерений после прогрева. Отдельно холодная загрузка и повторный запуск, мобильный браузер. Не включать DevTools throttling или FPS limit только в одном из вариантов.
 - [ ] По итогам выбрать направление на основе bottleneck. CPU draw calls → instancing/HLOD; GPU triangles → LOD; GPU fill → SSAO/overdraw/render scale; память → Read/Write/форматы. Не обещать прирост заранее.
 
-**Результат P0 asset inventory, 19.11.2026:** отчёт COMPLETE, WebGL, 245 roots / 862 paths. 193 Texture2D (66 101 910 editorRuntimeBytes, все readable=False); 1104 Mesh (168 258 072 editorRuntimeBytes, 791 666 уникальных треугольников), 966 readable (151 012 904 байт суммарной оценки этих мешей, не потенциальная экономия). CityVisual: 21 582 renderer, 8 504 collider, 3 LODGroup, 777 Light; это авторские компоненты, не активные одновременно. Группы mesh/material/submesh: корпус StreetLight-01 489 экземпляров (2 submeshes), Flowerbed-07 394 с Atlas-1, части светофоров до 900. Светофоры динамические — не первый кандидат. Тяжёлые меши: garage.fbx ~1.83 MB (readable false), Border-Block-05 Trees ~1.78 MB, BR-003 ~1.55 MB, EC-009 ~1.53 MB. Atlas-1 2048 DXT1 ~5.62 MB — оставить пока. Все цифры — редакторская оценка, не замеры WebGL GPU/heap/draw calls. Инструмент исправлен в 1cc31e9 (TryGetComponent). Отчёт не даёт доказательства безопасности отключения Mesh Read/Write. Следующий шаг: Tools > Motor City > Audit > Start Performance Baseline (60s) в Play Mode; Library/MotorCityPerformanceBaseline.txt. Сначала 60 секунд после прогрева на одном пресете и разрешении. Это Editor baseline, не WebGL. Недоступные счётчики N/A; затем отдельный WebGL Release контроль.  затем проверка потребителей readable meshes и один малый обратимый пилот. Текстурный Read/Write уже отключён; не повторять.
+**Результат P0 asset inventory, 19.11.2026:** отчёт COMPLETE, WebGL, 245 roots / 862 paths. 193 Texture2D (66 101 910 editorRuntimeBytes, все readable=False); 1104 Mesh (168 258 072 editorRuntimeBytes, 791 666 уникальных треугольников), 966 readable (151 012 904 байт суммарной оценки этих мешей, не потенциальная экономия). CityVisual: 21 582 renderer, 8 504 collider, 3 LODGroup, 777 Light; это авторские компоненты, не активные одновременно. Группы mesh/material/submesh: корпус StreetLight-01 489 экземпляров (2 submeshes), Flowerbed-07 394 с Atlas-1, части светофоров до 900. Светофоры динамические — не первый кандидат. Тяжёлые меши: garage.fbx ~1.83 MB (readable false), Border-Block-05 Trees ~1.78 MB, BR-003 ~1.55 MB, EC-009 ~1.53 MB. Atlas-1 2048 DXT1 ~5.62 MB — оставить пока. Все цифры — редакторская оценка, не замеры WebGL GPU/heap/draw calls. Инструмент исправлен в 1cc31e9 (TryGetComponent). Отчёт не даёт доказательства безопасности отключения Mesh Read/Write. Editor и WebGL baseline затем выполнены, см. журнал. Текстурный Read/Write уже отключён; не повторять.
 
-### P1 — память и текстуры
-- [ ] Проверить Read/Write у Texture2D: отключать маленькими группами только при отсутствии CPU доступа (GetPixels/SetPixels, LoadRawTextureData, packing, runtime generation и т. п.). Не менять normal/sRGB/alpha.
+### P1 — память и текстуры (Read/Write исследован, rollout отложен)
+- [x] Проверить Read/Write у Texture2D: все 193 текстуры в Render Audit уже non-readable. Не повторять массовое отключение.
 - [ ] Проверить Read/Write у Mesh: поиск vertices/triangles/GetVertices, CombineMeshes, MeshCollider, Physics.BakeMesh, nonuniform/negative scale, cooking; не отключать у коллизий без доказательства. Учитывать предупреждение Unity о 335 мешах с отключённым pre-baked collision — отдельная совместимость, не массовый переключатель.
 - [ ] Mipmaps для 3D сохранить; проверять UI/иконки без mipmaps; texture mip limits/streaming в WebGL проверять на поддержку. Разрешение уменьшать только по screen coverage и визуальному A/B. Отдельный ASTC Mobile кандидат, измерить реальную поддержку устройств, fallback в несжатую память и сборку; Desktop DXT оставить.
 - [ ] Проверить неиспользуемые alpha-каналы, normal maps, варианты материалов, реальные ссылки. Сначала отчёт. Изменение альфа может сломать cutout-растительность/стёкла/эмиссию.
@@ -94,23 +110,24 @@ World/ — относительно Assets/Scripts/. Базовые URP наст
 ### P1a — шрифты (низкий приоритет)
 - [x] Проверить пять TTF в Assets/Resources/MotorCity/Fonts: RobotoCondensed Regular/Bold (1,019,060 байт суммарно, используются MotorCityTypography), Roboto Regular и Ubuntu Regular/Bold (1,198,596 байт суммарно, кандидаты). GitHub search не обнаружил ссылок на последние три по имени/GUID, но не является доказательством отсутствия зависимостей.
 - [x] Запустить Tools > Motor City > Audit > Font Dependencies; отчёт Library/MotorCityFontAudit.txt. Проверить ссылки по AssetDatabase.GetDependencies и динамические загрузки, fallback/локализацию. Аудит ничего не меняет.
-- [ ] Только после проверки вынести неиспользуемые TTF вместе с .meta из Resources, не удаляя исходники/лицензии. Сохранить GUID. Сравнить фактический .data.br и интерфейс на всех языках, не ожидать существенного FPS-выигрыша. Проверять Canvas rebuild и обновления текста отдельно.
+- [x] Вынести три неиспользуемых TTF вместе с .meta из Resources, сохранив GUID и лицензии (`e97745a`).
+- [ ] Сравнить фактический .data.br и проверить интерфейс на всех языках; отдельно Canvas rebuild и обновления текста.
 
 19.11.2026: локальный Font Audit завершён (COMPLETE), прямых ссылок на три кандидата нет; по именам/GUID и динамическим путям найдены только Roboto Condensed Regular/Bold. Roboto-Regular, Ubuntu-Regular и Ubuntu-Bold перемещены в Assets/ArchivedFonts с исходными .meta и blob SHA. Лицензии не изменены. 1 198 596 байт исходников исключены из Resources; фактический выигрыш и локализация требуют проверки следующей сборки.
 
-### P2 — LOD геометрии
+### P2 — LOD геометрии (пилоты зданий завершены, rollout отложен)
 - [ ] Инвентаризация существующих LODGroup и фактического влияния maxLOD=1 на Low/Medium.
 - [ ] Пилот одной группы повторяемых статических зданий, затем деревья, фонари/заборы, машины трафика, припаркованные авто. LOD1/2 отдельными render-мешами с сохранением UV/normal/material/submesh, bounds, силуэта. Существующий LOD0 сохранить, не менять геометрию коллизий, размеры, позиции, трафик и дороги.
 - [ ] Screen-relative thresholds + hysteresis при необходимости; проверить pop-in, повороты камеры, границы тумана, ночь, разные пресеты, близкие/далёкие объекты. Проверять, что cross-fade не удваивает стоимость слишком долго.
 - [ ] Не создавать LOD всему городу разом. Проверить размер отдельного пакета и память: дополнительные LOD тоже занимают место.
 
-### P3 — draw calls и повторяющиеся объекты
+### P3 — draw calls и повторяющиеся объекты (пилот фонарей завершён, rollout отклонён)
 - [ ] После отчёта выбрать крупную группу одинаковых mesh+submesh+material (деревья, фонари, знаки, ограждения, здания). Сравнить SRP Batcher baseline и instancing под WebGL2. Enable Instancing не гарантирует GPU batching; учесть shader passes, SRP Batcher precedence, material properties, прозрачность и тени.
 - [ ] При реальном выигрыше рассмотреть explicit instancing с ограниченными группами/пространственными ячейками, корректной видимостью и исходными коллайдерами. Не использовать каждую технику одновременно без A/B.
 - [ ] Не создавать уникальные renderer.material на каждый экземпляр без необходимости; проверить shared materials и свойства. MaterialPropertyBlock может ухудшить совместимость с SRP Batcher.
 - [ ] Static batching/CombineMeshes только после оценки роста памяти, возможности отсечения и статической природы объектов; не объединять весь город.
 
-### P4 — свет, шейдеры, overdraw и разрешение
+### P4 — свет, шейдеры, overdraw и разрешение (СЛЕДУЮЩИЙ ЭТАП)
 - [ ] Проверить реальную стоимость SSAO (особенно Low/Medium), HDR, MSAA, постобработки, URP Forward+/Forward, render targets, дополнительные lights. Сравнение в Frame Debugger и release. Не менять все сразу.
 - [ ] Тени: Low/Medium уже имеют нулевую дальность, High 40 м; исключать мелкие второстепенные shadow casters выборочно, оставлять главные здания и авто. Не ломать ночные фары, окна и фонари.
 - [ ] Simple Lit вместо Lit только на подходящих второстепенных материалах; не заменять оригиналы глобально. Проверить normal/emission, отражения, прозрачность.
@@ -155,7 +172,7 @@ World/ — относительно Assets/Scripts/. Базовые URP наст
 
 ## 8. Журнал / следующий запрос
 
-19.11.2026 — раздельная загрузка города подтверждена в Sandbox, QA 21 МБ/3,02 с. managed Gzip отменён. Рендер-аудит исходников показал существующие culling/quality системы и кандидатов на оптимизацию. Фактический полный runtime-аудит не выполнен. Read-only Render Audit завершён владельцем, результаты внесены в P0. Runtime-профилирование остаётся следующим шагом. После запуска владельцем разобрать отчёт, записать данные здесь и выбрать P1/P2/P3/P4 по bottleneck.
+19.11.2026 — раздельная загрузка города подтверждена в Sandbox, QA 21 МБ/3,02 с. managed Gzip отменён. Рендер-аудит исходников показал существующие culling/quality системы и кандидатов на оптимизацию. Фактический полный runtime-аудит не выполнен. Read-only Render Audit завершён владельцем, результаты внесены в P0. Базовое runtime-профилирование завершено; исторические шаги ниже. Актуальная задача — P4 SSAO A/B.
 
 Для нового чата достаточно: «Открой G3R-Studio/motor-city, Docs/Roadmap-1.1.md, проверь текущий HEAD и продолжи с точки остановки. Не меняй ассеты без аудита, тестируем по одному эксперименту».
 
@@ -192,3 +209,7 @@ P2 expanded Editor A/B: selected 30, generated 28 (BB-017, EC-010 topology misma
 P3: Editor-only Lamp Instancing Pilot ON/OFF. Exact StreetLight-01 body mesh from authored prefab; exclude static batches, existing property blocks, inactive and alpha renderers; shared temporary material clones with enableInstancing and per-renderer unused marker MPB to remove SRP Batcher compatibility for selected objects only. Restore materials/blocks on OFF / play exit / assembly reload. Light components, _LightV, colliders and authored assets unchanged. Actual instancing requires shader support and Frame Debugger confirmation (Draw Mesh (Instanced)); marker/block may prevent batching, so no performance assertion. Baseline logs lampInstancingRenderers. Compare OFF/ON at same viewpoint, LOD OFF; inspect Frame Debugger outside timed captures. Local compile/test pending, no WebGL build.
 
 P3 lamp Editor A/B COMPLETE: 489 body renderers, LOD OFF, 1292×727. OFF 251.478 FPS, 3.976 ms, p95 4.989, p99 7.959, SetPass 181.704, peak memory 2845017830. ON 248.273 FPS, 4.028 ms, p95 4.970, p99 7.732, SetPass 199.467, peak memory 2854375446. No demonstrated benefit; instanced draws not confirmed, Draw Calls/Batches unavailable. Keep OFF; do not roll out. Next P4 controlled Editor A/B of expensive rendering features, starting SSAO, check visual tradeoffs; WebGL validation at phase checkpoint only.
+
+### Передача в новый чат — актуальная инструкция
+
+Прочитать этот roadmap целиком из текущего main G3R-Studio/motor-city; исторические «следующие шаги» в журнале относятся к датам соответствующих экспериментов. Продолжить P4 с SSAO A/B в Editor, не повторять завершённые пилоты. Проверить текущие настройки и код до правок, не менять визуал по умолчанию, не трогать сохранения, коллайдеры, GUID. Вносить небольшие обратимые коммиты в main, проверять HEAD, сообщать SHA и точные действия владельцу. Не утверждать, что локальная компиляция проверена удалённо. Обновлять roadmap по итогам каждого теста.
