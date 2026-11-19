@@ -1245,9 +1245,8 @@ namespace MotorCity.UI
                     ? "ЗВУК"
                     : "AUDIO",
                 out settingsAudioText,
-                () => AdjustAudio(-1),
-                () => AdjustAudio(1),
-                ToggleAudio);
+                null, null, ToggleAudio,
+                controls => settingsAudioSlider = MotorCityVolumeSlider.Create(controls, hud != null ? hud.FrontEndAudioVolume : frontEndAudioVolume, SetAudioSlider));
 
             CreateFrontEndSettingsLayoutRow(
                 window.Content,
@@ -1255,9 +1254,8 @@ namespace MotorCity.UI
                     ? "МУЗЫКА"
                     : "MUSIC",
                 out settingsMusicText,
-                () => AdjustMusic(-1),
-                () => AdjustMusic(1),
-                ToggleMusic);
+                null, null, ToggleMusic,
+                controls => settingsMusicSlider = MotorCityVolumeSlider.Create(controls, MotorCityMusicRuntime.Volume, v => { MotorCityMusicRuntime.SetVolume(v); RefreshSettingsText(); }));
 
             CreateFrontEndSettingsLayoutRow(
                 window.Content,
@@ -2969,8 +2967,28 @@ namespace MotorCity.UI
                     : (IsRussian() ? "НАЧАТЬ ИГРАТЬ" : "START GAME");
         }
 
+        private Slider settingsAudioSlider, settingsMusicSlider;
+        private void SetAudioSlider(float volume)
+        {
+            frontEndAudioVolume = volume;
+            if (hud != null)
+            {
+                frontEndAudioMuted = hud.FrontEndAudioMuted;
+                hud.FrontEndApplyAudioSettings(frontEndAudioMuted, volume);
+            }
+            else
+            {
+                MotorCitySaveService.SetFloat(AudioVolumeKey, volume);
+                MotorCitySaveService.Save();
+                ApplyFrontEndAudioVolume();
+            }
+            RefreshSettingsText();
+        }
+
         private void RefreshSettingsText()
         {
+            if (settingsAudioSlider != null) settingsAudioSlider.SetValueWithoutNotify(Mathf.RoundToInt((hud != null ? hud.FrontEndAudioVolume : frontEndAudioVolume) * 100f));
+            if (settingsMusicSlider != null) settingsMusicSlider.SetValueWithoutNotify(Mathf.RoundToInt(MotorCityMusicRuntime.Volume * 100f));
             if (settingsQualityText != null)
             {
                 settingsQualityText.text =
