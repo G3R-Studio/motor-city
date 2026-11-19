@@ -22,7 +22,7 @@ namespace MotorCity.World
             markerActivityId = activityId;
 
             GameObject prefab =
-                Resources.Load<GameObject>(
+                MotorCity.World.MotorCityCityBundle.LoadGameplay<GameObject>(
                     resourcePath);
 
             if (prefab != null)
