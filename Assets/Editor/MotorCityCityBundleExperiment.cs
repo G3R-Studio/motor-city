@@ -653,9 +653,7 @@ namespace MotorCity.EditorTools
             {
                 try
                 {
-                    var analyzer = AppDomain.CurrentDomain.GetAssemblies()
-                        .Select(a => a.GetType("Playgama.Editor.BuildAnalyzer", false))
-                        .FirstOrDefault(t => t != null);
+                    var analyzer = Type.GetType("Playgama.Editor.BuildAnalyzer, Playgama.Bridge.Editor", false);
                     if (analyzer != null)
                     {
                         var method = analyzer.GetMethod("AnalyzeReport",
