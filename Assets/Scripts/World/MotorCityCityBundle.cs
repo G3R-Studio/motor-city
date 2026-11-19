@@ -19,6 +19,42 @@ namespace MotorCity.World
             public Bounds[] localBounds;
         }
         private static DistrictCatalog catalog;
+        internal sealed class WarmDistrict
+        {
+            public AssetBundle Bundle;
+            public Dictionary<string, Mesh> Meshes;
+        }
+        internal static readonly Dictionary<string, WarmDistrict> Warm = new();
+        public static bool DistrictStreamingEnabled => catalog != null;
+
+        private static IEnumerator WarmSpawnDistricts()
+        {
+            if (catalog?.districts == null) yield break;
+            var position = CityAssetRuntimeInstaller.PlayerSpawnPoint;
+            float radius = MotorCityVisibilityRuntime.FarClipDistance + 160f;
+            var nearby = catalog.districts.Where(d => d.bounds.SqrDistance(position) <= radius * radius)
+                .OrderBy(d => d.bounds.SqrDistance(position)).ToArray();
+            foreach (var district in nearby)
+            {
+                string url = Application.streamingAssetsPath.TrimEnd('/') + "/" + district.file;
+                using (var request = UnityWebRequestAssetBundle.GetAssetBundle(url, Hash128.Parse(district.hash)))
+                {
+                    request.timeout = 120;
+                    yield return request.SendWebRequest();
+                    if (request.result != UnityWebRequest.Result.Success) continue;
+                    var loaded = DownloadHandlerAssetBundle.GetContent(request);
+                    if (loaded == null) continue;
+                    var assets = loaded.LoadAllAssetsAsync<Mesh>();
+                    yield return assets;
+                    var meshes = new Dictionary<string, Mesh>(StringComparer.Ordinal);
+                    foreach (var asset in assets.allAssets)
+                        if (asset is Mesh mesh) meshes[mesh.name] = mesh;
+                    if (district.meshNames.All(meshes.ContainsKey))
+                        Warm[district.file] = new WarmDistrict { Bundle = loaded, Meshes = meshes };
+                    else loaded.Unload(true);
+                }
+            }
+        }
         public static void AttachDistricts(GameObject city)
         {
             if (catalog == null || catalog.districts == null || city == null) return;
@@ -76,11 +112,13 @@ namespace MotorCity.World
                         Progress = 0.85f + 0.15f * load.progress;
                         yield return null;
                     }
-                    prefab = load.asset as GameObject;
-                    if (prefab != null)
+                    var loadedPrefab = load.asset as GameObject;
+                    if (loadedPrefab != null)
                     {
                         var metadata = bundle.LoadAsset<TextAsset>("MotorCity/DistrictCatalog");
                         catalog = metadata != null ? JsonUtility.FromJson<DistrictCatalog>(metadata.text) : null;
+                        yield return WarmSpawnDistricts();
+                        prefab = loadedPrefab;
                         Progress = 1f;
                         running = false;
                         yield break;
@@ -142,7 +180,15 @@ namespace MotorCity.World
             {
                 for (int i = 0; i < data.rendererIndices.Length; i++)
                     renderers[data.rendererIndices[i]].localBounds = data.localBounds[i];
-                states.Add(new State { Data = data });
+                var state = new State { Data = data };
+                if (MotorCityCityBundle.Warm.TryGetValue(data.file, out var warm))
+                {
+                    state.Bundle = warm.Bundle;
+                    for (int i = 0; i < data.rendererIndices.Length; i++)
+                        renderers[data.rendererIndices[i]].GetComponent<MeshFilter>().sharedMesh = warm.Meshes[data.meshNames[i]];
+                    MotorCityCityBundle.Warm.Remove(data.file);
+                }
+                states.Add(state);
             }
             initialized = true;
         }
