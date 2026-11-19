@@ -387,8 +387,31 @@ namespace MotorCity.EditorTools
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode || BuildPipeline.isBuildingPlayer)
                 throw new InvalidOperationException("Exit Play Mode and finish any current build.");
-            if (LocalPilotRoots.Any(p => Exists(ParkedPilotRoot(p))) || AssetDatabase.IsValidFolder(DistrictRoot) || File.Exists(MarkerPath) || File.Exists(TemporaryCity) || !File.Exists(City) || ExtraRoots.Any(n => Exists(TemporaryRoot(n)) || !Exists(EnvironmentRoot + n)))
-                throw new InvalidOperationException("City path unexpected. Use Restore City After Experiment before building.");
+            // Recover interrupted builds automatically, but never overwrite an
+            // original asset or delete a temporary folder with ambiguous ownership.
+            var pairs = ExtraRoots.Select(n => (original: EnvironmentRoot + n, moved: TemporaryRoot(n)))
+                .Concat(LocalPilotRoots.Select(p => (original: p, moved: ParkedPilotRoot(p))))
+                .Append((original: City, moved: TemporaryCity)).ToArray();
+            var conflicts = pairs.Where(p => Exists(p.original) && Exists(p.moved)).ToArray();
+            if (conflicts.Length != 0)
+                throw new InvalidOperationException("Conflicting asset paths; neither copy was changed: " +
+                    string.Join("; ", conflicts.Select(p => p.original + " / " + p.moved)));
+            var missing = pairs.Where(p => !LocalPilotRoots.Contains(p.original) &&
+                !Exists(p.original) && !Exists(p.moved)).Select(p => p.original).ToArray();
+            if (missing.Length != 0)
+                throw new InvalidOperationException("Missing original assets: " + string.Join("; ", missing));
+            if (pairs.Any(p => Exists(p.moved)) || Exists(DistrictRoot) || Exists(MarkerPath))
+            {
+                Debug.Log("Motor City: recovering temporary assets from interrupted build.");
+                Restore();
+                AssetDatabase.Refresh();
+            }
+            var unresolved = pairs.Where(p => Exists(p.moved) ||
+                (!LocalPilotRoots.Contains(p.original) && !Exists(p.original))).Select(p => p.original).ToArray();
+            if (unresolved.Length != 0 || Exists(DistrictRoot) || Exists(MarkerPath))
+                throw new InvalidOperationException("Build recovery incomplete: " +
+                    string.Join("; ", unresolved) + "; temporary district folder=" + Exists(DistrictRoot) +
+                    "; marker=" + Exists(MarkerPath));
             var profile = BuildProfile.GetActiveBuildProfile();
             if (profile == null || AssetDatabase.GetAssetPath(profile) != Profile ||
                 EditorUserBuildSettings.activeBuildTarget != BuildTarget.WebGL ||
