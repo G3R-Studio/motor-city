@@ -15,7 +15,8 @@ namespace MotorCity.Platform
             FocusLost = 1 << 0,
             ApplicationPaused = 1 << 1,
             PlatformModal = 1 << 2,
-            PlatformEvent = 1 << 3
+            PlatformEvent = 1 << 3,
+            GameplayWindow = 1 << 4
         }
 
         private static MotorCityPlatformRuntime instance;
@@ -139,6 +140,11 @@ namespace MotorCity.Platform
                 paused;
 
             instance.ReconcilePlatformGameplay();
+        }
+
+        public static void SetGameplayWindowPaused(bool paused)
+        {
+            if (instance != null) instance.SetPauseReason(PauseReason.GameplayWindow, paused);
         }
 
         public static void SetPlatformEventPaused(
