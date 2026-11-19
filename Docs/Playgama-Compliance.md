@@ -29,3 +29,5 @@ SDK: https://wiki.playgama.com/playgama/bridge-sdk/getting-started
 
 ## Scope
 Reviewed accessible general requirements and SDK-related implementation. Some current documentation pages (engine-specific, self-check, platform/storage API markdown) were inaccessible during audit; do not claim exhaustive page-by-page verification. No Unity compiler or browser QA execution in this audit. Final certification remains with Playgama.
+
+- Engine-specific requirement 5.1.1: WebGL Decompression Fallback enabled in project and both Web profiles; compressed payload inventory accepts .unityweb. Verify hosted startup before release.
