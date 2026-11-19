@@ -438,15 +438,7 @@ namespace MotorCity.UI
                     break;
                 }
             }
-
-            Shadow shadow =
-                go.AddComponent<Shadow>();
-
-            shadow.effectColor =
-                new Color(0f, 0f, 0f, fontSize <= 18 ? 0.40f : 0.72f);
-            shadow.effectDistance =
-                new Vector2(1f, -1f);
-            shadow.useGraphicAlpha = true;
+            // Avoid duplicated glyph edges on small HUD labels.
 
             // Previously assigned by HudVisualPolish after the HUD was built.
             // Text and its shadow now have a single visual owner.
