@@ -6,7 +6,7 @@ namespace MotorCity.Platform
     public static class MotorCityBuildingLodPilot
     {
         private static readonly Dictionary<MeshFilter, Mesh> lodOriginals = new();
-        private static readonly Dictionary<MeshRenderer, int> lodOverrides = new();
+        private static readonly Dictionary<MeshRenderer, short> lodOverrides = new();
         private static bool lodPilotEnabled;
         public static bool Enabled => lodPilotEnabled;
         public static int RendererCount => lodOriginals.Count;
