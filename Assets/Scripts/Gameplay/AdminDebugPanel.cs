@@ -754,7 +754,7 @@ namespace MotorCity.Gameplay
                 _ => "Profession"
             };
 
-            GameObject prefab = Resources.Load<GameObject>(
+            GameObject prefab = MotorCity.World.MotorCityCityBundle.LoadGameplay<GameObject>(
                 "MotorCity/Markers/" + prefabName + "MarkerVfx");
             if (prefab == null)
             {
