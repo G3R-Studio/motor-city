@@ -560,7 +560,7 @@ namespace MotorCity.UI
             string resourcePath)
         {
             Sprite sprite =
-                Resources.Load<Sprite>(
+                MotorCity.World.MotorCityCityBundle.LoadGameplay<Sprite>(
                     resourcePath);
 
             if (sprite != null)
@@ -569,7 +569,7 @@ namespace MotorCity.UI
             }
 
             Texture2D fallbackTexture =
-                Resources.Load<Texture2D>(
+                MotorCity.World.MotorCityCityBundle.LoadGameplay<Texture2D>(
                     resourcePath);
 
             if (fallbackTexture != null)
