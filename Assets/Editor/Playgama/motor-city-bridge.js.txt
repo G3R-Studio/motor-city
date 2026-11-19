@@ -27,9 +27,15 @@
     if (type === 'rewarded' && state === 'rewarded') request.earned = true;
     if (state === 'closed' || state === 'failed') request.finish();
   }
+  function deadline(promise, stage) {
+    let timer;
+    return Promise.race([promise, new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error('Motor City: ' + stage + ' timed out')), 20000);
+    })]).finally(() => clearTimeout(timer));
+  }
   window.motorCityBridgeReady = Promise.resolve().then(() => {
     if (!window.bridge) throw new Error('Playgama Bridge script failed to load');
-    return bridge.initialize();
+    return deadline(bridge.initialize(), 'Bridge initialization');
   }).then(async () => {
     env.language = bridge.platform.language || 'en';
     env.audioEnabled = bridge.platform.isAudioEnabled !== false;
@@ -47,7 +53,7 @@
 
     // Passing false prevents automatic JSON conversion. Do not overwrite existing
     // progress if the initial read fails or the stored document cannot be decoded.
-    const values = await bridge.storage.get([key], false);
+    const values = await deadline(bridge.storage.get([key], false), 'save read');
     const raw = values[0];
     if (raw != null && raw !== '') {
       const document = typeof raw === 'string' ? JSON.parse(raw) : raw;
