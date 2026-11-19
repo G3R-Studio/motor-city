@@ -69,6 +69,9 @@ namespace MotorCity.EditorTools
         private const string DistrictRoot = "Assets/MotorCity_DistrictBuildTemp";
         private const string DistrictCity = DistrictRoot + "/CityVisual.prefab";
         private const string DistrictCatalogPath = DistrictRoot + "/DistrictCatalog.json";
+        private const string HlodPath = DistrictRoot + "/CityHlodData.asset";
+        [MenuItem("Tools/Motor City/Build/Build HLOD Split City Candidate")]
+        private static void BuildHlod() => Run(true, false, true);
         [MenuItem("Tools/Motor City/Build/Build District Streaming Test")]
         private static void BuildDistricts() => Run(true, true);
 
@@ -198,8 +201,110 @@ namespace MotorCity.EditorTools
             return catalog;
         }
 
+        // In a separate candidate, merge the exact distant geometry, not bounds boxes.
+        // Only one opaque material, immutable transforms and no lightmap/LOD owners.
+        // The authored prefab and all collider meshes remain intact.
+        private static bool PrepareHlod()
+        {
+            AssetDatabase.CreateFolder("Assets", "MotorCity_DistrictBuildTemp");
+            var source = AssetDatabase.LoadAssetAtPath<GameObject>(TemporaryCity);
+            var clone = (GameObject)PrefabUtility.InstantiatePrefab(source);
+            try
+            {
+                var renderers = clone.GetComponentsInChildren<MeshRenderer>(true);
+                var groups = new Dictionary<Vector2Int, List<int>>();
+                Material atlas = null;
+                for (int i = 0; i < renderers.Length; i++)
+                {
+                    var r = renderers[i];
+                    var f = r.GetComponent<MeshFilter>();
+                    var mesh = f != null ? f.sharedMesh : null;
+                    if (mesh == null || !mesh.isReadable || mesh.subMeshCount != 1 ||
+                        mesh.GetTopology(0) != MeshTopology.Triangles || mesh.vertexCount > 60000 ||
+                        !r.enabled || !r.gameObject.activeInHierarchy || r.forceRenderingOff ||
+                        r.HasPropertyBlock() || r.lightmapIndex >= 0 && r.lightmapIndex < 65534 ||
+                        r.bounds.extents.magnitude <= 7f || r.bounds.extents.magnitude > 32f ||
+                        r.GetComponentInParent<Rigidbody>() != null || r.GetComponentInParent<Animator>() != null ||
+                        r.GetComponentInParent<LODGroup>() != null || r.GetComponent<MonoBehaviour>() != null ||
+                        r.localToWorldMatrix.determinant <= 0f) continue;
+                    var mats = r.sharedMaterials;
+                    if (mats.Length != 1 || mats[0] == null ||
+                        mats[0].name != "Atlas-1_59aa769b" || mats[0].renderQueue != 2000) continue;
+                    if (atlas == null) atlas = mats[0];
+                    if (mats[0] != atlas) continue;
+                    bool protectedPath = false;
+                    for (var t = r.transform; t != clone.transform && t != null; t = t.parent)
+                    {
+                        string n = t.name.ToLowerInvariant();
+                        if (n.Contains("park-") || n.Contains("window") || n.Contains("light") ||
+                            n.Contains("traffic") || n.Contains("tree") || t.GetComponent<MonoBehaviour>() != null)
+                        { protectedPath = true; break; }
+                    }
+                    if (protectedPath) continue;
+                    var c = r.bounds.center;
+                    var key = new Vector2Int(Mathf.FloorToInt(c.x / 128f), Mathf.FloorToInt(c.z / 128f));
+                    if (!groups.TryGetValue(key, out var group)) groups.Add(key, group = new List<int>());
+                    group.Add(i);
+                }
+                var cells = new List<CityHlodCell>();
+                foreach (var group in groups.Values)
+                {
+                    // Cap both peak bake memory and individual proxy index size.
+                    var batch = new List<int>();
+                    int vertices = 0;
+                    void Flush()
+                    {
+                        if (batch.Count < 3) { batch.Clear(); vertices = 0; return; }
+                        var combine = new CombineInstance[batch.Count];
+                        var bounds = renderers[batch[0]].bounds;
+                        int triangles = 0;
+                        for (int j = 0; j < batch.Count; j++)
+                        {
+                            var r = renderers[batch[j]];
+                            var mesh = r.GetComponent<MeshFilter>().sharedMesh;
+                            combine[j] = new CombineInstance { mesh = mesh, subMeshIndex = 0, transform = r.localToWorldMatrix };
+                            bounds.Encapsulate(r.bounds);
+                            triangles += (int)mesh.GetIndexCount(0) / 3;
+                        }
+                        var proxy = new Mesh { name = "HLOD_" + cells.Count };
+                        proxy.CombineMeshes(combine, true, true);
+                        AssetDatabase.CreateAsset(proxy, DistrictRoot + "/" + proxy.name + ".asset");
+                        cells.Add(new CityHlodCell
+                        {
+                            Center = bounds.center, ProxyMesh = proxy, ProxyMaterials = new[] { atlas },
+                            SourceRendererIndices = batch.ToArray(),
+                            SourceRendererNames = batch.Select(i => renderers[i].name).ToArray(),
+                            SourceRendererCenters = batch.Select(i => renderers[i].bounds.center).ToArray(),
+                            SourceTriangles = triangles, ProxyTriangles = (int)proxy.GetIndexCount(0) / 3
+                        });
+                        batch.Clear();
+                        vertices = 0;
+                    }
+                    foreach (int index in group)
+                    {
+                        int count = renderers[index].GetComponent<MeshFilter>().sharedMesh.vertexCount;
+                        if (vertices + count > 60000) Flush();
+                        batch.Add(index);
+                        vertices += count;
+                    }
+                    Flush();
+                }
+                if (cells.Count == 0) return false;
+                var data = ScriptableObject.CreateInstance<CityHlodData>();
+                data.SourceRendererCount = renderers.Length;
+                data.Cells = cells.ToArray();
+                data.SourceTriangles = cells.Sum(c => c.SourceTriangles);
+                data.ProxyTriangles = cells.Sum(c => c.ProxyTriangles);
+                AssetDatabase.CreateAsset(data, HlodPath);
+                AssetDatabase.SaveAssets();
+                return true;
+            }
+            finally { UnityEngine.Object.DestroyImmediate(clone); }
+        }
+
         private static string Address(string path)
         {
+            if (path == HlodPath) return "MotorCity/Environment/HLOD/CityHlodData";
             if (path == DistrictCatalogPath) return "MotorCity/DistrictCatalog";
             if (path == TemporaryCity || path == DistrictCity) return "MotorCity/Environment/CityVisual";
             foreach (string name in ExtraRoots)
@@ -211,7 +316,7 @@ namespace MotorCity.EditorTools
             throw new InvalidOperationException("Unrecognized bundle root: " + path);
         }
 
-        private static void Run(bool split, bool districts = false)
+        private static void Run(bool split, bool districts = false, bool hlod = false)
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode || BuildPipeline.isBuildingPlayer)
                 throw new InvalidOperationException("Exit Play Mode and finish any current build.");
@@ -269,6 +374,11 @@ namespace MotorCity.EditorTools
                 var catalog = districts ? PrepareDistricts(districtDirectory) : null;
                 var roots = new System.Collections.Generic.List<string> { districts ? DistrictCity : TemporaryCity };
                 if (districts) roots.Add(DistrictCatalogPath);
+                if (hlod)
+                {
+                    if (!PrepareHlod()) throw new InvalidOperationException("No safe HLOD groups found.");
+                    roots.Add(HlodPath);
+                }
                 foreach (string name in ExtraRoots)
                 {
                     string moved = TemporaryRoot(name);
@@ -297,7 +407,7 @@ namespace MotorCity.EditorTools
                 long bundle = new FileInfo(Path.Combine(bundles, "motorcity-city.bundle")).Length;
                 log.AppendLine("City bundle LZ4 bytes: " + bundle);
 
-                string stripped = Path.Combine(root, split ? (districts ? "DistrictStreamingTest" : "SplitCityTest") : "NOT-FOR-RELEASE-NoCity");
+                string stripped = Path.Combine(root, split ? (districts ? "DistrictStreamingTest" : (hlod ? "HlodSplitCandidate" : "SplitCityTest")) : "NOT-FOR-RELEASE-NoCity");
                 if (split)
                 {
                     string hash = manifest.GetAssetBundleHash("motorcity-city.bundle").ToString();
