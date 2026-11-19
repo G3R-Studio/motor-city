@@ -97,7 +97,7 @@ namespace MotorCity.World
         private bool TryCreateCircuitVfx()
         {
             GameObject prefab =
-                Resources.Load<GameObject>(
+                MotorCity.World.MotorCityCityBundle.LoadGameplay<GameObject>(
                     CircuitVfxResourcePath);
 
             if (prefab == null)
