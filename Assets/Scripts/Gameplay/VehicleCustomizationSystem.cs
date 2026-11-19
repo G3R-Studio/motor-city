@@ -592,7 +592,7 @@ namespace MotorCity.Gameplay
             Transform visual)
         {
             Material paint =
-                Resources.Load<Material>(
+                MotorCity.World.MotorCityCityBundle.LoadGameplay<Material>(
                     "MotorCity/VehiclePaints/StarterPaint_" +
                     (SelectedColorIndex % 5));
 
