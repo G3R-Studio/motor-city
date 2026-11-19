@@ -49,7 +49,9 @@ class UnityWebGLHandler(SimpleHTTPRequestHandler):
         path = urlsplit(self.path).path.lower()
         if getattr(self, "city_brotli", False):
             self.send_header("Vary", "Accept-Encoding")
-        if path.endswith(".br"):
+        if path.endswith(".unityweb"):
+            pass  # Unity loader handles decompression fallback itself.
+        elif path.endswith(".br"):
             self.send_header("Content-Encoding", "br")
         elif path.endswith(".gz"):
             self.send_header("Content-Encoding", "gzip")
