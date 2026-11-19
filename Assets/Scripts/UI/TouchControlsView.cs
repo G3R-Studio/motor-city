@@ -2010,7 +2010,7 @@ namespace MotorCity.UI
 
                 SetActiveIfChanged(
                     touchUtilityRoot,
-                    !touchLayoutEditing);
+                    !garageOpen && !touchLayoutEditing);
 
                 SetActiveIfChanged(
                     touchActivityCancelRoot,
@@ -2045,7 +2045,7 @@ namespace MotorCity.UI
 
             SetActiveIfChanged(
                 touchControlsRoot,
-                true);
+                !garageOpen);
 
             ApplyTouchControlLayout();
 
@@ -2107,7 +2107,7 @@ namespace MotorCity.UI
             // already are for keyboard input.
             SetActiveIfChanged(
                 touchUtilityRoot,
-                !touchLayoutEditing);
+                !garageOpen && !touchLayoutEditing);
 
             SetActiveIfChanged(
                 touchActivityCancelRoot,
