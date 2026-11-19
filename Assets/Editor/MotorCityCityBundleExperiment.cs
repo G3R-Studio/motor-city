@@ -185,13 +185,6 @@ namespace MotorCity.EditorTools
                     throw new InvalidOperationException("Could not save district city skeleton.");
             }
             finally { UnityEngine.Object.DestroyImmediate(clone); }
-            if (output != null)
-            {
-                if (string.IsNullOrWhiteSpace(output)) return;
-                output = Path.GetFullPath(output);
-                if (Directory.Exists(output) && Directory.EnumerateFileSystemEntries(output).Any())
-                    throw new InvalidOperationException("Choose an empty output folder for the complete Playgama build.");
-            }
             AssetDatabase.SaveAssets();
             Directory.CreateDirectory(directory);
             var manifest = BuildPipeline.BuildAssetBundles(directory, builds.ToArray(),
@@ -407,6 +400,13 @@ namespace MotorCity.EditorTools
                 "Run experiment", "Cancel"))
                 return;
 
+            if (output != null)
+            {
+                if (string.IsNullOrWhiteSpace(output)) return;
+                output = Path.GetFullPath(output);
+                if (Directory.Exists(output) && Directory.EnumerateFileSystemEntries(output).Any())
+                    throw new InvalidOperationException("Choose an empty output folder for the complete Playgama build.");
+            }
             AssetDatabase.SaveAssets();
             string root = Path.GetFullPath("Builds/CityBundleExperiment/" +
                 DateTime.Now.ToString("yyyyMMdd-HHmmss-fff"));
