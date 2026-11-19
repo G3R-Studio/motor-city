@@ -31,6 +31,7 @@ namespace MotorCity.World
             Warm.Clear();
             gameplayBundles.Clear();
             fleet = null;
+            supporter = null;
             bundle = null;
             prefab = null;
             running = false;
@@ -110,6 +111,30 @@ namespace MotorCity.World
             host.StartCoroutine(Download());
         }
 
+        private const string SupporterName = "motorcity-supporter.bundle";
+        private static AssetBundle supporter;
+        public static bool SupporterReady => supporter != null || string.IsNullOrEmpty(SupporterVersion());
+        private static string SupporterVersion() => !Enabled ? null : Resources.Load<TextAsset>(Marker).text
+            .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+            .Where(line => line.StartsWith(SupporterName + "|", StringComparison.Ordinal))
+            .Select(line => line.Split('|')[1]).FirstOrDefault();
+        public static IEnumerator LoadSupporter()
+        {
+            string version = SupporterVersion();
+            if (SupporterReady) yield break;
+            for (int attempt = 0; attempt < 2; attempt++)
+            {
+                using (var request = UnityWebRequestAssetBundle.GetAssetBundle(Application.streamingAssetsPath.TrimEnd('/') + "/motorcity-supporter-" + version + ".bundle", Hash128.Parse(version)))
+                {
+                    request.timeout = 120;
+                    yield return request.SendWebRequest();
+                    if (request.result == UnityWebRequest.Result.Success) supporter = DownloadHandlerAssetBundle.GetContent(request);
+                    if (supporter != null) yield break;
+                }
+                yield return new WaitForSecondsRealtime(2f);
+            }
+            Debug.LogWarning("Motor City: supporter visual download failed.");
+        }
         private const string FleetName = "motorcity-fleet.bundle";
         private static AssetBundle fleet;
         private static string FleetVersion()
@@ -153,6 +178,7 @@ namespace MotorCity.World
             string marker = Resources.Load<TextAsset>(Marker).text.Trim();
             string[] files = marker.Contains("|") ? marker.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
                 : new[] { "motorcity-city.bundle|" + marker };
+            files = files.Where(line => !line.StartsWith(SupporterName + "|", StringComparison.Ordinal)).ToArray();
             // Only a new or already migrated starter save can defer the fleet.
             // Old roster indices must be resolved by the existing migration.
             bool starter = MotorCity.Persistence.MotorCitySaveService.GetInt("MotorCity.Vehicle.Selected", 0) == 0 &&
@@ -282,6 +308,7 @@ namespace MotorCity.World
 
         public static T LoadGameplay<T>(string path) where T : UnityEngine.Object
         {
+            if (supporter != null && supporter.Contains(path)) return supporter.LoadAsset<T>(path);
             if (fleet != null && fleet.Contains(path)) return fleet.LoadAsset<T>(path);
             if (Enabled)
                 foreach (var other in gameplayBundles)
