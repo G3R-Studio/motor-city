@@ -150,6 +150,9 @@ namespace MotorCity.EditorTools
             report.AppendLine("GPU time: N/A (not measured)");
             report.AppendLine(complete ? "COMPLETE" : "INCOMPLETE (stopped early)");
             File.WriteAllText(Output, report.ToString(), Encoding.UTF8);
+            string archive = Path.Combine("Library", "MotorCityPerformanceBaseline-" + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss-fff", CultureInfo.InvariantCulture) + ".txt");
+            File.WriteAllText(archive, report.ToString(), Encoding.UTF8);
+            Debug.Log("Archived baseline: " + archive);
             Debug.Log("Performance baseline: " + Output);
         }
     }
