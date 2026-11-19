@@ -28,9 +28,6 @@ namespace MotorCity.EditorTools
         [MenuItem("Tools/Motor City/Build/Build Split City Test")]
         private static void BuildSplit() => Run(true);
 
-        [MenuItem("Tools/Motor City/Build/Build Packed City Test")]
-        private static void BuildPacked() => Run(true, true);
-
         private static string Address(string path)
         {
             if (path == TemporaryCity) return "MotorCity/Environment/CityVisual";
@@ -43,7 +40,7 @@ namespace MotorCity.EditorTools
             throw new InvalidOperationException("Unrecognized bundle root: " + path);
         }
 
-        private static void Run(bool split, bool packed = false)
+        private static void Run(bool split)
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode || BuildPipeline.isBuildingPlayer)
                 throw new InvalidOperationException("Exit Play Mode and finish any current build.");
@@ -129,24 +126,13 @@ namespace MotorCity.EditorTools
                 if (split)
                 {
                     string hash = manifest.GetAssetBundleHash("motorcity-city.bundle").ToString();
-                    File.WriteAllText(MarkerPath, hash + (packed ? "\ngzip" : ""));
+                    File.WriteAllText(MarkerPath, hash);
                     AssetDatabase.ImportAsset(MarkerPath, ImportAssetOptions.ForceSynchronousImport);
                     Build(profile, stripped, Path.Combine(bundles, "Bundles.manifest"));
                     string streaming = Path.Combine(stripped, "StreamingAssets");
                     Directory.CreateDirectory(streaming);
                     File.Copy(Path.Combine(bundles, "motorcity-city.bundle"),
                         Path.Combine(streaming, "motorcity-city-" + hash + ".bundle"));
-                    if (packed)
-                    {
-                        string raw = Path.Combine(streaming, "motorcity-city-" + hash + ".bundle");
-                        string target = raw + ".pack";
-                        using (var input = File.OpenRead(raw))
-                        using (var output = File.Create(target))
-                        using (var gzip = new System.IO.Compression.GZipStream(output, System.IO.Compression.CompressionLevel.Optimal))
-                            input.CopyTo(gzip);
-                        log.AppendLine("Gzip pack bytes: " + new FileInfo(target).Length);
-                        log.AppendLine("Raw fallback retained for QA.");
-                    }
                     log.AppendLine("Split test output: " + stripped);
                     log.AppendLine("Split data bytes: " + DataBytes(stripped));
                     log.AppendLine("Split wasm bytes: " + WasmBytes(stripped));
