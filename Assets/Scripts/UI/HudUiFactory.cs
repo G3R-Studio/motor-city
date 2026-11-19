@@ -442,55 +442,6 @@ namespace MotorCity.UI
 
             // Previously assigned by HudVisualPolish after the HUD was built.
             // Text and its shadow now have a single visual owner.
-            float shadowAlpha = name switch
-            {
-                "Credits" => 1f,
-                "Reputation" => 0.65f,
-                "Active Objective" => 0.75f,
-                "Character Source" => 0.55f,
-                "Character Name" => 0.75f,
-                "Character Mission Title" => 0.60f,
-                "Character Line" => 0.70f,
-                "Character Reward" => 0.70f,
-                "Status Text" => 0.88f,
-                "Speed" => 0.90f,
-                "Minimap Target Label" => 0.86f,
-                "Drift Score" => 0.85f,
-                "Result Title" => 0.55f,
-                "Result Headline" => 0.90f,
-                "Result Details" => 0.65f,
-                "Result Reward" => 0.90f,
-                "Result Controls" => 0.55f,
-                "Navigator Title" => 0.80f,
-                "Navigator Index" => 0.50f,
-                "Navigator Category" => 0.50f,
-                "Navigator Selection" => 0.80f,
-                "Navigator Description" => 0.50f,
-                "Navigator Distance" => 0.50f,
-                "Club Title" => 0.80f,
-                "Club Name" => 0.80f,
-                "Club Description" => 0.55f,
-                "Club Weekly" => 0.75f,
-                _ => 0.72f
-            };
-            Transform ancestor = parent;
-            while (ancestor != null)
-            {
-                string group = ancestor.name;
-                if (group == "Touch Utility Controls" ||
-                    group == "Result Touch Controls" ||
-                    group == "Navigator Touch Controls" ||
-                    group == "Store Touch Controls" ||
-                    group == "Club Touch Controls")
-                {
-                    shadowAlpha = 0.85f;
-                    break;
-                }
-                ancestor = ancestor.parent;
-            }
-            shadow.effectColor = new Color(0f, 0f, 0f, shadowAlpha);
-            shadow.effectDistance = new Vector2(1f, -2f);
-
             return text;
         }
         private sealed class SafeAreaRuntimeUpdater :
