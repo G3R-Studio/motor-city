@@ -312,10 +312,10 @@ namespace FCG
                         NormalizeTrafficVehicleScale(
                             vcles[i].gameObject);
 
-                        vcles[i].GetComponent<TrafficCar>().distanceToSelfDestroy = around;
-                        vcles[i].GetComponent<TrafficCar>().player = player;
-                        vcles[i].GetComponent<TrafficCar>().tSystem = this;
-                        vcles[i].GetComponent<TrafficCar>().SelfDestructWhenAwayFromThePlayerInit();
+                        vcles[i].distanceToSelfDestroy = around;
+                        vcles[i].player = player;
+                        vcles[i].tSystem = this;
+                        vcles[i].SelfDestructWhenAwayFromThePlayerInit();
 
                     }
 
@@ -364,6 +364,10 @@ namespace FCG
 
             bool invert = (Random.Range(1, 20) < 10);
 
+            Vector3 spawnObserverPosition = player ? player.position : Vector3.zero;
+            float maxDistanceSquared = around * around;
+            float minDistance = firstTime ? 45f : 80f;
+            float minDistanceSquared = minDistance * minDistance;
             for (int j = 0; j < n; j++)
             {
 
@@ -379,19 +383,14 @@ namespace FCG
 
                     if (player)
                     {
-                        float dist = Vector3.Distance(wpDataSpawn[i].position, player.position);
+                        float distSquared = (wpDataSpawn[i].position - spawnObserverPosition).sqrMagnitude;
 
                         // Never allow the initial traffic fill to pop a car
                         // directly around the player. Subsequent fills keep
                         // the wider exclusion radius and also avoid spawning
                         // inside the current field of view.
-                        float minimumSpawnDistance =
-                            firstTime
-                                ? 45f
-                                : 80f;
-
-                        if (dist > around ||
-                            dist < minimumSpawnDistance)
+                        if (around < 0f || distSquared > maxDistanceSquared ||
+                            distSquared < minDistanceSquared)
                             continue;
 
                         if (!firstTime &&
@@ -421,17 +420,18 @@ namespace FCG
 
                         NormalizeTrafficVehicleScale(
                             vehicle);
-                        vehicle.GetComponent<TrafficCar>().sideAtual = (wpDataSpawn[i].wayScript.oneway && wpDataSpawn[i].wayScript.doubleLine && wpDataSpawn[i].wayScript.rightHand != 0) ? ((wpDataSpawn[i].side == 1) ? 0 : 1) : wpDataSpawn[i].side;
-                        vehicle.GetComponent<TrafficCar>().atualWay = wpDataSpawn[i].wayScript.transform;
-                        vehicle.GetComponent<TrafficCar>().atualWayScript = wpDataSpawn[i].wayScript;
-                        vehicle.GetComponent<TrafficCar>().currentNode = wpDataSpawn[i].node + 1;
+                        TrafficCar spawnedCar = vehicle.GetComponent<TrafficCar>();
+                        spawnedCar.sideAtual = (wpDataSpawn[i].wayScript.oneway && wpDataSpawn[i].wayScript.doubleLine && wpDataSpawn[i].wayScript.rightHand != 0) ? ((wpDataSpawn[i].side == 1) ? 0 : 1) : wpDataSpawn[i].side;
+                        spawnedCar.atualWay = wpDataSpawn[i].wayScript.transform;
+                        spawnedCar.atualWayScript = wpDataSpawn[i].wayScript;
+                        spawnedCar.currentNode = wpDataSpawn[i].node + 1;
 
                         if (player)
                         {
-                            vehicle.GetComponent<TrafficCar>().distanceToSelfDestroy = around;
-                            vehicle.GetComponent<TrafficCar>().player = player;
-                            vehicle.GetComponent<TrafficCar>().tSystem = this;
-                            vehicle.GetComponent<TrafficCar>().ActivateSelfDestructWhenAwayFromThePlayer();
+                            spawnedCar.distanceToSelfDestroy = around;
+                            spawnedCar.player = player;
+                            spawnedCar.tSystem = this;
+                            spawnedCar.ActivateSelfDestructWhenAwayFromThePlayer();
                         }
 
                         nVehicles++;
