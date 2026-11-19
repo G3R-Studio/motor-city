@@ -18,7 +18,7 @@ namespace MotorCity.UI
                         -22f),
                     new Vector2(
                         448f,
-                        154f),
+                        192f),
                     new Vector2(
                         0f,
                         1f),
@@ -252,19 +252,19 @@ namespace MotorCity.UI
                     "Character Line",
                     UiBodyFontSize,
                     FontStyle.Bold,
-                    TextAnchor.LowerLeft,
+                    TextAnchor.UpperLeft,
                     new Vector2(
                         98f,
-                        26f),
+                        -90f),
                     new Vector2(
-                        320f,
-                        44f),
-                    new Vector2(
-                        0f,
-                        0f),
+                        330f,
+                        68f),
                     new Vector2(
                         0f,
-                        0f),
+                        1f),
+                    new Vector2(
+                        0f,
+                        1f),
                     TextColor);
 
             characterRewardText =
@@ -294,6 +294,9 @@ namespace MotorCity.UI
             characterMissionTitleText.resizeTextMaxSize = 14;
             characterMissionTitleText.horizontalOverflow = HorizontalWrapMode.Wrap;
             characterMissionTitleText.verticalOverflow = VerticalWrapMode.Truncate;
+            characterLineText.resizeTextForBestFit = true;
+            characterLineText.resizeTextMinSize = 12;
+            characterLineText.resizeTextMaxSize = characterLineText.fontSize;
             characterRewardText.resizeTextForBestFit = true;
             characterRewardText.resizeTextMinSize = 11;
             characterRewardText.resizeTextMaxSize = UiRewardFontSize;
