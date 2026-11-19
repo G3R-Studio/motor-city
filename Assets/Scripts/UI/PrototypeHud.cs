@@ -2207,6 +2207,11 @@ namespace MotorCity.UI
                     snapshot.Create();
                     Graphics.Blit(full, snapshot);
                     image.texture = snapshot;
+                    // ScreenCapture render targets on top-origin graphics APIs (D3D)
+                    // have inverted Y relative to the overlay RawImage UVs.
+                    image.uvRect = SystemInfo.graphicsUVStartsAtTop
+                        ? new Rect(0f, 1f, 1f, -1f)
+                        : new Rect(0f, 0f, 1f, 1f);
                     image.enabled = true;
                 }
                 catch (System.Exception e)
