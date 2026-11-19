@@ -25,7 +25,7 @@ namespace MotorCity.Gameplay
             if (amount <= 0)
                 return;
 
-            if (applyIncomeBoost && CosmeticStoreSystem.DoubleIncomeOwned)
+            if (applyIncomeBoost && CosmeticStoreSystem.IncomeBoostActive)
                 amount = Mathf.Min(amount, (int.MaxValue - Credits) / 2) * 2;
             else
                 amount = Mathf.Min(amount, int.MaxValue - Credits);
