@@ -12,7 +12,7 @@ SDK: https://wiki.playgama.com/playgama/bridge-sdk/getting-started
 ## Source-level implementations
 - Bridge v2 initialized before Unity, storage read before gameplay, game_ready guarded, level messages, language and platform pause/audio callbacks. Standard Build routes through district packaging. Historical Sandbox success is not proof of current build.
 - Viewport wrapper fills iframe, Unity footer hidden (bbef0d1); safe area and responsive Canvas retained. No new fixed ad reservation.
-- Interstitial at explicit activity boundary, minimum session duration 120 seconds and one completed activity, cooldown default 180 seconds (147b2bb); Bridge still controls availability.
+- Interstitial at explicit activity boundary, Bridge owns frequency and availability; no production minimum-session or completion counter gate.
 - Save FlushNow before/after ads (58d0c3a); async storage acknowledgement is not guaranteed by synchronous C# flush. Existing reward callback requires rewarded state; failed/cancelled ads must not grant reward. Check failed requests and pause/resume.
 - Modal pause owner cleared on HUD disposal (289c223); garage excluded from frozen blur.
 - Real purchases disabled, no external payment path, optional shop rewards and temporary boost retained. Legacy stats adapter IncrementStat is a no-op in Playgama, not external analytics.
@@ -28,6 +28,12 @@ SDK: https://wiki.playgama.com/playgama/bridge-sdk/getting-started
 - Confirm rewarded prompt clearly describes exact reward before opt-in; verify all localized variants including ordinary bonus. Verify no hidden third-party SDK in final archive.
 
 ## Scope
-Reviewed accessible general requirements and SDK-related implementation. Some current documentation pages (engine-specific, self-check, platform/storage API markdown) were inaccessible during audit; do not claim exhaustive page-by-page verification. No Unity compiler or browser QA execution in this audit. Final certification remains with Playgama.
+Reviewed accessible general requirements and SDK-related implementation. Engine-specific, Sound and Loading and first session reviewed from owner-supplied saved HTML. Other pages not exhaustively verified; do not claim full certification. No Unity compiler or browser QA execution in this audit. Final certification remains with Playgama.
 
 - Engine-specific requirement 5.1.1: WebGL Decompression Fallback enabled in project and both Web profiles; compressed payload inventory accepts .unityweb. Verify hosted startup before release.
+
+## Follow-up 19 November
+- Sound §3.3.2: runtime synthetic SFX removed; seven OGG recordings/assets from Kenney CC0 packs are prepared by MotorCityReleaseAudio before ordinary WebGL Build. Source mirror pinned to Barty-Bart/motion-graphics@3d83d987d658601d8a1269eb691622bdcd427335, skills/sound-effects/LICENSES.md. Attribution: Kenney (https://kenney.nl/assets), CC0 1.0. Binary download/import requires local network; not executed here. Build fails rather than silently shipping missing clips. No external sound request from published game. Verify actual sounds and levels.
+- Music gated on game_ready; city download begins inside the reported loading transition, rather than from the menu. Explicit visible loading reports paired on normal transitions. Initial load <=5 MB is a recommendation; actual hosted timing still needs measurement.
+- WebGL skips intro and control chooser to reduce time to gameplay; language selector displays both native names. Verify retained control preferences, tutorials, square viewport, mobile warning and all device layouts.
+- Latest source edits not compiled or tested in Unity. Verify all final gates above, including existing engine/tire asset rights, memory and archive size. No certification claim.
