@@ -3106,6 +3106,7 @@ namespace MotorCity.UI
                 "PauseMenu",
                 false);
 
+            MotorCity.Platform.MotorCityPlatformRuntime.SetGameplayWindowPaused(false);
             MotorCity.Platform.MotorCityPlatformRuntime.SetGameplayUiPaused(
                 false);
 
