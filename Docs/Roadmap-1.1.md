@@ -307,3 +307,10 @@ Audit COMPLETE: 21690 MeshRenderer, 2 missing meshes; 64m 364 cells/1900 crossin
 
 - `dbe804d`: исключение Intro_01–06 из Resources на время штатного split WebGL Build. WebGL уже пропускает сюжетные слайды; MainMenu сохранён. Восстановление исходников и GUID в finally и после прерывания. Прямые зависимости могут оставить данные в player. Размер и компиляция не проверены.
 - Гараж, дополнительные автомобили и компаньоны пока не вынесены. Требуется адаптация каталога автомобилей, сохранений и async gates с учётом общих зависимостей.
+
+
+### Перенос игровых prefab — 20.11.2026
+
+- `194eb33`, `6b53fba`, `b022b41`, `87e3c07`, `abdc9ff`: девять prefab автомобилей (Beatall, Peugeot306, ToyotaAE86, Hybrid, Porsche996, AmgGT, Camaro, Delorean, Bus) и два companion prefab временно перемещаются из Resources при split Build и входят в существующий городской bundle. Сохраняются resource addresses, GUID, recovery и Resources fallback для Editor/native. Street/PlayerCarVisual оставлен в Resources. Каталог и загрузчик визуалов используют общий lookup; сохранения, unlock и физика не менялись.
+- Это промежуточный этап уменьшения initial DATA, не независимая загрузка каждого автомобиля по требованию: пакет скачивается целиком при входе в город. Общие зависимости внутри city bundle не разделяются; дублирование с оставшимися Resources/district bundles возможно. Размер и Unity compile не подтверждены. Гараж связан с CityVisual; отдельный перенос требует анализа геометрии и коллизий. Отдельные пакеты и точечные async gates остаются открытыми.
+- `21b884e`: TMP LiberationSans importer metadata обновлена до версии 4, GUID сохранён, Unity reimport не проверен.
