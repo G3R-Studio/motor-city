@@ -115,23 +115,7 @@ namespace MotorCity.UI
             pauseAudioText =
                 audioRow.Value;
 
-            CreatePrimaryButton(
-                audioRow.Controls,
-                "Pause Volume Down",
-                "pause.minus",
-                () =>
-                    AdjustAudioVolume(-1),
-                42f,
-                true);
-
-            CreatePrimaryButton(
-                audioRow.Controls,
-                "Pause Volume Up",
-                "pause.plus",
-                () =>
-                    AdjustAudioVolume(1),
-                42f,
-                true);
+            pauseAudioSlider = MotorCityVolumeSlider.Create(audioRow.Controls, audioVolume, v => { FrontEndApplyAudioSettings(audioMuted, v); RefreshPauseMenuText(); });
 
             CreatePrimaryButton(
                 audioRow.Controls,
@@ -149,23 +133,7 @@ namespace MotorCity.UI
             pauseMusicText =
                 musicRow.Value;
 
-            CreatePrimaryButton(
-                musicRow.Controls,
-                "Pause Music Volume Down",
-                "pause.minus",
-                () =>
-                    AdjustMusicVolume(-1),
-                42f,
-                true);
-
-            CreatePrimaryButton(
-                musicRow.Controls,
-                "Pause Music Volume Up",
-                "pause.plus",
-                () =>
-                    AdjustMusicVolume(1),
-                42f,
-                true);
+            pauseMusicSlider = MotorCityVolumeSlider.Create(musicRow.Controls, MotorCityMusicRuntime.Volume, v => { MotorCityMusicRuntime.SetVolume(v); RefreshPauseMenuText(); });
 
             CreatePrimaryButton(
                 musicRow.Controls,
@@ -710,8 +678,11 @@ namespace MotorCity.UI
             RefreshPauseMenuText();
         }
 
+        private Slider pauseAudioSlider, pauseMusicSlider;
         private void RefreshPauseMenuText()
         {
+            if (pauseAudioSlider != null) pauseAudioSlider.SetValueWithoutNotify(Mathf.RoundToInt(audioVolume * 100f));
+            if (pauseMusicSlider != null) pauseMusicSlider.SetValueWithoutNotify(Mathf.RoundToInt(MotorCityMusicRuntime.Volume * 100f));
             if (pauseQualityText != null)
             {
                 string quality =
