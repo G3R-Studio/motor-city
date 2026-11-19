@@ -18,6 +18,8 @@ namespace MotorCity.UI
         public override void ModifyMesh(VertexHelper mesh)
         {
             if (!IsActive() || mesh.currentVertCount == 0) return;
+            var sdf = GetComponent<MotorCitySdfLabel>();
+            if (sdf != null && sdf.RendersGlyphs) { mesh.Clear(); return; }
             Rect bounds = ((RectTransform)transform).rect;
             source.Clear(); output.Clear();
             mesh.GetUIVertexStream(source);
