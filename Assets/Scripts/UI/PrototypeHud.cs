@@ -2155,6 +2155,13 @@ namespace MotorCity.UI
         private GameObject current;
         private CanvasGroup hidden;
         private float previousAlpha;
+        private Image shade;
+        private Color originalShade;
+        private void RestoreShade()
+        {
+            if (shade != null) shade.color = originalShade;
+            shade = null;
+        }
         private Coroutine capture;
         private int width, height;
         private bool attempted;
@@ -2173,6 +2180,7 @@ namespace MotorCity.UI
             if (current == modal && (modal == null || (width == Screen.width && height == Screen.height && attempted))) return;
             if (capture != null) { StopCoroutine(capture); capture = null; }
             RestoreModal();
+            RestoreShade();
             image.enabled = false;
             current = modal;
             attempted = false;
@@ -2213,6 +2221,8 @@ namespace MotorCity.UI
                         ? new Rect(0f, 1f, 1f, -1f)
                         : new Rect(0f, 0f, 1f, 1f);
                     image.enabled = true;
+                    shade = modal.GetComponent<Image>();
+                    if (shade != null) { originalShade = shade.color; shade.color = Color.clear; }
                 }
                 catch (System.Exception e)
                 {
@@ -2242,6 +2252,7 @@ namespace MotorCity.UI
             StopAllCoroutines();
             capture = null;
             RestoreModal();
+            RestoreShade();
             ReleaseSnapshot();
             current = null;
             attempted = false;
