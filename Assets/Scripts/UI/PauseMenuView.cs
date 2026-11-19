@@ -447,14 +447,7 @@ namespace MotorCity.UI
 
             MotorCityInput.ClearVirtualState();
 
-            pauseStoredTimeScale =
-                Time.timeScale;
-
-            Time.timeScale =
-                0f;
-
-            AudioListener.pause =
-                true;
+            MotorCityPlatformRuntime.SetGameplayWindowPaused(true);
 
             MotorCityMusicRuntime.SetPauseMenuPaused(
                 true);
@@ -515,16 +508,8 @@ namespace MotorCity.UI
                 EventSystem.current.SetSelectedGameObject(null);
             }
 
-            Time.timeScale =
-                MotorCityPlatformRuntime.IsGameplayResumeReady
-                    ? pauseStoredTimeScale
-                    : 0f;
-
-            if (Time.timeScale > 0f)
-            {
-                AudioListener.pause =
-                    false;
-            }
+            MotorCityPlatformRuntime.SetGameplayWindowPaused(storeOpen || clubOpen || navigatorMenuOpen ||
+                (activityManager != null && activityManager.HasResult));
 
             MotorCityMusicRuntime.SetPauseMenuPaused(
                 false);
