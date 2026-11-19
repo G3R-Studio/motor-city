@@ -58,7 +58,7 @@ mergeInto(LibraryManager.library, {
     if (!env || !env.initialized) { send('OnBridgeInitFailed', 'Bridge not initialized'); return; }
     env.notifyPause = function(value) { send('OnBridgePause', value ? '1' : '0'); };
     env.notifyAudio = function(value) { send('OnBridgeAudio', value ? '1' : '0'); };
-    env.notifyPause(env.paused);
+    env.notifyPause(env.paused || document.hidden);
     env.notifyAudio(env.audioEnabled);
     send('OnBridgeInitialized', env.language + '|' +
       (bridge.advertisement.isRewardedSupported ? '1' : '0') + '|' +
