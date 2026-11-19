@@ -85,7 +85,7 @@ namespace MotorCity.World
         private void UpdateVisualCells()
         {
             // Do not compete with HLOD or remove off-camera shadow casters on High.
-            if (hlodAvailable || MotorCityQualityRuntime.CurrentPreset == MotorCityQualityPreset.High ||
+            if (MotorCityCityBundle.DistrictStreamingEnabled || hlodAvailable || MotorCityQualityRuntime.CurrentPreset == MotorCityQualityPreset.High ||
                 UrlOptedOut(Application.absoluteURL, "motorcity_cells"))
             {
                 WakeVisualCells();
