@@ -22,6 +22,36 @@ namespace MotorCity.Platform
 
         private static bool initialized;
 
+#if UNITY_EDITOR
+        private static UniversalRenderPipelineAsset editorPipeline;
+        private static RenderPipelineAsset previousQualityPipeline;
+
+        [UnityEditor.InitializeOnLoadMethod]
+        private static void RegisterEditorCleanup()
+        {
+            UnityEditor.EditorApplication.playModeStateChanged += state =>
+            {
+                if (state == UnityEditor.PlayModeStateChange.ExitingPlayMode)
+                {
+                    RestoreEditorPipeline();
+                    initialized = false;
+                }
+            };
+            UnityEditor.AssemblyReloadEvents.beforeAssemblyReload += RestoreEditorPipeline;
+            UnityEditor.EditorApplication.quitting += RestoreEditorPipeline;
+        }
+
+        private static void RestoreEditorPipeline()
+        {
+            if (editorPipeline == null) return;
+            if (QualitySettings.renderPipeline == editorPipeline)
+                QualitySettings.renderPipeline = previousQualityPipeline;
+            UnityEngine.Object.DestroyImmediate(editorPipeline);
+            editorPipeline = null;
+            previousQualityPipeline = null;
+        }
+#endif
+
         public static MotorCityQualityPreset CurrentPreset { get; private set; }
 
         public static event Action PresetChanged;
@@ -326,19 +356,27 @@ namespace MotorCity.Platform
             int shadowCascadeCount,
             int mainShadowResolution)
         {
-#if UNITY_EDITOR
-            // In Play Mode GraphicsSettings.currentRenderPipeline points to the
-            // serialized project asset. Mutating it here dirties MotorCityURP.asset
-            // and leaves the selected runtime quality written back to Git.
-            // Player builds receive their own runtime instance, so only the
-            // Editor needs this guard.
-            if (Application.isPlaying)
-                return;
-#endif
-
             UniversalRenderPipelineAsset urp =
                 GraphicsSettings.currentRenderPipeline
                     as UniversalRenderPipelineAsset;
+
+#if UNITY_EDITOR
+            // Apply the same player presets to a transient pipeline asset.
+            // Never write preset values into the serialized URP asset.
+            if (Application.isPlaying)
+            {
+                if (editorPipeline == null)
+                {
+                    if (urp == null) return;
+                    previousQualityPipeline = QualitySettings.renderPipeline;
+                    editorPipeline = UnityEngine.Object.Instantiate(urp);
+                    editorPipeline.name = urp.name + " (Play Mode)";
+                    editorPipeline.hideFlags = HideFlags.HideAndDontSave;
+                    QualitySettings.renderPipeline = editorPipeline;
+                }
+                urp = editorPipeline;
+            }
+#endif
 
             if (urp == null)
                 return;
