@@ -14,7 +14,7 @@ Motor City is an open-world driving game by G3R Studio. Explore the city, comple
 
 ## Update 1.1
 
-- Initial WebGL download reduced from 65 MB to 43 MB in local QA.
+- Playgama QA initial download reduced to 21 MB with deferred city loading (3.02 s in the confirmed QA run).
 - Improved rendering performance with distance-based culling.
 - Streamed music, optimized textures and Brotli compression.
 - Playgama Bridge integration for storage, ads and audio.
@@ -25,10 +25,10 @@ Motor City is an open-world driving game by G3R Studio. Explore the city, comple
 2. Clone the repository and run `git lfs pull`.
 3. Open the project and `Assets/Scenes/Prototype.unity`.
 
-For release, select **Web - Desktop - Release**, disable Development Build, use **Check and Set Brotli**, and build into a clean directory. Test with `python Tools/serve_webgl.py --directory PATH_TO_BUILD` before uploading the complete ZIP to Playgama.
+For the current split-city test/release candidate, select **Web - Desktop - Release**, disable Development Build, use **Check and Set Brotli**, then **Tools > Motor City > Build > Build Split City Test**. A normal Build still embeds the city in Resources. Do not upload the diagnostic no-city player. Follow the roadmap QA gates. Test with `python Tools/serve_webgl.py --directory PATH_TO_BUILD` before uploading the complete ZIP to Playgama.
 
 ## Documentation
 
-[Roadmap](Docs/Roadmap-1.1.md) · [Technical audit](Docs/Audit-1.1.md)
+[Current technical roadmap and handoff](Docs/Roadmap-1.1.md) · [Technical audit](Docs/Audit-1.1.md)
 
 Third-party notices: [font licenses](Docs/Licenses) and [asset license](Assets/ThirdParty/LICENSE).
