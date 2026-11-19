@@ -423,14 +423,14 @@ namespace MotorCity.UI
             rail.anchoredPosition =
                 new Vector2(-280f, -70f);
             rail.sizeDelta =
-                new Vector2(108f, 206f);
+                new Vector2(108f, 154f);
             rail.localScale = Vector3.one * 1.15f;
 
             CreatePauseButton(
                 rail,
                 "HUD Pause",
                 "touch.utility.pause",
-                new Vector2(0f, 78f),
+                new Vector2(0f, 52f),
                 new Vector2(100f, 44f),
                 OpenPauseMenu);
 
@@ -453,28 +453,13 @@ namespace MotorCity.UI
             rescueRect.pivot =
                 new Vector2(0.5f, 0.5f);
             rescueRect.anchoredPosition =
-                new Vector2(0f, 26f);
-
-            bool showBonus = true;
-#if !UNITY_EDITOR
-            showBonus = MotorCityPlatform.SupportsAds;
-#endif
-            if (showBonus)
-            {
-                GameObject bonus = CreateLocalizedTouchPulseButton(
-                    rail, "HUD Bonus", "touch.utility.bonus",
-                    MotorCityInputAction.RewardedBonus,
-                    Vector2.zero, new Vector2(100f, 44f));
-                RectTransform bonusRect = bonus.GetComponent<RectTransform>();
-                bonusRect.anchorMin = bonusRect.anchorMax = new Vector2(.5f, .5f);
-                bonusRect.anchoredPosition = new Vector2(0f, -26f);
-            }
+                Vector2.zero;
 
             CreatePauseButton(
                 rail,
                 "HUD More",
                 "touch.utility.more",
-                new Vector2(0f, showBonus ? -78f : -26f),
+                new Vector2(0f, -52f),
                 new Vector2(100f, 44f),
                 ToggleHudQuickMenu);
 
@@ -510,23 +495,12 @@ namespace MotorCity.UI
                 new Vector2(0f, 22f),
                 new Vector2(112f, 44f));
 
-#if !UNITY_EDITOR
-            if (MotorCityPlatform.SupportsPurchases)
-#endif
-            CreateLocalizedTouchPulseButton(
-                menu,
-                "HUD Store",
-                "touch.utility.store",
-                MotorCityInputAction.ToggleStore,
-                new Vector2(0f, 72f),
-                new Vector2(112f, 44f));
-
             CreateLocalizedTouchPulseButton(
                 menu,
                 "HUD Club",
                 "touch.utility.club",
                 MotorCityInputAction.ToggleClub,
-                new Vector2(0f, 122f),
+                new Vector2(0f, 72f),
                 new Vector2(112f, 44f));
 
             hudQuickMenuOpen =
