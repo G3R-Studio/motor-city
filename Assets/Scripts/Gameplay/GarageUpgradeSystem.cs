@@ -40,6 +40,8 @@ namespace MotorCity.Gameplay
         private MotorCityFrontEndFlow frontEndFlow;
         private GameObject garageLightingRig;
         private bool transitionInProgress;
+        private float fleetErrorUntil;
+        private int fleetProgressPercent = -1;
 
         public int EngineLevel { get; private set; }
         public int GripLevel { get; private set; }
@@ -301,6 +303,7 @@ namespace MotorCity.Gameplay
 
                 if (!IsOpen)
                 {
+                    if (IsNearGarage && Time.unscaledTime < fleetErrorUntil) return;
                     StatusText =
                         IsNearGarage
                             ? (activityManager.IsBusy
@@ -694,6 +697,8 @@ namespace MotorCity.Gameplay
 
             if (!MotorCity.World.MotorCityCityBundle.FleetReady)
             {
+                fleetErrorUntil = 0f;
+                fleetProgressPercent = -1;
                 car.SetDrivingBlocked("Garage", true);
                 StartCoroutine(PrepareFleet());
                 return;
@@ -705,7 +710,10 @@ namespace MotorCity.Gameplay
         {
             yield return MotorCity.World.MotorCityCityBundle.LoadFleet(progress =>
             {
-                StatusText = MotorCityLocalization.Format("garage.fleet_loading", Mathf.RoundToInt(progress * 100f));
+                int percent = Mathf.RoundToInt(progress * 100f);
+                if (percent == fleetProgressPercent) return;
+                fleetProgressPercent = percent;
+                StatusText = MotorCityLocalization.Format("garage.fleet_loading", percent);
                 Changed?.Invoke();
             });
             if (!MotorCity.World.MotorCityCityBundle.FleetReady)
@@ -713,6 +721,7 @@ namespace MotorCity.Gameplay
                 activityManager.End(ActivityId);
                 car.SetDrivingBlocked("Garage", false);
                 transitionInProgress = false;
+                fleetErrorUntil = Time.unscaledTime + 8f;
                 StatusText = MotorCityLocalization.Text("garage.fleet_failed");
                 Changed?.Invoke();
                 yield break;
@@ -1430,6 +1439,7 @@ namespace MotorCity.Gameplay
 
             car?.SetGaragePresentationMode(
                 false);
+            car?.SetDrivingBlocked("Garage", false);
 
             if (activityManager != null)
                 activityManager.End(ActivityId);
