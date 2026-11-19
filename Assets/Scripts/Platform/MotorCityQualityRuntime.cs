@@ -25,6 +25,8 @@ namespace MotorCity.Platform
 #if UNITY_EDITOR
         private static UniversalRenderPipelineAsset editorPipeline;
         private static RenderPipelineAsset previousQualityPipeline;
+        private static ScriptableRendererFeature editorSsao;
+        private static bool editorSsaoOriginal;
 
         [UnityEditor.InitializeOnLoadMethod]
         private static void RegisterEditorCleanup()
@@ -43,6 +45,8 @@ namespace MotorCity.Platform
 
         private static void RestoreEditorPipeline()
         {
+            if (editorSsao != null) editorSsao.SetActive(editorSsaoOriginal);
+            editorSsao = null;
             if (editorPipeline == null) return;
             if (QualitySettings.renderPipeline == editorPipeline)
                 QualitySettings.renderPipeline = previousQualityPipeline;
@@ -170,6 +174,7 @@ namespace MotorCity.Platform
                     break;
             }
 
+            ApplySsao(preset == MotorCityQualityPreset.High);
             PresetChanged?.Invoke();
 
             if (!save)
@@ -180,6 +185,35 @@ namespace MotorCity.Platform
                 (int)preset);
 
             PlayerPrefs.Save();
+        }
+
+        private static void ApplySsao(bool active)
+        {
+            if (!Application.isPlaying) return;
+            var urp = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
+#if UNITY_EDITOR
+            if (editorPipeline != null) urp = editorPipeline;
+#endif
+            if (urp == null) return;
+            foreach (var data in urp.rendererDataList)
+            {
+                if (data == null) continue;
+                foreach (var feature in data.rendererFeatures)
+                {
+                    if (feature == null || feature.GetType().FullName !=
+                        "UnityEngine.Rendering.Universal.ScreenSpaceAmbientOcclusion") continue;
+#if UNITY_EDITOR
+                    // Motor City has one SSAO feature shared with the source renderer.
+                    if (editorSsao != null && editorSsao != feature) continue;
+                    if (editorSsao == null)
+                    {
+                        editorSsao = feature;
+                        editorSsaoOriginal = feature.isActive;
+                    }
+#endif
+                    feature.SetActive(active);
+                }
+            }
         }
 
         private static MotorCityQualityPreset DetectRecommendedPreset()
