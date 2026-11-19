@@ -346,8 +346,8 @@ namespace MotorCity.Platform
         {
 #if true
             QualitySettings.shadows =
-                UnityEngine.ShadowQuality.HardOnly;
-            QualitySettings.shadowDistance = 40f;
+                UnityEngine.ShadowQuality.All;
+            QualitySettings.shadowDistance = 65f;
             QualitySettings.pixelLightCount = 1;
             QualitySettings.lodBias = 0.85f;
             QualitySettings.maximumLODLevel = 0;
@@ -359,9 +359,9 @@ namespace MotorCity.Platform
             ApplyUrpQuality(
                 0.85f,
                 2,
-                40f,
-                1,
-                512);
+                65f,
+                2,
+                2048);
 #else
             QualitySettings.shadows =
                 UnityEngine.ShadowQuality.All;
