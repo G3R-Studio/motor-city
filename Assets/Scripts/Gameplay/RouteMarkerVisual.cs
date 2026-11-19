@@ -90,7 +90,7 @@ namespace MotorCity.Gameplay
         private bool TryCreateDeliveryVfx()
         {
             GameObject prefab =
-                Resources.Load<GameObject>(
+                MotorCity.World.MotorCityCityBundle.LoadGameplay<GameObject>(
                     DeliveryVfxResourcePath);
 
             if (prefab == null)
