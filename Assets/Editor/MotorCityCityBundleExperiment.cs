@@ -297,7 +297,7 @@ namespace MotorCity.EditorTools
                 long bundle = new FileInfo(Path.Combine(bundles, "motorcity-city.bundle")).Length;
                 log.AppendLine("City bundle LZ4 bytes: " + bundle);
 
-                string stripped = Path.Combine(root, split ? "SplitCityTest" : "NOT-FOR-RELEASE-NoCity");
+                string stripped = Path.Combine(root, split ? (districts ? "DistrictStreamingTest" : "SplitCityTest") : "NOT-FOR-RELEASE-NoCity");
                 if (split)
                 {
                     string hash = manifest.GetAssetBundleHash("motorcity-city.bundle").ToString();
@@ -315,6 +315,20 @@ namespace MotorCity.EditorTools
                         log.AppendLine("District bundles: " + catalog.districts.Length);
                         log.AppendLine("District streamed renderers: " + catalog.districts.Sum(d => d.rendererIndices.Length));
                     }
+                    var expected = new HashSet<string>(StringComparer.Ordinal)
+                    {
+                        "motorcity-city-" + hash + ".bundle"
+                    };
+                    if (catalog != null)
+                        foreach (var district in catalog.districts) expected.Add(district.file);
+                    var actual = Directory.GetFiles(streaming, "*.bundle").Select(Path.GetFileName).ToArray();
+                    if (!expected.SetEquals(actual) || expected.Any(n => new FileInfo(Path.Combine(streaming, n)).Length == 0))
+                        throw new InvalidOperationException("Release candidate bundle inventory mismatch.");
+                    if (!File.Exists(Path.Combine(stripped, "index.html")))
+                        throw new InvalidOperationException("Release candidate missing index.html.");
+                    foreach (string name in expected.OrderBy(n => n))
+                        log.AppendLine("Streaming bundle: " + name + " bytes=" +
+                            new FileInfo(Path.Combine(streaming, name)).Length);
                     log.AppendLine("Split test output: " + stripped);
                     log.AppendLine("Split data bytes: " + DataBytes(stripped));
                     log.AppendLine("Split wasm bytes: " + WasmBytes(stripped));
