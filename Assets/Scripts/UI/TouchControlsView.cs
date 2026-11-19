@@ -2010,8 +2010,7 @@ namespace MotorCity.UI
 
                 SetActiveIfChanged(
                     touchUtilityRoot,
-                    !pauseMenuOpen &&
-                    !HasBlockingModalUi());
+                    !touchLayoutEditing);
 
                 SetActiveIfChanged(
                     touchActivityCancelRoot,
@@ -2046,7 +2045,7 @@ namespace MotorCity.UI
 
             SetActiveIfChanged(
                 touchControlsRoot,
-                !HasBlockingModalUi());
+                true);
 
             ApplyTouchControlLayout();
 
@@ -2108,8 +2107,7 @@ namespace MotorCity.UI
             // already are for keyboard input.
             SetActiveIfChanged(
                 touchUtilityRoot,
-                !pauseMenuOpen &&
-                !HasBlockingModalUi());
+                !touchLayoutEditing);
 
             SetActiveIfChanged(
                 touchActivityCancelRoot,
