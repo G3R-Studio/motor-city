@@ -2062,7 +2062,7 @@ namespace MotorCity.UI
                 Mathf.Clamp01(
                     MotorCitySaveService.GetFloat(
                         AudioVolumeSaveKey,
-                        1f));
+                        0.10f));
 
             ApplyAudioVolume();
         }
