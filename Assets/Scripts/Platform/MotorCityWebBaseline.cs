@@ -19,6 +19,8 @@ namespace MotorCity.Platform
         private readonly List<Counter> counters = new();
         private double started;
         private bool recording;
+        private bool armed;
+        private double readyAt;
         private string context;
         private sealed class Counter
         {
@@ -67,9 +69,28 @@ namespace MotorCity.Platform
         private void Update()
         {
             int request = MotorCityBaselineRequest();
-            if (request == 1 && !recording) { Begin(); return; }
-            if (!recording) return;
-            if (request == 2 || !Application.isFocused) { Finish(false); return; }
+            if (request == 1 && !recording)
+            {
+                armed = true;
+                readyAt = Time.realtimeSinceStartupAsDouble + 5;
+            }
+            if (request == 2)
+            {
+                armed = false;
+                if (recording) Finish(false);
+                return;
+            }
+            if (!recording)
+            {
+                if (armed && Application.isFocused &&
+                    Time.realtimeSinceStartupAsDouble >= readyAt)
+                {
+                    armed = false;
+                    Begin();
+                }
+                return;
+            }
+            if (!Application.isFocused) { Finish(false); return; }
             double elapsed = Time.realtimeSinceStartupAsDouble - started;
             double ms = Time.unscaledDeltaTime * 1000.0;
             if (ms > 0 && !double.IsNaN(ms) && !double.IsInfinity(ms)) frames.Add(ms);

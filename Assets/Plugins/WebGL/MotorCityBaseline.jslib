@@ -2,7 +2,7 @@ mergeInto(LibraryManager.library, {
   MotorCityBaselineInstall: function() {
     window.motorCityBaseline = {
       request: 0, report: '',
-      start: function() { this.request = 1; },
+      start: function() { this.report = ''; this.request = 1; console.log('Baseline armed: return focus to the game. Starts after at least 5 seconds.'); },
       stop: function() { this.request = 2; },
       save: function() {
         if (!this.report) return;
