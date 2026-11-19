@@ -32,7 +32,7 @@ namespace MotorCity.World
         private MotorCityQualityPreset lastPreset;
 
         public static CityHlodData LoadData() =>
-            Resources.Load<CityHlodData>(ResourcePath);
+            MotorCityCityBundle.Load<CityHlodData>(ResourcePath);
 
         public bool Initialized => initialized;
         public int CellCount => cells.Length;
@@ -151,6 +151,11 @@ namespace MotorCity.World
         {
             if (!initialized || observer == null || cells.Length == 0)
                 return;
+            if (!observer.isActiveAndEnabled || Camera.main != observer || Camera.allCamerasCount != 1)
+            {
+                if (ActiveProxyCount != 0) RestoreAll();
+                return;
+            }
 
             Vector3 cameraPosition = observer.transform.position;
             MotorCityQualityPreset preset =
@@ -181,8 +186,7 @@ namespace MotorCity.World
             for (int i = cursor; i < limit; i++)
             {
                 Instance instance = cells[i];
-                float distance = Vector3.Distance(
-                    cameraPosition, instance.Data.Center);
+                float distance = Mathf.Sqrt(instance.Proxy.bounds.SqrDistance(cameraPosition));
                 bool proxyRequired = instance.UsingProxy
                     ? distance > threshold - 45f
                     : distance > threshold + 45f;
