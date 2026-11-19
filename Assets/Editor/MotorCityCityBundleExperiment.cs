@@ -64,6 +64,7 @@ namespace MotorCity.EditorTools
 
         private const string MarkerPath = "Assets/Resources/MotorCityCityBundleVersion.txt";
         [MenuItem("Tools/Motor City/Build/Build Split City Test")]
+        [MenuItem("Tools/Motor City/Build/Build Split Release Candidate (Fallback)")]
         private static void BuildSplit() => Run(true);
 
         private const string DistrictRoot = "Assets/MotorCity_DistrictBuildTemp";
@@ -73,6 +74,7 @@ namespace MotorCity.EditorTools
         [MenuItem("Tools/Motor City/Build/Build HLOD Split City Candidate")]
         private static void BuildHlod() => Run(true, false, true);
         [MenuItem("Tools/Motor City/Build/Build District Streaming Test")]
+        [MenuItem("Tools/Motor City/Build/Build District Release Candidate")]
         private static void BuildDistricts() => Run(true, true);
 
         private static MotorCityCityBundle.DistrictCatalog PrepareDistricts(string directory)
