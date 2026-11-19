@@ -644,12 +644,12 @@ namespace MotorCity.Gameplay
             // roof anchor. EX missing -> HAON animation and HAON +0.05m
             // offset rather than EX-only states on a standard controller.
             GameObject authoredPrefab = useSupporterPixieSkin
-                ? Resources.Load<GameObject>(
+                ? MotorCity.World.MotorCityCityBundle.LoadGameplay<GameObject>(
                     "MotorCity/Pixie/AmaneKisoraVisual")
                 : null;
             usingKisoraVisual = authoredPrefab != null;
             if (authoredPrefab == null)
-                authoredPrefab = Resources.Load<GameObject>(
+                authoredPrefab = MotorCity.World.MotorCityCityBundle.LoadGameplay<GameObject>(
                     "MotorCity/Byte/HaonByteVisual");
 
             visualRoot =
