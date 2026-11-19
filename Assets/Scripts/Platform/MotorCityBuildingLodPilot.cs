@@ -33,15 +33,26 @@ namespace MotorCity.Platform
             if (city == null) { Debug.LogWarning("Enter city first."); return; }
             var names = new HashSet<string> { "BR-003", "EC-009", "BR-002", "QD-14", "BR-014", "BR-027", "BC-P07", "BR-025", "BC-053", "EC-006" };
             var copies = Resources.LoadAll<Mesh>("MotorCityLodPilot");
+            var expanded = Resources.LoadAll<Mesh>("MotorCityLodExpanded");
             var byName = new Dictionary<string, Mesh>();
             foreach (var copy in copies)
                 if (copy != null && names.Contains(copy.name) && !byName.ContainsKey(copy.name))
                     byName.Add(copy.name, copy);
+            foreach (var copy in expanded)
+                if (copy != null) byName[copy.name] = copy;
             var filters = city.GetComponentsInChildren<MeshFilter>(true);
+            var uniqueNames = new Dictionary<string, HashSet<Mesh>>();
+            foreach (var f in filters)
+            {
+                var m = f.sharedMesh;
+                if (m == null) continue;
+                if (!uniqueNames.TryGetValue(m.name, out var set)) uniqueNames[m.name] = set = new HashSet<Mesh>();
+                set.Add(m);
+            }
             foreach (var filter in filters)
             {
                 var original = filter.sharedMesh;
-                if (original == null || !byName.TryGetValue(original.name, out var copy) ||
+                if (original == null || uniqueNames[original.name].Count != 1 || !byName.TryGetValue(original.name, out var copy) ||
                     original.vertexCount != copy.vertexCount || original.subMeshCount != copy.subMeshCount ||
                     original.bounds != copy.bounds ||
                     filter.GetComponentInParent<Rigidbody>(true) != null ||
