@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Linq;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -8,6 +9,23 @@ namespace MotorCity.World
 {
     public static class MotorCityCityBundle
     {
+        [Serializable] public sealed class DistrictCatalog { public District[] districts; }
+        [Serializable] public sealed class District
+        {
+            public string file, hash;
+            public int[] rendererIndices;
+            public string[] meshNames;
+            public Bounds bounds;
+            public Bounds[] localBounds;
+        }
+        private static DistrictCatalog catalog;
+        public static void AttachDistricts(GameObject city)
+        {
+            if (catalog == null || catalog.districts == null || city == null) return;
+            var host = city.AddComponent<DistrictMeshStreaming>();
+            host.Initialize(city, catalog);
+        }
+
         private const string Marker = "MotorCityCityBundleVersion";
         private static AssetBundle bundle;
         private static bool running;
@@ -61,6 +79,8 @@ namespace MotorCity.World
                     prefab = load.asset as GameObject;
                     if (prefab != null)
                     {
+                        var metadata = bundle.LoadAsset<TextAsset>("MotorCity/DistrictCatalog");
+                        catalog = metadata != null ? JsonUtility.FromJson<DistrictCatalog>(metadata.text) : null;
                         Progress = 1f;
                         running = false;
                         yield break;
@@ -83,5 +103,133 @@ namespace MotorCity.World
             bundle == null ? Array.Empty<T>() :
             bundle.GetAllAssetNames().Where(n => n.StartsWith(path.ToLowerInvariant() + "/", StringComparison.Ordinal))
                 .Select(n => bundle.LoadAsset<T>(n)).Where(a => a != null).ToArray();
+    }
+
+    // Only visual meshes are streamed. The city hierarchy, scripts and colliders
+    // remain resident. Never unload a bundle until every assigned mesh is detached.
+    public sealed class DistrictMeshStreaming : MonoBehaviour
+    {
+        private sealed class State
+        {
+            public MotorCityCityBundle.District Data;
+            public AssetBundle Bundle;
+            public bool Busy;
+            public float RetryAt;
+        }
+        private MeshRenderer[] renderers;
+        private readonly List<State> states = new();
+        private bool loading;
+        private bool initialized;
+        private float nextCheck;
+
+        public void Initialize(GameObject city, MotorCityCityBundle.DistrictCatalog catalog)
+        {
+            if (initialized) return;
+            renderers = city.GetComponentsInChildren<MeshRenderer>(true);
+            foreach (var data in catalog.districts)
+            {
+                if (data.rendererIndices == null || data.meshNames == null ||
+                    data.localBounds == null || data.rendererIndices.Length != data.meshNames.Length ||
+                    data.rendererIndices.Length != data.localBounds.Length ||
+                    Array.Exists(data.rendererIndices, i => i < 0 || i >= renderers.Length ||
+                        renderers[i].GetComponent<MeshFilter>() == null))
+                {
+                    Debug.LogError("District catalog does not match city.");
+                    return;
+                }
+            }
+            foreach (var data in catalog.districts)
+            {
+                for (int i = 0; i < data.rendererIndices.Length; i++)
+                    renderers[data.rendererIndices[i]].localBounds = data.localBounds[i];
+                states.Add(new State { Data = data });
+            }
+            initialized = true;
+        }
+
+        private void Update()
+        {
+            if (!initialized || Time.unscaledTime < nextCheck) return;
+            nextCheck = Time.unscaledTime + .2f;
+            var camera = Camera.main;
+            if (camera == null) return;
+            // Full 360-degree reserve, independent of camera heading.
+            float radius = camera.farClipPlane + 160f;
+            State nearest = null;
+            float nearestDistance = float.PositiveInfinity;
+            foreach (var state in states)
+            {
+                float distance = Mathf.Sqrt(state.Data.bounds.SqrDistance(camera.transform.position));
+                if (state.Bundle != null && !state.Busy && distance > radius + 128f)
+                    Release(state);
+                if (state.Bundle == null && !state.Busy && Time.unscaledTime >= state.RetryAt &&
+                    distance <= radius && distance < nearestDistance)
+                {
+                    nearest = state;
+                    nearestDistance = distance;
+                }
+            }
+            if (!loading && nearest != null) StartCoroutine(Load(nearest));
+        }
+
+        private IEnumerator Load(State state)
+        {
+            loading = state.Busy = true;
+            try
+            {
+                string url = Application.streamingAssetsPath.TrimEnd('/') + "/" + state.Data.file;
+                using (var request = UnityWebRequestAssetBundle.GetAssetBundle(url, Hash128.Parse(state.Data.hash)))
+                {
+                    request.timeout = 120;
+                    yield return request.SendWebRequest();
+                    if (request.result != UnityWebRequest.Result.Success)
+                    {
+                        Debug.LogWarning("District download failed: " + request.error);
+                        yield break;
+                    }
+                    state.Bundle = DownloadHandlerAssetBundle.GetContent(request);
+                }
+                if (state.Bundle == null) yield break;
+                var assets = state.Bundle.LoadAllAssetsAsync<Mesh>();
+                yield return assets;
+                var meshes = new Dictionary<string, Mesh>(StringComparer.Ordinal);
+                foreach (var asset in assets.allAssets)
+                    if (asset is Mesh mesh) meshes[mesh.name] = mesh;
+                foreach (string name in state.Data.meshNames)
+                    if (!meshes.ContainsKey(name))
+                    {
+                        Debug.LogError("District mesh missing: " + name);
+                        Release(state);
+                        yield break;
+                    }
+                for (int i = 0; i < state.Data.rendererIndices.Length; i++)
+                {
+                    var renderer = renderers[state.Data.rendererIndices[i]];
+                    if (renderer != null) renderer.GetComponent<MeshFilter>().sharedMesh = meshes[state.Data.meshNames[i]];
+                }
+            }
+            finally
+            {
+                state.Busy = loading = false;
+                state.RetryAt = Time.unscaledTime + 5f;
+            }
+        }
+
+        private void Release(State state)
+        {
+            foreach (int index in state.Data.rendererIndices)
+            {
+                var renderer = renderers[index];
+                if (renderer != null) renderer.GetComponent<MeshFilter>().sharedMesh = null;
+            }
+            if (state.Bundle != null) state.Bundle.Unload(true);
+            state.Bundle = null;
+        }
+
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+            foreach (var state in states) Release(state);
+        }
     }
 }
