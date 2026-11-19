@@ -55,7 +55,7 @@ namespace MotorCity.UI
         private Text source;
         private TextMeshProUGUI label;
         private bool ready;
-        private string lastText;
+        public bool RendersGlyphs => ready && isActiveAndEnabled && label != null && label.enabled;
 
         private static TMP_FontAsset Resolve(Font font)
         {
@@ -96,11 +96,15 @@ namespace MotorCity.UI
                 label.richText = source.supportRichText;
                 label.overflowMode = TextOverflowModes.Truncate;
                 ready = true;
+                source.SetVerticesDirty();
             }
             // Do not disable the source component: LayoutGroup and code rely
             // on its preferred dimensions. Cull only its rendered geometry.
-            source.canvasRenderer.cull = true;
-            label.enabled = source.enabled;
+            if (label.enabled != source.enabled)
+            {
+                label.enabled = source.enabled;
+                source.SetVerticesDirty();
+            }
             var font = Resolve(source.font);
             if (font != null && label.font != font) label.font = font;
             if (label.text != source.text) label.text = source.text;
@@ -134,7 +138,7 @@ namespace MotorCity.UI
         }
         private void OnDisable()
         {
-            if (source != null) source.canvasRenderer.cull = false;
+            if (source != null) source.SetVerticesDirty();
             if (label != null) label.enabled = false;
         }
     }
