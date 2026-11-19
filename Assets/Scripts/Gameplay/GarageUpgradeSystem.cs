@@ -692,6 +692,36 @@ namespace MotorCity.Gameplay
             transitionInProgress =
                 true;
 
+            if (!MotorCity.World.MotorCityCityBundle.FleetReady)
+            {
+                car.SetDrivingBlocked("Garage", true);
+                StartCoroutine(PrepareFleet());
+                return;
+            }
+            EnterGarageAfterFleet();
+        }
+
+        private System.Collections.IEnumerator PrepareFleet()
+        {
+            yield return MotorCity.World.MotorCityCityBundle.LoadFleet(progress =>
+            {
+                StatusText = MotorCityLocalization.Format("garage.fleet_loading", Mathf.RoundToInt(progress * 100f));
+                Changed?.Invoke();
+            });
+            if (!MotorCity.World.MotorCityCityBundle.FleetReady)
+            {
+                activityManager.End(ActivityId);
+                car.SetDrivingBlocked("Garage", false);
+                transitionInProgress = false;
+                StatusText = MotorCityLocalization.Text("garage.fleet_failed");
+                Changed?.Invoke();
+                yield break;
+            }
+            EnterGarageAfterFleet();
+        }
+
+        private void EnterGarageAfterFleet()
+        {
             car.SetGaragePresentationMode(
                 true);
 
