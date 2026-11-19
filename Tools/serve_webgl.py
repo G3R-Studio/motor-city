@@ -23,6 +23,15 @@ class UnityWebGLHandler(SimpleHTTPRequestHandler):
             del self.headers["If-Modified-Since"]
         if "If-None-Match" in self.headers:
             del self.headers["If-None-Match"]
+        self.city_brotli = False
+        path = urlsplit(self.path).path
+        if path.startswith("/StreamingAssets/motorcity-city-") and path.endswith(".bundle"):
+            accept = self.headers.get("Accept-Encoding", "")
+            if "br" in [v.strip().split(";")[0] for v in accept.split(",")]:
+                sidecar = Path(self.translate_path(path + ".br"))
+                if sidecar.is_file():
+                    self.city_brotli = True
+                    self.path = path + ".br"
         return super().send_head()
 
     def guess_type(self, path):
@@ -32,12 +41,14 @@ class UnityWebGLHandler(SimpleHTTPRequestHandler):
             return "application/javascript"
         if plain.lower().endswith(".wasm"):
             return "application/wasm"
-        if plain.lower().endswith(".data"):
+        if plain.lower().endswith((".data", ".bundle")):
             return "application/octet-stream"
         return super().guess_type(plain)
 
     def end_headers(self):
         path = urlsplit(self.path).path.lower()
+        if getattr(self, "city_brotli", False):
+            self.send_header("Vary", "Accept-Encoding")
         if path.endswith(".br"):
             self.send_header("Content-Encoding", "br")
         elif path.endswith(".gz"):
