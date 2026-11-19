@@ -90,9 +90,11 @@ World/ — относительно Assets/Scripts/. Базовые URP наст
 - [ ] Не считать одинаковые картинки ненужными дублями: GUID могут использоваться разными объектами, importer settings могут отличаться. Не удалять клоны; если когда-либо согласуем дедупликацию — сначала полный список ссылок, эквивалентность импорта, remap всех ссылок, обратимый коммит, отдельный тест. Shared assets между player и bundle можно дублировать ради корректности.
 
 ### P1a — шрифты (низкий приоритет)
-- [ ] Проверить пять TTF в Assets/Resources/MotorCity/Fonts: RobotoCondensed Regular/Bold (1,019,060 байт суммарно, используются MotorCityTypography), Roboto Regular и Ubuntu Regular/Bold (1,198,596 байт суммарно, кандидаты). GitHub search не обнаружил ссылок на последние три по имени/GUID, но не является доказательством отсутствия зависимостей.
-- [ ] Запустить Tools > Motor City > Audit > Font Dependencies; отчёт Library/MotorCityFontAudit.txt. Проверить ссылки по AssetDatabase.GetDependencies и динамические загрузки, fallback/локализацию. Аудит ничего не меняет.
+- [x] Проверить пять TTF в Assets/Resources/MotorCity/Fonts: RobotoCondensed Regular/Bold (1,019,060 байт суммарно, используются MotorCityTypography), Roboto Regular и Ubuntu Regular/Bold (1,198,596 байт суммарно, кандидаты). GitHub search не обнаружил ссылок на последние три по имени/GUID, но не является доказательством отсутствия зависимостей.
+- [x] Запустить Tools > Motor City > Audit > Font Dependencies; отчёт Library/MotorCityFontAudit.txt. Проверить ссылки по AssetDatabase.GetDependencies и динамические загрузки, fallback/локализацию. Аудит ничего не меняет.
 - [ ] Только после проверки вынести неиспользуемые TTF вместе с .meta из Resources, не удаляя исходники/лицензии. Сохранить GUID. Сравнить фактический .data.br и интерфейс на всех языках, не ожидать существенного FPS-выигрыша. Проверять Canvas rebuild и обновления текста отдельно.
+
+19.11.2026: локальный Font Audit завершён (COMPLETE), прямых ссылок на три кандидата нет; по именам/GUID и динамическим путям найдены только Roboto Condensed Regular/Bold. Roboto-Regular, Ubuntu-Regular и Ubuntu-Bold перемещены в Assets/ArchivedFonts с исходными .meta и blob SHA. Лицензии не изменены. 1 198 596 байт исходников исключены из Resources; фактический выигрыш и локализация требуют проверки следующей сборки.
 
 ### P2 — LOD геометрии
 - [ ] Инвентаризация существующих LODGroup и фактического влияния maxLOD=1 на Low/Medium.
