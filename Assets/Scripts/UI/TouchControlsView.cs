@@ -1,4 +1,5 @@
 using MotorCity.Platform;
+using MotorCity.Gameplay;
 using MotorCity.Input;
 using MotorCity.Localization;
 using UnityEngine;
@@ -30,6 +31,10 @@ namespace MotorCity.UI
             { "Steering", "Throttle", "Brake", "Handbrake", "Action" };
         private static readonly string[] ArrowResizeKeys =
             { "SteerLeft", "SteerRight", "Throttle", "Brake", "Handbrake", "Action" };
+        private static string BonusAdLabel() => MotorCityLocalization.LanguageCode == "ru"
+            ? $"Реклама: +{RewardedBonusSystem.RewardCredits()} кр."
+            : $"Ad: +{RewardedBonusSystem.RewardCredits()} cr.";
+
         private void RefreshTouchLocalizedLabels()
         {
             foreach (TouchLocalizedLabel binding in
@@ -39,8 +44,7 @@ namespace MotorCity.UI
                     continue;
 
                 binding.Text.text =
-                    MotorCityLocalization.Text(
-                        binding.LocalizationKey);
+                    binding.LocalizationKey == "touch.utility.bonus" ? BonusAdLabel() : MotorCityLocalization.Text(binding.LocalizationKey);
             }
         }
 
@@ -265,8 +269,7 @@ namespace MotorCity.UI
                     TextColor);
 
             text.text =
-                MotorCityLocalization.Text(
-                    localizationKey);
+                bonusButton ? BonusAdLabel() : MotorCityLocalization.Text(localizationKey);
 
             MakeButtonTextCrisp(
                 text);
@@ -332,8 +335,7 @@ namespace MotorCity.UI
             float aspect = Screen.height > 0
                 ? Screen.width / (float)Screen.height
                 : 16f / 9f;
-            float match = aspect < 1.55f ? 0f :
-                aspect > 2.10f ? 1f : 0.5f;
+            float match = aspect < 1920f / 1080f ? 0f : 1f;
             if (force || !Mathf.Approximately(
                     canvasScaler.matchWidthOrHeight, match))
             {
