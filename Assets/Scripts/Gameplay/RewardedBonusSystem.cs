@@ -289,7 +289,7 @@ namespace MotorCity.Gameplay
             }
         }
 
-        private static int RewardCredits()
+        public static int RewardCredits()
         {
             return Mathf.Clamp(
                 MotorCityRemoteConfigRuntime.GetInt(
