@@ -10,6 +10,10 @@ namespace MotorCity.UI
     /// </summary>
     internal static class MotorCityTextLayout
     {
+        private static TMP_Settings cachedSettings;
+        internal static bool HasTmpSettings => cachedSettings != null ||
+            (cachedSettings = Resources.Load<TMP_Settings>("TMP Settings")) != null;
+
         public static void Configure(Text text)
         {
             if (text == null)
@@ -40,7 +44,7 @@ namespace MotorCity.UI
             text.verticalOverflow = VerticalWrapMode.Overflow;
             if (text.GetComponent<MotorCityTextClip>() == null)
                 text.gameObject.AddComponent<MotorCityTextClip>();
-            if (Resources.Load<TMP_Settings>("TMP Settings") != null &&
+            if (HasTmpSettings &&
                 text.GetComponent<MotorCitySdfLabel>() == null)
                 text.gameObject.AddComponent<MotorCitySdfLabel>();
         }
@@ -59,7 +63,7 @@ namespace MotorCity.UI
 
         private static TMP_FontAsset Resolve(Font font)
         {
-            if (font == null || Resources.Load<TMP_Settings>("TMP Settings") == null) return null;
+            if (font == null || !MotorCityTextLayout.HasTmpSettings) return null;
             if (fonts.TryGetValue(font, out var existing) && existing != null) return existing;
             var asset = TMP_FontAsset.CreateFontAsset(font, 90, 9,
                 UnityEngine.TextCore.LowLevel.GlyphRenderMode.SDFAA, 1024, 1024,
