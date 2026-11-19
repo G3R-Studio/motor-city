@@ -331,3 +331,8 @@ Audit COMPLETE: 21690 MeshRenderer, 2 missing meshes; 64m 364 cells/1900 crossin
 ### Портреты и окраска, 20.11.2026
 
 - `236aaaf`, `81ef36f`, `20ed870`: четыре PNG-портрета персонажей и пять StarterPaint .mat включены в общий городской bundle при штатном split Build. Сохранены исходные resource addresses, типы файлов, GUID и Resources fallback. Проверены исходные пути портретов. Компиляция, фактическое исключение зависимостей из DATA и отображение Sprite не проверены. Независимая загрузка по требованию остаётся открытой.
+
+
+### Игровые звуки, 20.11.2026
+
+- `c1e1813`, `b036741`: CarEngine.wav и TireSkid.ogg перенесены в общий городской bundle при split Build, загрузчик PlayerVehicleAudio адаптирован. GUI SFX оставлены в Resources, параметры импорта и звук не изменены. Unity compile, playback и фактическая экономия DATA не проверены. Независимые пакеты и гараж остаются открытыми.
