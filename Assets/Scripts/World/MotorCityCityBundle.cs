@@ -81,6 +81,7 @@ namespace MotorCity.World
 
         private const string Marker = "MotorCityCityBundleVersion";
         private static AssetBundle bundle;
+        private static readonly List<AssetBundle> gameplayBundles = new List<AssetBundle>();
         private static bool running;
         private static GameObject prefab;
         public static bool Failed { get; private set; }
@@ -109,25 +110,42 @@ namespace MotorCity.World
 
         private static IEnumerator Download()
         {
-            string version = Resources.Load<TextAsset>(Marker).text.Trim();
-            string url = Application.streamingAssetsPath.TrimEnd('/') +
-                "/motorcity-city-" + version + ".bundle";
+            // Legacy marker: city hash only. New marker: dependency-ordered name|hash lines.
+            string marker = Resources.Load<TextAsset>(Marker).text.Trim();
+            string[] files = marker.Contains("|") ? marker.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                : new[] { "motorcity-city.bundle|" + marker };
             for (int attempt = 0; attempt < 2; attempt++)
             {
                 Progress = 0f;
-                using (var request = UnityWebRequestAssetBundle.GetAssetBundle(url, Hash128.Parse(version)))
+                for (int i = 0; i < files.Length; i++)
                 {
-                    request.timeout = 120;
-                    var operation = request.SendWebRequest();
-                    while (!operation.isDone)
+                    string[] entry = files[i].Split('|');
+                    string name = entry[0];
+                    string version = entry[1];
+                    string url = Application.streamingAssetsPath.TrimEnd('/') + "/" +
+                        name.Substring(0, name.Length - ".bundle".Length) + "-" + version + ".bundle";
+                    using (var request = UnityWebRequestAssetBundle.GetAssetBundle(url, Hash128.Parse(version)))
                     {
-                        Progress = Mathf.Clamp01(request.downloadProgress) * 0.85f;
-                        yield return null;
+                        request.timeout = 120;
+                        var operation = request.SendWebRequest();
+                        while (!operation.isDone)
+                        {
+                            Progress = (i + Mathf.Clamp01(request.downloadProgress)) / files.Length * 0.85f;
+                            yield return null;
+                        }
+                        var loaded = request.result == UnityWebRequest.Result.Success
+                            ? DownloadHandlerAssetBundle.GetContent(request) : null;
+                        if (loaded == null)
+                        {
+                            Debug.LogWarning("Motor City package download: " + name + " " + request.error);
+                            if (bundle != null) { bundle.Unload(true); bundle = null; }
+                            foreach (var other in gameplayBundles) other.Unload(true);
+                            gameplayBundles.Clear();
+                            break;
+                        }
+                        if (name == "motorcity-city.bundle") bundle = loaded;
+                        else gameplayBundles.Add(loaded);
                     }
-                    if (request.result == UnityWebRequest.Result.Success)
-                        bundle = DownloadHandlerAssetBundle.GetContent(request);
-                    else
-                        Debug.LogWarning("Motor City city download: " + request.error);
                 }
                 if (bundle != null)
                 {
@@ -164,6 +182,8 @@ namespace MotorCity.World
                     bundle.Unload(true);
                     bundle = null;
                 }
+                foreach (var other in gameplayBundles) other.Unload(true);
+                gameplayBundles.Clear();
                 yield return new WaitForSecondsRealtime(2f);
             }
             Failed = true;
@@ -198,6 +218,9 @@ namespace MotorCity.World
         // Native players and Editor use the same original resource addresses.
         public static T LoadGameplay<T>(string path) where T : UnityEngine.Object
         {
+            if (Enabled)
+                foreach (var other in gameplayBundles)
+                    if (other.Contains(path)) return other.LoadAsset<T>(path);
             if (Enabled && bundle != null && bundle.Contains(path))
                 return bundle.LoadAsset<T>(path);
             return Resources.Load<T>(path);
