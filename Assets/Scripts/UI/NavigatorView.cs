@@ -1775,9 +1775,9 @@ namespace MotorCity.UI
                     11,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(-23f, 9f),
+                    new Vector2(-18f, 9f),
                     new Vector2(
-                        140f,
+                        118f,
                         30f),
                     new Vector2(
                         0.5f,
@@ -1789,11 +1789,11 @@ namespace MotorCity.UI
 
             minimapTargetText.resizeTextForBestFit =
                 true;
-            minimapTargetText.fontSize = 15;
+            minimapTargetText.fontSize = 17;
             minimapTargetText.resizeTextMinSize =
                 13;
             minimapTargetText.resizeTextMaxSize =
-                15;
+                17;
             minimapTargetText.horizontalOverflow =
                 HorizontalWrapMode.Wrap;
             minimapTargetText.verticalOverflow =
@@ -1809,8 +1809,8 @@ namespace MotorCity.UI
                     12,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(-23f, -19f),
-                    new Vector2(140f, 18f),
+                    new Vector2(-18f, -19f),
+                    new Vector2(118f, 18f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     MotorCityUiSkin.AccentCyan);
