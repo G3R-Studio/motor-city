@@ -33,6 +33,12 @@ namespace MotorCity.Gameplay
             MotorCity.Persistence.MotorCitySaveService.GetInt(NoAdsKey, 0) != 0;
         public static bool DoubleIncomeOwned =>
             MotorCity.Persistence.MotorCitySaveService.GetInt(DoubleIncomeKey, 0) != 0;
+        private const string BoostUntilKey = "MotorCity.Rewarded.DoubleIncomeUntil";
+        public static long BoostRemaining => long.TryParse(MotorCity.Persistence.MotorCitySaveService.GetString(BoostUntilKey, "0"), out long end)
+            ? Math.Max(0L, end - MotorCityPlatform.ServerUnixTime) : 0L;
+        public static bool IncomeBoostActive => DoubleIncomeOwned || BoostRemaining > 0;
+        public bool SelectedAdProduct => SelectedProductId == SmallCreditsId || SelectedProductId == MediumCreditsId ||
+            SelectedProductId == LargeCreditsId || SelectedProductId == DoubleIncomeId;
         public string SelectedProductId => Products[selectedProductIndex];
 
 
@@ -61,7 +67,7 @@ namespace MotorCity.Gameplay
             productCatalogResolved;
 
         public bool SelectedProductAvailable =>
-            supporterProductAvailable;
+            true;
         public bool SelectedOwned => IsSelectedOwned();
 
         public Texture2D CurrencyIconTexture =>
@@ -87,6 +93,8 @@ namespace MotorCity.Gameplay
         {
             get
             {
+                if (SelectedProductId == DoubleIncomeId && BoostRemaining > 0)
+                    return MotorCityLocalization.Format("store.boost_remaining", BoostRemaining / 60, BoostRemaining % 60);
                 if (IsSelectedOwned())
                 {
                     return
@@ -94,6 +102,7 @@ namespace MotorCity.Gameplay
                             "store.owned");
                 }
 
+                if (SelectedAdProduct) return MotorCityLocalization.Text("store.watch_ad");
                 if (!productCatalogResolved)
                 {
                     return
@@ -173,182 +182,58 @@ namespace MotorCity.Gameplay
 
         public void PurchaseSelected()
         {
-            if (purchaseRunning)
-                return;
-
-            if (IsSelectedOwned())
+            if (purchaseRunning) return;
+            string id = SelectedProductId;
+            if (!SelectedAdProduct)
             {
-                StatusText =
-                    MotorCityLocalization.Text(
-                        "store.already_owned");
-
-                messageTimer =
-                    3.5f;
-
+                StatusText = MotorCityLocalization.Text("store.purchase_pending");
+                messageTimer = 4f;
                 return;
             }
-
-            string productId =
-                SelectedProductId;
-
-#if !UNITY_EDITOR
-            if (!productCatalogResolved ||
-                !supporterProductAvailable)
+            if (id == DoubleIncomeId && IncomeBoostActive)
             {
-                StatusText =
-                    !productCatalogResolved
-                        ? MotorCityLocalization.Text(
-                            "store.loading_product")
-                        : MotorCityLocalization.Text(
-                            "store.unavailable");
-
-                messageTimer =
-                    3.5f;
-
+                StatusText = MotorCityLocalization.Text("store.boost_active");
+                messageTimer = 4f;
                 return;
             }
-#endif
-
-#if UNITY_EDITOR
-            // Editor-only test path. Production builds must never grant a
-            // paid entitlement just because the platform purchase bridge is
-            // unavailable or failed to initialize.
-            if (!MotorCityPlatform.SupportsPurchases)
+            if (!MotorCityPlatform.SupportsAds)
             {
-                GrantAndConsume(
-                    productId,
-                    "editor-" + Guid.NewGuid().ToString("N"));
-
+                StatusText = MotorCityLocalization.Text("rewarded.platform_unavailable");
+                messageTimer = 4f;
                 return;
             }
-#else
-            if (!MotorCityPlatform.SupportsPurchases)
+            var wallet = UnityEngine.Object.FindAnyObjectByType<PlayerWallet>();
+            if (wallet == null) return;
+            purchaseRunning = true;
+            StatusText = MotorCityLocalization.Text("rewarded.opening");
+            messageTimer = 4f;
+            MotorCityPlatform.ShowRewarded("store_" + id, rewarded =>
             {
-                StatusText =
-                    MotorCityLocalization.Text(
-                        "store.unavailable");
-
-                messageTimer =
-                    3.5f;
-
-                return;
-            }
-#endif
-
-            purchaseRunning =
-                true;
-
-            StatusText =
-                MotorCityLocalization.Text(
-                    "store.opening");
-
-            messageTimer =
-                3f;
-
-            MotorCityPlatform.Purchase(
-                productId,
-                (success, token) =>
+                if (!purchaseRunning) return;
+                purchaseRunning = false;
+                if (!rewarded)
+                    StatusText = MotorCityLocalization.Text("rewarded.no_reward");
+                else if (id == DoubleIncomeId)
                 {
-                    purchaseRunning =
-                        false;
-
-                    if (!success)
-                    {
-                        StatusText =
-                            MotorCityLocalization.Text(
-                                "store.cancelled");
-
-                        messageTimer =
-                            3.5f;
-
-                        return;
-                    }
-
-                    GrantAndConsume(
-                        productId,
-                        token);
-                });
+                    MotorCity.Persistence.MotorCitySaveService.SetString(BoostUntilKey, (MotorCityPlatform.ServerUnixTime + 300L).ToString());
+                    MotorCity.Persistence.MotorCitySaveService.Save();
+                    StatusText = MotorCityLocalization.Text("store.boost_active");
+                }
+                else
+                {
+                    int amount = id == SmallCreditsId ? 25000 : id == MediumCreditsId ? 100000 : 500000;
+                    wallet.AddCredits(amount, true, false);
+                    StatusText = MotorCityLocalization.Format("rewarded.received", amount);
+                }
+                messageTimer = 4f;
+            });
         }
 
         private void LoadSupporterProductInfo()
         {
-            string requestedId = SelectedProductId;
-            productCatalogResolved = false;
-            supporterProductAvailable = false;
+            productCatalogResolved = true;
+            supporterProductAvailable = true;
             supporterPrice = string.Empty;
-            if (currencyIconTexture != null)
-            {
-                UnityEngine.Object.Destroy(currencyIconTexture);
-                currencyIconTexture = null;
-            }
-            if (!MotorCityPlatform.SupportsPurchases)
-            {
-                productCatalogResolved = true;
-#if UNITY_EDITOR
-                supporterProductAvailable = true;
-#else
-                supporterProductAvailable = false;
-#endif
-                return;
-            }
-
-            MotorCityPlatform.LoadProductInfo(
-                requestedId,
-                (success, payload) =>
-                {
-                    if (requestedId != SelectedProductId)
-                        return;
-                    productCatalogResolved =
-                        true;
-
-                    supporterProductAvailable =
-                        false;
-
-                    if (!success ||
-                        string.IsNullOrWhiteSpace(
-                            payload))
-                    {
-                        return;
-                    }
-
-                    int split =
-                        payload.IndexOf('|');
-
-                    string encodedPrice =
-                        split >= 0
-                            ? payload.Substring(
-                                0,
-                                split)
-                            : payload;
-
-                    string encodedIcon =
-                        split >= 0 &&
-                        split + 1 < payload.Length
-                            ? payload.Substring(
-                                split + 1)
-                            : string.Empty;
-
-                    supporterPrice =
-                        DecodeCatalogValue(
-                            encodedPrice);
-
-                    supporterProductAvailable =
-                        !string.IsNullOrWhiteSpace(
-                            supporterPrice);
-
-                    string iconUrl =
-                        DecodeCatalogValue(
-                            encodedIcon);
-
-                    if (!string.IsNullOrWhiteSpace(
-                            iconUrl))
-                    {
-                        StartCoroutine(
-                            LoadCurrencyIcon(
-                                iconUrl,
-                                requestedId));
-                    }
-                });
         }
 
         private IEnumerator LoadCurrencyIcon(
