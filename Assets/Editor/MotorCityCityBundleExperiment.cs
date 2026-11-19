@@ -30,7 +30,17 @@ namespace MotorCity.EditorTools
             "Vehicles/Player/Delorean",
             "Vehicles/Player/Bus",
             "Pixie/AmaneKisoraVisual",
-            "Byte/HaonByteVisual"
+            "Byte/HaonByteVisual",
+            "PlayerCarVisual",
+            "Markers/CarWashMarkerVfx",
+            "Markers/TowMarkerVfx",
+            "Markers/ProfessionMarkerVfx",
+            "Markers/DiscoveryMarkerVfx",
+            "Markers/DeliveryMarkerVfx",
+            "Markers/SprintMarkerVfx",
+            "Markers/UndergroundMarkerVfx",
+            "Markers/CircuitMarkerVfx",
+            "Markers/DriftMarkerVfx"
         };
         private static string GameplayOriginal(string name) => "Assets/Resources/MotorCity/" + name + ".prefab";
         private static string GameplayParked(string name) => "Assets/MotorCity_GameplayStream_" + name.Replace('/', '_') + ".prefab";
