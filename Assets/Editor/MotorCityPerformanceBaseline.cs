@@ -22,6 +22,28 @@ namespace MotorCity.EditorTools
         private static double start, last;
         private static int lastFrame;
         private static string context;
+        private static UniversalRenderPipelineAsset PilotPipeline()
+        {
+            var pipeline = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
+            return pipeline != null && !EditorUtility.IsPersistent(pipeline) &&
+                pipeline.name.EndsWith(" (Play Mode)", StringComparison.Ordinal) ? pipeline : null;
+        }
+
+        [MenuItem("Tools/Motor City/Audit/HDR Pilot ON")]
+        private static void HdrOn() => SetHdr(true);
+        [MenuItem("Tools/Motor City/Audit/HDR Pilot OFF")]
+        private static void HdrOff() => SetHdr(false);
+        [MenuItem("Tools/Motor City/Audit/HDR Pilot ON", true)]
+        [MenuItem("Tools/Motor City/Audit/HDR Pilot OFF", true)]
+        private static bool CanSetHdr() => CanBegin() && PilotPipeline() != null;
+
+        private static void SetHdr(bool active)
+        {
+            if (!CanSetHdr()) return;
+            PilotPipeline().supportsHDR = active;
+            Debug.Log("HDR pilot: " + (active ? "ON" : "OFF") + " (temporary Play Mode pipeline).");
+        }
+
         private static ScriptableRendererFeature FindSsao()
         {
             var pipeline = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
@@ -80,7 +102,7 @@ namespace MotorCity.EditorTools
             Add(ProfilerCategory.Memory, "Total Used Memory");
             Add(ProfilerCategory.Memory, "GC Used Memory");
             Add(ProfilerCategory.Memory, "GC Allocated In Frame");
-            context = $"ssao={SsaoState()} preset={MotorCity.Platform.MotorCityQualityRuntime.CurrentPreset} renderScale={(GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset)?.renderScale} lampInstancingRenderers={MotorCityLampInstancingPilot.Count} lodPilot={MotorCity.Platform.MotorCityBuildingLodPilot.Enabled} lodRenderers={MotorCity.Platform.MotorCityBuildingLodPilot.RendererCount} Unity={Application.unityVersion} target={EditorUserBuildSettings.activeBuildTarget} screen={Screen.width}x{Screen.height} qualityIndex={QualitySettings.GetQualityLevel()} targetFPS={Application.targetFrameRate} vSync={QualitySettings.vSyncCount} GPU={SystemInfo.graphicsDeviceName}";
+            context = $"hdr={(GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset)?.supportsHDR} cameraHDR={Camera.main?.allowHDR} ssao={SsaoState()} preset={MotorCity.Platform.MotorCityQualityRuntime.CurrentPreset} renderScale={(GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset)?.renderScale} lampInstancingRenderers={MotorCityLampInstancingPilot.Count} lodPilot={MotorCity.Platform.MotorCityBuildingLodPilot.Enabled} lodRenderers={MotorCity.Platform.MotorCityBuildingLodPilot.RendererCount} Unity={Application.unityVersion} target={EditorUserBuildSettings.activeBuildTarget} screen={Screen.width}x{Screen.height} qualityIndex={QualitySettings.GetQualityLevel()} targetFPS={Application.targetFrameRate} vSync={QualitySettings.vSyncCount} GPU={SystemInfo.graphicsDeviceName}";
             start = last = EditorApplication.timeSinceStartup;
             lastFrame = Time.frameCount;
             running = true;
