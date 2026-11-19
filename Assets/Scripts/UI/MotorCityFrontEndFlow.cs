@@ -68,6 +68,7 @@ namespace MotorCity.UI
         private GameObject controlChoiceRoot;
         private Text primaryButtonText;
         private Text settingsQualityText;
+        private Text settingsDrawDistanceText;
         private Text settingsAudioText;
         private Text settingsMusicText;
         private Text settingsLanguageText;
@@ -188,6 +189,7 @@ namespace MotorCity.UI
                 car != null &&
                 hud != null;
 
+            MotorCityQualityRuntime.Initialize();
             MotorCityUiEventSystem.EnsureUiEventSystem();
             MotorCityMusicRuntime.EnsureExists();
             EnsureFrontEndCamera();
@@ -1224,7 +1226,7 @@ namespace MotorCity.UI
                     IsRussian()
                         ? "НАСТРОЙКИ"
                         : "SETTINGS",
-                    new Vector2(1180f, 660f),
+                    new Vector2(1180f, 764f),
                     showCloseButton: false,
                     showHeaderDivider: false,
                     contentGlowPadding: 10);
@@ -1238,6 +1240,11 @@ namespace MotorCity.UI
                 () => ChangeQuality(-1),
                 () => ChangeQuality(1),
                 null);
+
+            CreateFrontEndSettingsLayoutRow(window.Content,
+                IsRussian() ? "ДАЛЬНОСТЬ" : "DRAW DISTANCE",
+                out settingsDrawDistanceText,
+                () => ChangeDrawDistance(-1), () => ChangeDrawDistance(1), null);
 
             CreateFrontEndSettingsLayoutRow(
                 window.Content,
@@ -1268,7 +1275,7 @@ namespace MotorCity.UI
                 ToggleLanguage);
 
             // Keep the primary page exit in the persistent footer.
-            // The four setting rows remain in the scrollable body at narrow
+            // The five setting rows remain in the scrollable body at narrow
             // heights, instead of leaving empty space under Back on desktop.
             RectTransform actions =
                 CreateFrontEndActionRow(
@@ -2942,6 +2949,7 @@ namespace MotorCity.UI
 
         private void ShowSettings()
         {
+            MotorCityQualityRuntime.Initialize();
             AudioListener.pause = true;
             MotorCityMusicRuntime.SetMenuActive(
                 true);
@@ -2989,6 +2997,14 @@ namespace MotorCity.UI
         {
             if (settingsAudioSlider != null) settingsAudioSlider.SetValueWithoutNotify(Mathf.RoundToInt((hud != null ? hud.FrontEndAudioVolume : frontEndAudioVolume) * 100f));
             if (settingsMusicSlider != null) settingsMusicSlider.SetValueWithoutNotify(Mathf.RoundToInt(MotorCityMusicRuntime.Volume * 100f));
+            if (settingsDrawDistanceText != null)
+                settingsDrawDistanceText.text = MotorCityLocalization.Text(MotorCityDrawDistanceSettings.Current switch
+                {
+                    MotorCityDrawDistance.Near => "pause.draw_near",
+                    MotorCityDrawDistance.Medium => "pause.draw_medium",
+                    MotorCityDrawDistance.Far => "pause.draw_far",
+                    _ => "pause.draw_auto"
+                });
             if (settingsQualityText != null)
             {
                 settingsQualityText.text =
@@ -3028,6 +3044,12 @@ namespace MotorCity.UI
 
             if (settingsLanguageText != null)
                 settingsLanguageText.text = IsRussian() ? "РУССКИЙ" : "ENGLISH";
+        }
+
+        private void ChangeDrawDistance(int direction)
+        {
+            MotorCityDrawDistanceSettings.Set((MotorCityDrawDistance)(((int)MotorCityDrawDistanceSettings.Current + direction + 4) % 4));
+            RefreshSettingsText();
         }
 
         private void ChangeQuality(int direction)
