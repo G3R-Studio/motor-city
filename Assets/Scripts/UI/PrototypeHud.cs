@@ -596,9 +596,11 @@ namespace MotorCity.UI
             if (safeAreaRoot == null) return;
             bool blocked = HasBlockingModalUi();
             GameObject modal = pauseMenuOpen ? pauseOverlay : storeOpen ? storeOverlay : clubOpen ? clubOverlay :
-                navigatorMenuOpen ? navigatorMenuOverlay : garage != null && garage.IsOpen ? garageOverlay :
+                navigatorMenuOpen ? navigatorMenuOverlay :
                 activityManager != null && activityManager.HasResult ? activityResultOverlay : null;
-            if (modalWorldBackdrop == null && blocked)
+            // Garage is a live 3D vehicle preview, not a frozen modal backdrop.
+            // Capturing during its loading transition permanently covers the car.
+            if (modalWorldBackdrop == null && modal != null)
             {
                 var shader = Resources.Load<Shader>("MotorCity/UI/ModalWorldBlur");
                 if (shader != null && shader.isSupported)
