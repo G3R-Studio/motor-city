@@ -185,6 +185,13 @@ namespace MotorCity.EditorTools
                     throw new InvalidOperationException("Could not save district city skeleton.");
             }
             finally { UnityEngine.Object.DestroyImmediate(clone); }
+            if (output != null)
+            {
+                if (string.IsNullOrWhiteSpace(output)) return;
+                output = Path.GetFullPath(output);
+                if (Directory.Exists(output) && Directory.EnumerateFileSystemEntries(output).Any())
+                    throw new InvalidOperationException("Choose an empty output folder for the complete Playgama build.");
+            }
             AssetDatabase.SaveAssets();
             Directory.CreateDirectory(directory);
             var manifest = BuildPipeline.BuildAssetBundles(directory, builds.ToArray(),
@@ -365,7 +372,25 @@ namespace MotorCity.EditorTools
             throw new InvalidOperationException("Unrecognized bundle root: " + path);
         }
 
-        private static void Run(bool split, bool districts = false, bool hlod = false)
+        [InitializeOnLoadMethod]
+        private static void RegisterPlayerBuild()
+        {
+            BuildPlayerWindow.RegisterBuildPlayerHandler(BuildFromWindow);
+        }
+
+        private static void BuildFromWindow(BuildPlayerOptions options)
+        {
+            if (options.target != BuildTarget.WebGL)
+            {
+                BuildPlayerWindow.DefaultBuildMethods.BuildPlayer(options);
+                return;
+            }
+            if ((options.options & BuildOptions.AutoRunPlayer) != 0)
+                throw new InvalidOperationException("Use Build for the complete Playgama package, then serve the output over HTTP.");
+            Run(true, true, false, options.locationPathName);
+        }
+
+        private static void Run(bool split, bool districts = false, bool hlod = false, string output = null)
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode || BuildPipeline.isBuildingPlayer)
                 throw new InvalidOperationException("Exit Play Mode and finish any current build.");
@@ -377,7 +402,7 @@ namespace MotorCity.EditorTools
                 EditorUserBuildSettings.development)
                 throw new InvalidOperationException("Activate Web - Desktop - Release first.");
 
-            if (!EditorUtility.DisplayDialog("City bundle size experiment",
+            if (output == null && !EditorUtility.DisplayDialog("City bundle size experiment",
                 split ? "Builds a playable split-city test. All original assets will be restored. Not for publication until tested." : "Builds two diagnostic players and one city bundle. CityVisual, FCGMaterials, FCGTrafficCars and the traffic catalog are temporarily moved out of Resources and restored in finally. No textures are deleted. Do not publish the stripped player. Save your scenes first.",
                 "Run experiment", "Cancel"))
                 return;
@@ -456,7 +481,7 @@ namespace MotorCity.EditorTools
                 long bundle = new FileInfo(Path.Combine(bundles, "motorcity-city.bundle")).Length;
                 log.AppendLine("City bundle LZ4 bytes: " + bundle);
 
-                string stripped = Path.Combine(root, split ? (districts ? "DistrictStreamingTest" : (hlod ? "HlodSplitCandidate" : "SplitCityTest")) : "NOT-FOR-RELEASE-NoCity");
+                string stripped = output ?? Path.Combine(root, split ? (districts ? "DistrictStreamingTest" : (hlod ? "HlodSplitCandidate" : "SplitCityTest")) : "NOT-FOR-RELEASE-NoCity");
                 if (split)
                 {
                     string hash = manifest.GetAssetBundleHash("motorcity-city.bundle").ToString();
@@ -492,6 +517,7 @@ namespace MotorCity.EditorTools
                     log.AppendLine("Split data bytes: " + DataBytes(stripped));
                     log.AppendLine("Split wasm bytes: " + WasmBytes(stripped));
                     log.AppendLine("Bundle bytes: " + bundle);
+                    Debug.Log("Motor City: complete Playgama district build: " + stripped);
                     return;
                 }
                 BuildReport result = Build(profile, stripped);
