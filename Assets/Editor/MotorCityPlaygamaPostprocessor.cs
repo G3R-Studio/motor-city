@@ -4,13 +4,22 @@ using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
+using UnityEngine;
 
 namespace MotorCity.EditorTools
 {
     /// <summary>Installs the Bridge before any engine/asset requests in the default Unity Web template.</summary>
-    public sealed class MotorCityPlaygamaPostprocessor : IPostprocessBuildWithReport
+    public sealed class MotorCityPlaygamaPostprocessor : IPostprocessBuildWithReport, IPreprocessBuildWithReport
     {
         public int callbackOrder => 600;
+        public void OnPreprocessBuild(BuildReport report)
+        {
+            if (report.summary.platform != BuildTarget.WebGL) return;
+            if (!File.Exists("Assets/Resources/MotorCityCityBundleVersion.txt") &&
+                !File.Exists("Assets/Resources/MotorCity/Environment/CityVisual.prefab"))
+                throw new BuildFailedException("Motor City: original city missing. Run Restore City After Experiment.");
+        }
+
         public void OnPostprocessBuild(BuildReport report)
         {
             if (report.summary.platform != BuildTarget.WebGL) return;
@@ -51,6 +60,7 @@ namespace MotorCity.EditorTools
                 "\n<script id=\"" + marker + "\" src=\"https://bridge.playgama.com/v2/stable/playgama-bridge.js\"></script>\n" +
                 "<script src=\"motor-city-bridge.js\"></script>\n");
             File.WriteAllText(path, html);
+            Debug.Log("Motor City: Playgama Web build prepared at " + root + ". Archive its contents including index.html.");
         }
     }
 }
