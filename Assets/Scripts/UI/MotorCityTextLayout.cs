@@ -40,7 +40,8 @@ namespace MotorCity.UI
             text.verticalOverflow = VerticalWrapMode.Overflow;
             if (text.GetComponent<MotorCityTextClip>() == null)
                 text.gameObject.AddComponent<MotorCityTextClip>();
-            if (text.GetComponent<MotorCitySdfLabel>() == null)
+            if (Resources.Load<TMP_Settings>("TMP Settings") != null &&
+                text.GetComponent<MotorCitySdfLabel>() == null)
                 text.gameObject.AddComponent<MotorCitySdfLabel>();
         }
     }
@@ -58,7 +59,7 @@ namespace MotorCity.UI
 
         private static TMP_FontAsset Resolve(Font font)
         {
-            if (font == null) return null;
+            if (font == null || Resources.Load<TMP_Settings>("TMP Settings") == null) return null;
             if (fonts.TryGetValue(font, out var existing) && existing != null) return existing;
             var asset = TMP_FontAsset.CreateFontAsset(font, 90, 9,
                 UnityEngine.TextCore.LowLevel.GlyphRenderMode.SDFAA, 1024, 1024,
@@ -75,7 +76,14 @@ namespace MotorCity.UI
             if (source == null || source.font == null) return;
             if (!ready)
             {
-                var asset = Resolve(source.font);
+                TMP_FontAsset asset;
+                try { asset = Resolve(source.font); }
+                catch (System.Exception ex)
+                {
+                    Debug.LogWarning("SDF font unavailable: " + ex.Message);
+                    enabled = false;
+                    return;
+                }
                 if (asset == null) { enabled = false; return; }
                 var child = new GameObject("SDF Glyphs", typeof(RectTransform));
                 child.transform.SetParent(transform, false);
