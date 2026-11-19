@@ -78,11 +78,11 @@ namespace MotorCity.Vehicle
                 GetComponent<ArcadeCarController>();
 
             engineClip =
-                Resources.Load<AudioClip>(
+                MotorCity.World.MotorCityCityBundle.LoadGameplay<AudioClip>(
                     "MotorCity/Audio/CarEngine");
 
             tireClip =
-                Resources.Load<AudioClip>(
+                MotorCity.World.MotorCityCityBundle.LoadGameplay<AudioClip>(
                     "MotorCity/Audio/TireSkid");
 
             activeProfile =
