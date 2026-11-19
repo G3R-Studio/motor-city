@@ -65,7 +65,8 @@ namespace MotorCity.UI
                     "pause.title",
                     new Vector2(
                         560f,
-                        548f));
+                        548f),
+                    showHeaderDivider: false);
 
             MotorCitySettingsRow qualityRow =
                 CreateSettingsRow(

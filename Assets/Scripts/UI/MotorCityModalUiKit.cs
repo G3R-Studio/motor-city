@@ -64,7 +64,8 @@ namespace MotorCity.UI
             Transform parent,
             string objectName,
             string titleLocalizationKey,
-            Vector2 size)
+            Vector2 size,
+            bool showHeaderDivider = true)
         {
             RectTransform panel =
                 CreatePanel(
@@ -81,10 +82,11 @@ namespace MotorCity.UI
             MotorCityUiSkin.ApplyModalSurface(
                 panel,
                 "Reference HUD Surface");
-            MotorCityUiSkin.AddModalHeaderDivider(
-                panel,
-                ModalHeaderHeight,
-                ModalHorizontalPadding);
+            if (showHeaderDivider)
+                MotorCityUiSkin.AddModalHeaderDivider(
+                    panel,
+                    ModalHeaderHeight,
+                    ModalHorizontalPadding);
 
             Text title =
                 CreateText(
