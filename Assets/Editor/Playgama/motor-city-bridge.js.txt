@@ -42,7 +42,7 @@
     env.paused = bridge.platform.isPaused === true;
     bridge.platform.on(bridge.EVENT_NAME.PAUSE_STATE_CHANGED, value => {
       env.paused = !!value;
-      if (env.notifyPause) env.notifyPause(env.paused);
+      if (env.notifyPause) env.notifyPause(env.paused || document.hidden);
     });
     bridge.platform.on(bridge.EVENT_NAME.AUDIO_STATE_CHANGED, value => {
       env.audioEnabled = !!value;
@@ -65,6 +65,7 @@
     env.initialized = true;
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) env.flush();
+      if (env.notifyPause) env.notifyPause(env.paused || document.hidden);
     });
     window.addEventListener('pagehide', env.flush);
   });
