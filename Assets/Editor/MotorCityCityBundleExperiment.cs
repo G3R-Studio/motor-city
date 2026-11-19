@@ -74,8 +74,36 @@ namespace MotorCity.EditorTools
                         groups.Add(district, indices = new List<int>());
                     indices.Add(i);
                 }
+                // Keep meshes used by physics or other districts in the base city.
+                // Otherwise per-district copies can increase total memory.
+                var owners = new Dictionary<Mesh, Transform>();
+                var shared = new HashSet<Mesh>();
+                var candidates = new Dictionary<MeshFilter, Transform>();
+                foreach (var pair in groups)
+                    foreach (int index in pair.Value)
+                        candidates[renderers[index].GetComponent<MeshFilter>()] = pair.Key;
+                foreach (var f in clone.GetComponentsInChildren<MeshFilter>(true))
+                {
+                    var mesh = f.sharedMesh;
+                    if (mesh == null) continue;
+                    if (!candidates.TryGetValue(f, out var owner))
+                    {
+                        shared.Add(mesh);
+                        continue;
+                    }
+                    if (owners.TryGetValue(mesh, out var previous) && previous != owner)
+                        shared.Add(mesh);
+                    else owners[mesh] = owner;
+                }
+                foreach (var c in clone.GetComponentsInChildren<MeshCollider>(true))
+                    if (c.sharedMesh != null) shared.Add(c.sharedMesh);
+                foreach (var r in clone.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+                    if (r.sharedMesh != null) shared.Add(r.sharedMesh);
+
                 foreach (var pair in groups)
                 {
+                    pair.Value.RemoveAll(i => shared.Contains(renderers[i].GetComponent<MeshFilter>().sharedMesh));
+                    if (pair.Value.Count == 0) continue;
                     var data = new MotorCityCityBundle.District
                     {
                         file = "motorcity-district-" + districts.Count + ".bundle",
