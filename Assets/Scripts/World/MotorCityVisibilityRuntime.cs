@@ -360,14 +360,14 @@ namespace MotorCity.World
 
             // HLOD is entirely optional: no data asset means no runtime
             // change. An explicit URL opt-out supports future WebGL A/B.
-            if (!hlodChecked)
+            if (!hlodChecked && (!MotorCityCityBundle.Enabled || MotorCityCityBundle.Ready))
             {
                 hlodChecked = true;
                 string url = Application.absoluteURL;
                 bool hlodDisabled = !string.IsNullOrEmpty(url) &&
                     url.IndexOf("motorcity_hlod=off",
                         StringComparison.OrdinalIgnoreCase) >= 0;
-                hlodAvailable = !hlodDisabled && CityHlodRuntime.LoadData() != null;
+                hlodAvailable = !hlodDisabled && !MotorCityCityBundle.DistrictStreamingEnabled && CityHlodRuntime.LoadData() != null;
                 if (hlodDisabled)
                     Debug.Log("[MotorCity][HLOD] Disabled via URL A/B switch.");
             }
