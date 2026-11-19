@@ -1618,8 +1618,6 @@ namespace MotorCity.UI
             CreateDecorativeRect(root, "Tip Panel", center, center,
                 new Vector2(0f, -319f), new Vector2(920f, 118f),
                 new Color(0.055f, 0.055f, 0.105f, 1f));
-            CreateDecorativeRect(root, "Tip Accent", center, center,
-                new Vector2(-454f, -319f), new Vector2(4f, 94f), violet);
             CreateLoadingIcon(root, 3, new Vector2(-389f, -319f),
                 new Vector2(54f, 54f), violet);
             loadingTipText = CreateText(root, "", 24, FontStyle.Normal,
