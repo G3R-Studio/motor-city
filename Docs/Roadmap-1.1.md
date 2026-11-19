@@ -68,7 +68,7 @@ Motor City — открытый городской автомобильный с
 | Assets/Editor/FantasticCityGeneratorRuntimeBuilder.cs | Авторский pipeline города, сохранять соответствие workbench |
 | Assets/Scripts/Diagnostics/MotorCityWebRenderDiagnostics.cs | Существующие браузерные диагностики; проверить доступные метрики, не дублировать |
 
-World/ — относительно Assets/Scripts/. Базовые URP настройки не равны действующим runtime; Editor Play Mode намеренно не изменяет URP asset. Измерять именно release player.
+World/ — относительно Assets/Scripts/. Базовые URP настройки не равны действующим runtime; Editor Play Mode применяет runtime preset к временной копии URP asset (см. P4); исходный asset не меняется. Release player остаётся итоговым критерием.
 
 ## 4. Очередь оптимизации рендера
 
@@ -212,7 +212,11 @@ P3 lamp Editor A/B COMPLETE: 489 body renderers, LOD OFF, 1292×727. OFF 251.478
 
 ### P4 — подготовка SSAO A/B, 19.11.2026
 
-Коммит `d12531380cef4626821b33af47b00947567560bc`: Editor-only SSAO Pilot ON/OFF в существующем MotorCityPerformanceBaseline. MotorCityRenderer содержит одну активную SSAO feature, Downsample=1, Intensity=1.15, Radius=0.05, AfterOpaque=0; runtime quality не отключает SSAO. Активный URP проверяется через единственный renderer data и точный тип feature; SetActive меняет состояние в памяти, исходное восстанавливается при выходе из Play Mode, reload и quitting. Не сохранять ассеты во время пилота; после выхода проверить git status. Baseline пишет ssao=ON/OFF/N/A, runtime preset и renderScale; переключение заблокировано во время замера. Фактические passes проверить в Frame Debugger вне замеров. Средний preset, то же положение/разрешение, LOD и lamp OFF, прогрев и 60 секунд ON затем OFF (по возможности ON повторно); сравнить timestamped reports, визуал дня/ночи. Editor URP scale .92 не равен WebGL Medium .72. Компиляция и измерения владельцем ещё не выполнены, результат и rollout не подтверждены. WebGL не пересобирать на данном шаге.
+Коммит `d12531380cef4626821b33af47b00947567560bc`: Editor-only SSAO Pilot ON/OFF в существующем MotorCityPerformanceBaseline. MotorCityRenderer содержит одну активную SSAO feature, Downsample=1, Intensity=1.15, Radius=0.05, AfterOpaque=0; runtime quality не отключает SSAO. Активный URP проверяется через единственный renderer data и точный тип feature; SetActive меняет состояние в памяти, исходное восстанавливается при выходе из Play Mode, reload и quitting. Не сохранять ассеты во время пилота; после выхода проверить git status. Baseline пишет ssao=ON/OFF/N/A, runtime preset и renderScale; переключение заблокировано во время замера. Фактические passes проверить в Frame Debugger вне замеров. Средний preset, то же положение/разрешение, LOD и lamp OFF, прогрев и 60 секунд ON затем OFF (по возможности ON повторно); сравнить timestamped reports, визуал дня/ночи. На момент SSAO pilot Editor URP scale .92 не равнялся WebGL Medium .72; исправлено следующим коммитом (см. ниже). Компиляция и измерения владельцем ещё не выполнены, результат и rollout не подтверждены. WebGL не пересобирать на данном шаге.
+
+### P4 — приближение Editor Play Mode к WebGL, 19.11.2026
+
+`1c8e718f`: по запросу владельца runtime URP quality применяется в Editor Play Mode к временной копии активного pipeline (HideAndDontSave, QualitySettings.renderPipeline), прежняя ссылка восстанавливается при выходе, reload и quitting. Renderer data остаётся общим; существующий SSAO pilot восстанавливает feature state отдельно. Low/Medium/High используют те же scale, MSAA, shadow distance/cascades/resolution, что player. Выбрать Medium вручную; проверить renderScale=0.72 в отчёте и чистый git status после выхода. Для сопоставимости с прежним WebGL baseline использовать Game View 1512×911, одинаковый маршрут. Это не эмуляция WebAssembly, WebGL backend или browser/Bridge; абсолютные FPS не приравнивать. Компиляция и проверка владельцем ожидаются. Старые Editor baseline получены с другими URP settings, не переоткрывать завершённые пилоты без причины. P4 SSAO ON/OFF остаётся следующим тестом; WebGL не пересобирать.
 
 ### Передача в новый чат — актуальная инструкция
 
