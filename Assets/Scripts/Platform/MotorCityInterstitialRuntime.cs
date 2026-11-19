@@ -254,7 +254,7 @@ namespace MotorCity.Platform
             State =
                 InterstitialState.Eligible;
 
-            nextAllowedRealtime = Time.realtimeSinceStartup + CooldownSeconds();
+            nextAllowedRealtime = Time.realtimeSinceStartup;
 
             State =
                 InterstitialState.Requesting;
@@ -367,9 +367,6 @@ namespace MotorCity.Platform
             return !requestRunning && activities != null &&
                 !string.IsNullOrWhiteSpace(activityId) &&
                 IsExplicitAdActivity(activityId) &&
-                Time.realtimeSinceStartup - sessionStartedRealtime >= MinimumSessionSeconds() &&
-                completedActivities >= MinimumCompletedActivities() &&
-                Time.realtimeSinceStartup >= nextAllowedRealtime &&
                 MotorCityPlatform.SupportsInterstitial &&
                 !CosmeticStoreSystem.NoAdsOwned;
         }
