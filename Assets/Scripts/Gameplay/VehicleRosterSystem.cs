@@ -1122,7 +1122,7 @@ namespace MotorCity.Gameplay
             if (!Valid(index))
                 return false;
 
-            return Resources.Load<GameObject>(
+            return MotorCity.World.MotorCityCityBundle.LoadGameplay<GameObject>(
                        profiles[index].ResourcePath) !=
                    null;
         }
