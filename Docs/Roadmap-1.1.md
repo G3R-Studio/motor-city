@@ -336,3 +336,8 @@ Audit COMPLETE: 21690 MeshRenderer, 2 missing meshes; 64m 364 cells/1900 crossin
 ### Игровые звуки, 20.11.2026
 
 - `c1e1813`, `b036741`: CarEngine.wav и TireSkid.ogg перенесены в общий городской bundle при split Build, загрузчик PlayerVehicleAudio адаптирован. GUI SFX оставлены в Resources, параметры импорта и звук не изменены. Unity compile, playback и фактическая экономия DATA не проверены. Независимые пакеты и гараж остаются открытыми.
+
+
+### Шрифты и TMP, 20.11.2026
+
+- RobotoCondensed Regular/Bold и TMP Settings необходимы для UI главного меню и динамических SDF-атласов; оставлены в DATA. `415fff3`: кеш успешного lookup TMP Settings вместо повторных Resources.Load при настройке и обновлении текста, с повторным поиском при отсутствии ассета. Это небольшая CPU-оптимизация, не уменьшение DATA. Полный анализ TMP fallback assets и packed sizes остаётся открытым; не удалять шрифты без проверки кириллицы. Unity compile не проверена.
