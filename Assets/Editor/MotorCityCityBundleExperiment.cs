@@ -592,17 +592,41 @@ namespace MotorCity.EditorTools
                     else
                         roots.Add(moved);
                 }
-                if (split) roots.AddRange(GameplayPaths.Select(GameplayParked));
                 string[] bundleRoots = roots.Distinct(StringComparer.Ordinal).ToArray();
                 log.AppendLine("Extended bundle roots: " + bundleRoots.Length);
                 string bundles = Path.Combine(root, "Bundles");
                 Directory.CreateDirectory(bundles);
-                var map = new[] { new AssetBundleBuild {
+                var map = new List<AssetBundleBuild> { new AssetBundleBuild {
                     assetBundleName = "motorcity-city.bundle",
                     assetNames = bundleRoots,
                     addressableNames = bundleRoots.Select(Address).ToArray()
                 }};
-                var manifest = BuildPipeline.BuildAssetBundles(bundles, map,
+                if (split)
+                {
+                    string[] gameplayRoots = GameplayPaths.Select(GameplayParked).ToArray();
+                    map.Add(new AssetBundleBuild {
+                        assetBundleName = "motorcity-gameplay.bundle",
+                        assetNames = gameplayRoots,
+                        addressableNames = gameplayRoots.Select(Address).ToArray()
+                    });
+                    // Assign shared imported assets explicitly once within this build.
+                    // Keep scripts and package/builtin resources under Unity's normal handling.
+                    var common = AssetDatabase.GetDependencies(bundleRoots, true)
+                        .Intersect(AssetDatabase.GetDependencies(gameplayRoots, true), StringComparer.Ordinal)
+                        .Except(bundleRoots.Concat(gameplayRoots), StringComparer.Ordinal)
+                        .Where(p => p.StartsWith("Assets/", StringComparison.Ordinal) &&
+                            !AssetDatabase.IsValidFolder(p) &&
+                            (AssetDatabase.LoadMainAssetAtPath(p) is Texture ||
+                             AssetDatabase.LoadMainAssetAtPath(p) is Material ||
+                             AssetDatabase.LoadMainAssetAtPath(p) is Mesh ||
+                             AssetDatabase.LoadMainAssetAtPath(p) is AudioClip ||
+                             AssetDatabase.LoadMainAssetAtPath(p) is AnimationClip))
+                        .Distinct(StringComparer.Ordinal).ToArray();
+                    if (common.Length > 0)
+                        map.Add(new AssetBundleBuild { assetBundleName = "motorcity-shared.bundle", assetNames = common });
+                    log.AppendLine("Explicit shared asset paths: " + common.Length);
+                }
+                var manifest = BuildPipeline.BuildAssetBundles(bundles, map.ToArray(),
                     BuildAssetBundleOptions.ChunkBasedCompression | BuildAssetBundleOptions.StrictMode,
                     BuildTarget.WebGL);
                 if (manifest == null)
@@ -613,13 +637,26 @@ namespace MotorCity.EditorTools
                 string stripped = output ?? Path.Combine(root, split ? (districts ? "DistrictStreamingTest" : (hlod ? "HlodSplitCandidate" : "SplitCityTest")) : "NOT-FOR-RELEASE-NoCity");
                 if (split)
                 {
-                    string hash = manifest.GetAssetBundleHash("motorcity-city.bundle").ToString();
-                    File.WriteAllText(MarkerPath, hash);
+                    var ordered = new List<string>();
+                    var visiting = new HashSet<string>(StringComparer.Ordinal);
+                    void Visit(string name)
+                    {
+                        if (ordered.Contains(name)) return;
+                        if (!visiting.Add(name)) throw new InvalidOperationException("Cyclic bundle dependency: " + name);
+                        foreach (string dependency in manifest.GetDirectDependencies(name)) Visit(dependency);
+                        visiting.Remove(name);
+                        ordered.Add(name);
+                    }
+                    foreach (string name in manifest.GetAllAssetBundles()) Visit(name);
+                    string FileName(string name) => Path.GetFileNameWithoutExtension(name) + "-" +
+                        manifest.GetAssetBundleHash(name) + ".bundle";
+                    File.WriteAllText(MarkerPath, string.Join("\n", ordered.Select(name =>
+                        name + "|" + manifest.GetAssetBundleHash(name))));
                     AssetDatabase.ImportAsset(MarkerPath, ImportAssetOptions.ForceSynchronousImport);
                     BuildReport releaseReport = Build(profile, stripped, Path.Combine(bundles, "Bundles.manifest"));
                     // Record real player overlap before original resource paths are restored.
                     var streamedDependencies = new HashSet<string>(
-                        AssetDatabase.GetDependencies(bundleRoots, true), StringComparer.Ordinal);
+                        AssetDatabase.GetDependencies(map.SelectMany(m => m.assetNames).ToArray(), true), StringComparer.Ordinal);
                     var overlap = releaseReport.packedAssets.SelectMany(p => p.contents)
                         .Where(c => streamedDependencies.Contains(c.sourceAssetPath))
                         .GroupBy(c => c.sourceAssetPath)
@@ -634,8 +671,8 @@ namespace MotorCity.EditorTools
                         overlap.Aggregate(0UL, (sum, item) => sum + item.Bytes));
                     string streaming = Path.Combine(stripped, "StreamingAssets");
                     Directory.CreateDirectory(streaming);
-                    File.Copy(Path.Combine(bundles, "motorcity-city.bundle"),
-                        Path.Combine(streaming, "motorcity-city-" + hash + ".bundle"));
+                    foreach (string name in ordered)
+                        File.Copy(Path.Combine(bundles, name), Path.Combine(streaming, FileName(name)));
                     if (catalog != null)
                     {
                         foreach (var district in catalog.districts)
@@ -643,10 +680,7 @@ namespace MotorCity.EditorTools
                         log.AppendLine("District bundles: " + catalog.districts.Length);
                         log.AppendLine("District streamed renderers: " + catalog.districts.Sum(d => d.rendererIndices.Length));
                     }
-                    var expected = new HashSet<string>(StringComparer.Ordinal)
-                    {
-                        "motorcity-city-" + hash + ".bundle"
-                    };
+                    var expected = new HashSet<string>(ordered.Select(FileName), StringComparer.Ordinal);
                     if (catalog != null)
                         foreach (var district in catalog.districts) expected.Add(district.file);
                     var actual = Directory.GetFiles(streaming, "*.bundle").Select(Path.GetFileName).ToArray();
