@@ -9,6 +9,7 @@ using MotorCity.Vehicle;
 using MotorCity.World;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Rendering.Universal;
 
 namespace MotorCity.UI
 {
@@ -588,6 +589,50 @@ namespace MotorCity.UI
 
         private int cachedUpgradeEngine = -1, cachedUpgradeGrip = -1, cachedUpgradeStability = -1;
         private string cachedUpgradeMastery;
+
+        private ModalWorldBackdrop modalWorldBackdrop;
+        private void LateUpdate()
+        {
+            if (safeAreaRoot == null) return;
+            bool blocked = HasBlockingModalUi();
+            if (modalWorldBackdrop == null && blocked)
+            {
+                var shader = Resources.Load<Shader>("MotorCity/UI/ModalWorldBlur");
+                if (shader != null && shader.isSupported)
+                {
+                    var root = new GameObject("Modal World Blur", typeof(RectTransform), typeof(RawImage), typeof(ModalWorldBackdrop));
+                    root.transform.SetParent(safeAreaRoot.parent, false);
+                    root.transform.SetAsFirstSibling();
+                    var rect = (RectTransform)root.transform;
+                    rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one;
+                    rect.offsetMin = rect.offsetMax = Vector2.zero;
+                    modalWorldBackdrop = root.GetComponent<ModalWorldBackdrop>();
+                    modalWorldBackdrop.Initialize(shader);
+                }
+            }
+            if (modalWorldBackdrop != null) modalWorldBackdrop.SetVisible(blocked);
+            SetModalHudInput(touchUtilityRoot, blocked);
+            SetModalHudInput(touchControlsRoot, blocked && !touchLayoutEditing);
+            SetModalHudInput(navigatorPanel, blocked);
+            // Utility controls are constructed after the overlays. Put the
+            // selected overlay above them while leaving the HUD rendered.
+            GameObject modal = pauseMenuOpen ? pauseOverlay : storeOpen ? storeOverlay : clubOpen ? clubOverlay : null;
+            if (modal != null && modal.transform.GetSiblingIndex() != modal.transform.parent.childCount - 1)
+                modal.transform.SetAsLastSibling();
+        }
+
+        private static void SetModalHudInput(GameObject root, bool blocked)
+        {
+            if (root == null) return;
+            var group = root.GetComponent<CanvasGroup>();
+            if (group == null)
+            {
+                if (!blocked) return;
+                group = root.AddComponent<CanvasGroup>();
+            }
+            group.blocksRaycasts = !blocked;
+            group.interactable = !blocked;
+        }
 
         private void Update()
         {
@@ -2096,5 +2141,58 @@ namespace MotorCity.UI
             }
         }
 
+    }
+    // Overlay samples the existing URP opaque copy; no second camera or render.
+    internal sealed class ModalWorldBackdrop : MonoBehaviour
+    {
+        private RawImage image;
+        private Material material;
+        private UniversalAdditionalCameraData cameraData;
+        private CameraOverrideOption previous;
+
+        public void Initialize(Shader shader)
+        {
+            image = GetComponent<RawImage>();
+            material = new Material(shader) { hideFlags = HideFlags.HideAndDontSave };
+            image.material = material;
+            image.raycastTarget = false;
+            image.enabled = false;
+        }
+
+        public void SetVisible(bool visible)
+        {
+            var camera = visible ? Camera.main : null;
+            UniversalAdditionalCameraData next = null;
+            if (camera != null) camera.TryGetComponent(out next);
+            if (cameraData != next)
+            {
+                RestoreCamera();
+                cameraData = next;
+                if (cameraData != null)
+                {
+                    previous = cameraData.requiresColorOption;
+                    cameraData.requiresColorOption = CameraOverrideOption.On;
+                }
+            }
+            if (image != null) image.enabled = visible && cameraData != null;
+        }
+
+        private void RestoreCamera()
+        {
+            if (cameraData != null) cameraData.requiresColorOption = previous;
+            cameraData = null;
+        }
+
+        private void OnDisable()
+        {
+            RestoreCamera();
+            if (image != null) image.enabled = false;
+        }
+
+        private void OnDestroy()
+        {
+            RestoreCamera();
+            if (material != null) Destroy(material);
+        }
     }
 }
