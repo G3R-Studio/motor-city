@@ -64,7 +64,7 @@ namespace MotorCity.World
         private bool TryCreateDriftVfx()
         {
             GameObject prefab =
-                Resources.Load<GameObject>(
+                MotorCity.World.MotorCityCityBundle.LoadGameplay<GameObject>(
                     DriftVfxResourcePath);
 
             if (prefab == null)
