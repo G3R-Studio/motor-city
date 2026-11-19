@@ -1076,9 +1076,6 @@ namespace MotorCity.UI
         private void SetStoreOpen(
             bool open)
         {
-#if !UNITY_EDITOR
-            open = open && MotorCityPlatform.SupportsPurchases;
-#endif
             storeOpen =
                 open;
 
