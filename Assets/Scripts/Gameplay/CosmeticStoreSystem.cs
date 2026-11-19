@@ -39,6 +39,19 @@ namespace MotorCity.Gameplay
         public static bool IncomeBoostActive => DoubleIncomeOwned || BoostRemaining > 0;
         public bool SelectedAdProduct => SelectedProductId == SmallCreditsId || SelectedProductId == MediumCreditsId ||
             SelectedProductId == LargeCreditsId || SelectedProductId == DoubleIncomeId;
+        public string SelectedAdButtonLabel
+        {
+            get
+            {
+                bool ru = MotorCityLocalization.LanguageCode == "ru";
+                string id = SelectedProductId;
+                if (id == DoubleIncomeId) return ru ? "Реклама: ×2 / 5 мин" : "Ad: ×2 / 5 min";
+                int amount = id == SmallCreditsId ? 25000 : id == MediumCreditsId ? 100000 : 500000;
+                int required = RequiredViews(id);
+                return (ru ? "Реклама: " : "Ad: ") + amount.ToString("N0", System.Globalization.CultureInfo.InvariantCulture) +
+                    (ru ? " кр." : " cr.") + (required > 1 ? $" ({Views(id)+1}/{required})" : "");
+            }
+        }
         private static int RequiredViews(string id) => id == SmallCreditsId ? 1 : id == MediumCreditsId ? 5 : id == LargeCreditsId ? 20 : 0;
         private static int CooldownSeconds(string id) => id == SmallCreditsId ? 600 : id == MediumCreditsId ? 3600 : 86400;
         private static string ViewsKey(string id) => "MotorCity.Rewarded.Store.Views." + id;
