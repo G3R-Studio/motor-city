@@ -602,7 +602,7 @@ namespace MotorCity.Audio
                 }
             }
             MotorCityMusicTick(webTrack, webNext, 1, paused || Time.realtimeSinceStartup < webRetry ? 1 : 0,
-                musicVolume * 0.06f);
+                musicVolume * 0.03f);
         }
 #endif
 
@@ -920,7 +920,7 @@ namespace MotorCity.Audio
             source.volume =
                 musicMuted || !MotorCityAudioGate.PlatformAudioEnabled
                     ? 0f
-                    : musicVolume * 0.06f;
+                    : musicVolume * 0.03f;
         }
     }
 }
