@@ -30,7 +30,7 @@ namespace MotorCity.EditorTools
             const string marker = "motor-city-iframe-viewport-v1";
             if (html.Contains(marker))
             {
-                if (!html.Contains("motor-city-safe-canvas-v2"))
+                if (!html.Contains("motor-city-safe-canvas-v3"))
                     throw new BuildFailedException("Motor City: outdated viewport patch. Build into an empty folder.");
                 return;
             }
@@ -44,6 +44,8 @@ html, body {
   margin: 0 !important;
   padding: 0 !important;
   overflow: hidden !important;
+  background: #151b24;
+  overscroll-behavior: none;
 }
 #unity-container,
 #unity-container.unity-desktop,
@@ -59,6 +61,15 @@ html, body {
   max-height: 100% !important;
   overflow: hidden !important;
 }
+#unity-fullscreen-container {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+#unity-footer { display: none !important; }
 #unity-canvas,
 #unity-canvas.unity-desktop,
 #unity-canvas.unity-mobile {
