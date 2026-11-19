@@ -11,6 +11,18 @@
       "placements": [
         {
           "id": "garage_bonus"
+        },
+        {
+          "id": "store_motor_city_credits_25000"
+        },
+        {
+          "id": "store_motor_city_credits_100000"
+        },
+        {
+          "id": "store_motor_city_credits_500000"
+        },
+        {
+          "id": "store_motor_city_double_income"
         }
       ]
     }
