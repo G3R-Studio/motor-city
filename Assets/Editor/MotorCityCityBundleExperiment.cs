@@ -630,10 +630,21 @@ namespace MotorCity.EditorTools
                 buildProfile = profile,
                 locationPathName = directory,
                 assetBundleManifestPath = manifestPath,
-                options = BuildOptions.None
+                options = BuildOptions.DetailedBuildReport
             });
             if (report == null || report.summary.result != BuildResult.Succeeded)
                 throw new InvalidOperationException("Diagnostic WebGL build failed: " + directory);
+            // Capture packed assets while temporary streaming roots are still in place.
+            // These are packed (pre-transfer) sizes, not compressed network bytes.
+            var rows = report.packedAssets.SelectMany(p => p.contents)
+                .GroupBy(c => c.sourceAssetPath ?? "")
+                .Select(g => new { Path = g.Key, Bytes = g.Aggregate(0UL, (sum, c) => sum + c.packedSize) })
+                .OrderByDescending(x => x.Bytes);
+            var inventory = new StringBuilder("PackedBytes\tAssetPath\n");
+            foreach (var row in rows)
+                inventory.AppendLine(row.Bytes + "\t" + row.Path);
+            File.WriteAllText("Library/MotorCityPlayerPackedAssets.tsv", inventory.ToString(), Encoding.UTF8);
+            Debug.Log("Motor City: player asset inventory: Library/MotorCityPlayerPackedAssets.tsv");
             return report;
         }
 
