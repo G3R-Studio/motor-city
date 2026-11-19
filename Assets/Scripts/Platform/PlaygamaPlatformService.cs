@@ -20,6 +20,14 @@ namespace MotorCity.Platform
         private bool supportsInterstitial;
         private bool readySent;
         private bool started;
+        private bool loading;
+        public static void SetLoading(bool active)
+        {
+            var service = UnityEngine.Object.FindAnyObjectByType<PlaygamaPlatformService>();
+            if (service == null || !service.IsInitialized || !service.readySent || service.loading == active) return;
+            service.loading = active;
+            MotorCityBridgeMessage(active ? "in_game_loading_started" : "in_game_loading_stopped");
+        }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Install()
