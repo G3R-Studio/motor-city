@@ -636,13 +636,13 @@ namespace MotorCity.EditorTools
             return report;
         }
 
-        private static long DataBytes(string directory) => PayloadBytes(directory, ".data.br");
-        private static long WasmBytes(string directory) => PayloadBytes(directory, ".wasm.br");
+        private static long DataBytes(string directory) => PayloadBytes(directory, ".data");
+        private static long WasmBytes(string directory) => PayloadBytes(directory, ".wasm");
         private static long PayloadBytes(string directory, string suffix)
         {
-            var files = Directory.GetFiles(Path.Combine(directory, "Build"), "*" + suffix);
+            var files = Directory.GetFiles(Path.Combine(directory, "Build")).Where(p => new[] { "", ".br", ".gz", ".unityweb" }.Any(ext => p.EndsWith(suffix + ext, StringComparison.OrdinalIgnoreCase))).ToArray();
             if (files.Length != 1)
-                throw new InvalidOperationException("Expected exactly one " + suffix + " file; check Brotli settings.");
+                throw new InvalidOperationException("Expected exactly one " + suffix + " payload; check WebGL compression settings.");
             return new FileInfo(files[0]).Length;
         }
     }
