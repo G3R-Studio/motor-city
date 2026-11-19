@@ -25,8 +25,8 @@ namespace MotorCity.Gameplay
         private const string DoubleIncomeKey = "MotorCity.Purchase.DoubleIncome";
         private const string ReceiptPrefix = "MotorCity.Purchase.Receipt.";
         private static readonly string[] Products = {
-            SupporterPackProductId, SmallCreditsId, MediumCreditsId,
-            LargeCreditsId, NoAdsId, DoubleIncomeId
+            SmallCreditsId, MediumCreditsId, LargeCreditsId,
+            DoubleIncomeId, NoAdsId, SupporterPackProductId
         };
         private int selectedProductIndex;
         public static bool NoAdsOwned =>
@@ -39,6 +39,20 @@ namespace MotorCity.Gameplay
         public static bool IncomeBoostActive => DoubleIncomeOwned || BoostRemaining > 0;
         public bool SelectedAdProduct => SelectedProductId == SmallCreditsId || SelectedProductId == MediumCreditsId ||
             SelectedProductId == LargeCreditsId || SelectedProductId == DoubleIncomeId;
+        private static int RequiredViews(string id) => id == SmallCreditsId ? 1 : id == MediumCreditsId ? 5 : id == LargeCreditsId ? 20 : 0;
+        private static int CooldownSeconds(string id) => id == SmallCreditsId ? 600 : id == MediumCreditsId ? 3600 : 86400;
+        private static string ViewsKey(string id) => "MotorCity.Rewarded.Store.Views." + id;
+        private static string UntilKey(string id) => "MotorCity.Rewarded.Store.Until." + id;
+        private static int Views(string id) => Mathf.Clamp(MotorCity.Persistence.MotorCitySaveService.GetInt(ViewsKey(id), 0), 0, Mathf.Max(0, RequiredViews(id)-1));
+        private static long Remaining(string id) => long.TryParse(MotorCity.Persistence.MotorCitySaveService.GetString(UntilKey(id), "0"), out long end) ? Math.Max(0L, end - MotorCityPlatform.ServerUnixTime) : 0L;
+        public int SelectedRequiredViews => RequiredViews(SelectedProductId);
+        public int SelectedViews => Views(SelectedProductId);
+        public long SelectedCooldown => Remaining(SelectedProductId);
+        public bool SelectedBlocked => purchaseRunning || (SelectedProductId == DoubleIncomeId && IncomeBoostActive) || SelectedCooldown > 0;
+        public string SelectedProgressLine => SelectedCooldown > 0
+            ? MotorCityLocalization.Format("store.cooldown_time", SelectedCooldown / 3600, SelectedCooldown / 60 % 60, SelectedCooldown % 60)
+            : SelectedRequiredViews > 0 ? MotorCityLocalization.Format("store.ad_progress", SelectedViews, SelectedRequiredViews)
+            : SelectedProductId == DoubleIncomeId && BoostRemaining > 0 ? MotorCityLocalization.Format("store.boost_remaining", BoostRemaining / 60, BoostRemaining % 60) : string.Empty;
         public string SelectedProductId => Products[selectedProductIndex];
 
 
@@ -198,6 +212,12 @@ namespace MotorCity.Gameplay
                 messageTimer = 4f;
                 return;
             }
+            if (Remaining(id) > 0)
+            {
+                StatusText = SelectedProgressLine;
+                messageTimer = 4f;
+                return;
+            }
             if (!MotorCityPlatform.SupportsAds)
             {
                 StatusText = MotorCityLocalization.Text("rewarded.platform_unavailable");
@@ -225,8 +245,21 @@ namespace MotorCity.Gameplay
                 else
                 {
                     int amount = id == SmallCreditsId ? 25000 : id == MediumCreditsId ? 100000 : 500000;
-                    wallet.AddCredits(amount, true, false);
-                    StatusText = MotorCityLocalization.Format("rewarded.received", amount);
+                    int views = Views(id) + 1;
+                    if (views >= RequiredViews(id))
+                    {
+                        MotorCity.Persistence.MotorCitySaveService.SetInt(ViewsKey(id), 0);
+                        MotorCity.Persistence.MotorCitySaveService.SetString(UntilKey(id), (MotorCityPlatform.ServerUnixTime + CooldownSeconds(id)).ToString());
+                        wallet.AddCredits(amount, true, false);
+                        MotorCity.Persistence.MotorCitySaveService.Save();
+                        StatusText = MotorCityLocalization.Format("rewarded.received", amount);
+                    }
+                    else
+                    {
+                        MotorCity.Persistence.MotorCitySaveService.SetInt(ViewsKey(id), views);
+                        MotorCity.Persistence.MotorCitySaveService.Save();
+                        StatusText = MotorCityLocalization.Format("store.ad_progress", views, RequiredViews(id));
+                    }
                 }
                 messageTimer = 4f;
             });
