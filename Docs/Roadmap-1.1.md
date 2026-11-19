@@ -326,3 +326,8 @@ Audit COMPLETE: 21690 MeshRenderer, 2 missing meshes; 64m 364 cells/1900 crossin
 
 - `d6fda47`: штатный split Build автоматически пишет Library/MotorCityStreamOverlap.tsv — пересечение зависимостей city bundle с фактически упакованными player assets, GUID и packed bytes. Это диагностика, не дедупликация и не измерение сетевого размера; district-only зависимости отдельно не анализируются.
 - Film Grain: DefaultVolumeProfile intensity=0, но URP global settings содержат ресурсы эффекта. Изменения не внесены без подтверждения безопасности. Компиляция и размер не проверены; отдельные пакеты гаража и автомобилей остаются открытыми.
+
+
+### Портреты и окраска, 20.11.2026
+
+- `236aaaf`, `81ef36f`, `20ed870`: четыре PNG-портрета персонажей и пять StarterPaint .mat включены в общий городской bundle при штатном split Build. Сохранены исходные resource addresses, типы файлов, GUID и Resources fallback. Проверены исходные пути портретов. Компиляция, фактическое исключение зависимостей из DATA и отображение Sprite не проверены. Независимая загрузка по требованию остаётся открытой.
