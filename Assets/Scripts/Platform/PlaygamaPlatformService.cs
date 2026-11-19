@@ -92,6 +92,8 @@ namespace MotorCity.Platform
         public void OnBridgeAudio(string value) =>
             MotorCityAudioGate.SetPlatformAudioEnabled(value == "1");
 
+        public static bool ReadyForMusic => MotorCityPlatform.Service is PlaygamaPlatformService service && service.readySent;
+
         public void GameReady()
         {
             if (!IsInitialized || readySent) return;
