@@ -191,8 +191,13 @@ namespace MotorCity.EditorTools
             foreach (var renderer in rs)
             {
                 Count(counts, renderer.GetType().Name + " | enabled=" + renderer.enabled + " | active=" + renderer.gameObject.activeInHierarchy + " | shadow=" + renderer.shadowCastingMode + " | receive=" + renderer.receiveShadows);
-                Mesh mesh = renderer is SkinnedMeshRenderer skin ? skin.sharedMesh :
-                    renderer.GetComponent<MeshFilter>()?.sharedMesh;
+                Mesh mesh = null;
+                if (renderer is SkinnedMeshRenderer skin && skin != null)
+                    mesh = skin.sharedMesh;
+                else if (renderer is MeshRenderer &&
+                         renderer.TryGetComponent<MeshFilter>(out var filter) &&
+                         filter != null)
+                    mesh = filter.sharedMesh;
                 if (mesh == null) continue;
                 Count(usage, Id(mesh) + " | " + PathOf(mesh) + " | " + mesh.name);
                 var mats = renderer.sharedMaterials;
