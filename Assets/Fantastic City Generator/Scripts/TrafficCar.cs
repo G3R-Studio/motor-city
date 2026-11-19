@@ -1128,7 +1128,6 @@ namespace FCG
             if (behind != null && (behind == leader || behind.IsChildOf(leader)))
             {
                 behind = null;
-                brake = 0f;
                 iRC = 4;
             }
         }
