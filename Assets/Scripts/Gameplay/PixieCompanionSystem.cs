@@ -251,6 +251,9 @@ namespace MotorCity.Gameplay
 
         private void Update()
         {
+            if (useSupporterPixieSkin && !supporterLoading && Time.unscaledTime >= supporterRetryAt &&
+                !MotorCity.World.MotorCityCityBundle.SupporterReady)
+                RequestSupporterVisual();
             if (Time.timeScale <= 0f)
                 return;
 
@@ -1422,6 +1425,7 @@ namespace MotorCity.Gameplay
         }
 
         private bool supporterLoading;
+        private float supporterRetryAt;
         private void RequestSupporterVisual()
         {
             if (!useSupporterPixieSkin || supporterLoading ||
@@ -1434,6 +1438,7 @@ namespace MotorCity.Gameplay
             supporterLoading = true;
             yield return MotorCity.World.MotorCityCityBundle.LoadSupporter();
             supporterLoading = false;
+            supporterRetryAt = Time.unscaledTime + 60f;
             if (useSupporterPixieSkin && car != null && MotorCity.World.MotorCityCityBundle.SupporterReady)
                 RebuildVisual();
         }
