@@ -27,6 +27,54 @@ namespace MotorCity.EditorTools
         private static string ParkedPilotRoot(string path) =>
             "Assets/MotorCity_BuildExcluded_" + Path.GetFileName(path);
 
+        private const string IntroRoot = "Assets/Resources/MotorCity/Intro/";
+        private const string ParkedIntro = "Assets/MotorCity_BuildExcluded_Intro";
+        private static bool IsIntroSlide(string path) =>
+            Enumerable.Range(1, 6).Any(i => Path.GetFileNameWithoutExtension(path) == "Intro_" + i.ToString("00")) &&
+            AssetDatabase.LoadMainAssetAtPath(path) is Texture2D;
+
+        private static void MoveIntro(string from, string to)
+        {
+            if (Exists(to)) throw new InvalidOperationException("Conflicting intro path: " + to);
+            string guid = AssetDatabase.AssetPathToGUID(from);
+            string error = AssetDatabase.MoveAsset(from, to);
+            if (!string.IsNullOrEmpty(error) || AssetDatabase.AssetPathToGUID(to) != guid)
+                throw new InvalidOperationException("Intro move failed: " + from + " " + error);
+        }
+
+        private static void RestoreIntroSlides()
+        {
+            if (!Exists(ParkedIntro)) return;
+            if (!AssetDatabase.IsValidFolder(ParkedIntro))
+                throw new InvalidOperationException("Unexpected intro recovery path.");
+            foreach (string path in AssetDatabase.GetAllAssetPaths().Where(p =>
+                p.StartsWith(ParkedIntro + "/", StringComparison.Ordinal)).ToArray())
+            {
+                if (!IsIntroSlide(path) || path.Substring(ParkedIntro.Length + 1).Contains("/"))
+                    throw new InvalidOperationException("Unexpected parked intro asset: " + path);
+                MoveIntro(path, IntroRoot + Path.GetFileName(path));
+            }
+            if (Directory.EnumerateFileSystemEntries(ParkedIntro).Any())
+                throw new InvalidOperationException("Unexpected parked intro files.");
+            AssetDatabase.DeleteAsset(ParkedIntro);
+        }
+
+        // WebGL already skips the lore slides. MainMenu is deliberately retained.
+        private static void ParkIntroSlides(StringBuilder log)
+        {
+            var paths = AssetDatabase.GetAllAssetPaths().Where(p =>
+                p.StartsWith(IntroRoot, StringComparison.Ordinal) &&
+                !p.Substring(IntroRoot.Length).Contains("/") && IsIntroSlide(p)).ToArray();
+            if (paths.Length == 0) return;
+            if (Exists(ParkedIntro)) throw new InvalidOperationException("Restore intro first.");
+            AssetDatabase.CreateFolder("Assets", "MotorCity_BuildExcluded_Intro");
+            foreach (string path in paths)
+            {
+                MoveIntro(path, ParkedIntro + "/" + Path.GetFileName(path));
+                log.AppendLine("Excluded WebGL intro slide: " + path);
+            }
+        }
+
         private static void RestorePilotRoots()
         {
             foreach (var path in LocalPilotRoots)
@@ -403,7 +451,7 @@ namespace MotorCity.EditorTools
                 !Exists(p.original) && !Exists(p.moved)).Select(p => p.original).ToArray();
             if (missing.Length != 0)
                 throw new InvalidOperationException("Missing original assets: " + string.Join("; ", missing));
-            if (pairs.Any(p => Exists(p.moved)) || Exists(DistrictRoot) || Exists(MarkerPath))
+            if (pairs.Any(p => Exists(p.moved)) || Exists(DistrictRoot) || Exists(MarkerPath) || Exists(ParkedIntro))
             {
                 Debug.Log("Motor City: recovering temporary assets from interrupted build.");
                 Restore();
@@ -455,6 +503,7 @@ namespace MotorCity.EditorTools
                     log.AppendLine("Baseline wasm bytes: " + WasmBytes(baseline));
                 }
 
+                if (split) ParkIntroSlides(log);
                 string error = AssetDatabase.MoveAsset(City, TemporaryCity);
                 if (!string.IsNullOrEmpty(error))
                     throw new InvalidOperationException(error);
@@ -599,6 +648,7 @@ namespace MotorCity.EditorTools
         [MenuItem("Tools/Motor City/Build/Restore City After Experiment")]
         private static void Restore()
         {
+            RestoreIntroSlides();
             RestorePilotRoots();
             if (AssetDatabase.IsValidFolder(DistrictRoot)) AssetDatabase.DeleteAsset(DistrictRoot);
             if (File.Exists(MarkerPath)) AssetDatabase.DeleteAsset(MarkerPath);
