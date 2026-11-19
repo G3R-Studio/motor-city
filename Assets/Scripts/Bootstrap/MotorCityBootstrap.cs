@@ -1517,7 +1517,7 @@ namespace MotorCity.Bootstrap
             root.transform.position = position;
 
             GameObject prefab =
-                Resources.Load<GameObject>(resourcePath);
+                MotorCity.World.MotorCityCityBundle.LoadGameplay<GameObject>(resourcePath);
 
             if (prefab != null)
             {
