@@ -7,14 +7,15 @@ namespace MotorCity.Audio
     // independently controls whether any game audio is allowed.
     public static class MotorCityAudioGate
     {
-        private static float userVolume = 1f;
+        private static float userVolume = 0.10f;
         public static bool PlatformAudioEnabled { get; private set; } = true;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetState()
         {
-            userVolume = 1f;
+            userVolume = 0.10f;
             PlatformAudioEnabled = true;
+            ApplyListenerVolume();
         }
 
         public static void SetUserVolume(float volume)
