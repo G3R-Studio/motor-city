@@ -20,9 +20,6 @@ namespace MotorCity.Platform
         private double started;
         private bool recording;
         private int meshPilotReleased;
-        private readonly Dictionary<MeshFilter, Mesh> lodOriginals = new();
-        private readonly Dictionary<MeshRenderer, int> lodOverrides = new();
-        private bool lodPilotEnabled;
         private bool armed;
         private double readyAt;
         private string context;
@@ -65,7 +62,7 @@ namespace MotorCity.Platform
             Add(ProfilerCategory.Memory, "Total Used Memory");
             Add(ProfilerCategory.Memory, "GC Used Memory");
             Add(ProfilerCategory.Memory, "GC Allocated In Frame");
-            context = $"lodPilot={lodPilotEnabled} lodRenderers={lodOriginals.Count} meshPilotReleased={meshPilotReleased} Unity={Application.unityVersion} screen={Screen.width}x{Screen.height} preset={MotorCityQualityRuntime.CurrentPreset} targetFPS={Application.targetFrameRate} GPU={SystemInfo.graphicsDeviceName}";
+            context = $"lodPilot={MotorCityBuildingLodPilot.Enabled} lodRenderers={MotorCityBuildingLodPilot.RendererCount} meshPilotReleased={meshPilotReleased} Unity={Application.unityVersion} screen={Screen.width}x{Screen.height} preset={MotorCityQualityRuntime.CurrentPreset} targetFPS={Application.targetFrameRate} GPU={SystemInfo.graphicsDeviceName}";
             started = Time.realtimeSinceStartupAsDouble;
             recording = true;
         }
@@ -75,7 +72,7 @@ namespace MotorCity.Platform
             int request = MotorCityBaselineRequest();
             if (request == 4 || request == 5)
             {
-                if (!recording && !armed) SetLodPilot(request == 4);
+                if (!recording && !armed) MotorCityBuildingLodPilot.SetEnabled(request == 4);
                 else Debug.LogWarning("Stop baseline first.");
                 return;
             }
@@ -191,50 +188,6 @@ namespace MotorCity.Platform
             }
             meshPilotReleased += released;
             Debug.Log($"Mesh pilot: released={released}, cumulative={meshPilotReleased}, estimated mesh bytes before={before}, after={after}. Reload page to reset.");
-        }
-
-        private void SetLodPilot(bool enabled)
-        {
-            if (!enabled)
-            {
-                foreach (var pair in lodOriginals)
-                    if (pair.Key != null) pair.Key.sharedMesh = pair.Value;
-                foreach (var pair in lodOverrides)
-                    if (pair.Key != null) pair.Key.forceMeshLod = pair.Value;
-                lodOriginals.Clear();
-                lodOverrides.Clear();
-                lodPilotEnabled = false;
-                Debug.Log("Building LOD pilot OFF; original meshes restored.");
-                return;
-            }
-            if (lodPilotEnabled) return;
-            var city = GameObject.Find("MotorCity_FCGCity");
-            if (city == null) { Debug.LogWarning("Enter city first."); return; }
-            var names = new HashSet<string> { "BR-003", "EC-009", "BR-002", "QD-14", "BR-014", "BR-027", "BC-P07", "BR-025", "BC-053", "EC-006" };
-            var copies = Resources.LoadAll<Mesh>("MotorCityLodPilot");
-            var byName = new Dictionary<string, Mesh>();
-            foreach (var copy in copies)
-                if (copy != null && names.Contains(copy.name) && !byName.ContainsKey(copy.name))
-                    byName.Add(copy.name, copy);
-            var filters = city.GetComponentsInChildren<MeshFilter>(true);
-            foreach (var filter in filters)
-            {
-                var original = filter.sharedMesh;
-                if (original == null || !byName.TryGetValue(original.name, out var copy) ||
-                    original.vertexCount != copy.vertexCount || original.subMeshCount != copy.subMeshCount ||
-                    original.bounds != copy.bounds ||
-                    filter.GetComponentInParent<Rigidbody>(true) != null ||
-                    filter.GetComponentInParent<Animator>(true) != null ||
-                    filter.GetComponentInParent<LODGroup>(true) != null) continue;
-                var renderer = filter.GetComponent<MeshRenderer>();
-                if (renderer == null || renderer.isPartOfStaticBatch) continue;
-                lodOriginals.Add(filter, original);
-                lodOverrides.Add(renderer, renderer.forceMeshLod);
-                filter.sharedMesh = copy;
-                renderer.forceMeshLod = -1;
-            }
-            lodPilotEnabled = lodOriginals.Count > 0;
-            Debug.Log($"Building LOD pilot: enabled={lodPilotEnabled} renderers={lodOriginals.Count} generatedMeshes={byName.Count}");
         }
 
         private static string F(double x) => x.ToString("F3", CultureInfo.InvariantCulture);

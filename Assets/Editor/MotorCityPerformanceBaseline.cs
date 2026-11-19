@@ -58,7 +58,7 @@ namespace MotorCity.EditorTools
             Add(ProfilerCategory.Memory, "Total Used Memory");
             Add(ProfilerCategory.Memory, "GC Used Memory");
             Add(ProfilerCategory.Memory, "GC Allocated In Frame");
-            context = $"Unity={Application.unityVersion} target={EditorUserBuildSettings.activeBuildTarget} screen={Screen.width}x{Screen.height} qualityIndex={QualitySettings.GetQualityLevel()} targetFPS={Application.targetFrameRate} vSync={QualitySettings.vSyncCount} GPU={SystemInfo.graphicsDeviceName}";
+            context = $"lodPilot={MotorCity.Platform.MotorCityBuildingLodPilot.Enabled} lodRenderers={MotorCity.Platform.MotorCityBuildingLodPilot.RendererCount} Unity={Application.unityVersion} target={EditorUserBuildSettings.activeBuildTarget} screen={Screen.width}x{Screen.height} qualityIndex={QualitySettings.GetQualityLevel()} targetFPS={Application.targetFrameRate} vSync={QualitySettings.vSyncCount} GPU={SystemInfo.graphicsDeviceName}";
             start = last = EditorApplication.timeSinceStartup;
             lastFrame = Time.frameCount;
             running = true;
