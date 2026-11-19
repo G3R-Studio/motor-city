@@ -9,7 +9,7 @@ using MotorCity.Vehicle;
 using MotorCity.World;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Rendering.Universal;
+using System.Collections;
 
 namespace MotorCity.UI
 {
@@ -595,13 +595,16 @@ namespace MotorCity.UI
         {
             if (safeAreaRoot == null) return;
             bool blocked = HasBlockingModalUi();
+            GameObject modal = pauseMenuOpen ? pauseOverlay : storeOpen ? storeOverlay : clubOpen ? clubOverlay :
+                navigatorMenuOpen ? navigatorMenuOverlay : garage != null && garage.IsOpen ? garageOverlay :
+                activityManager != null && activityManager.HasResult ? activityResultOverlay : null;
             if (modalWorldBackdrop == null && blocked)
             {
                 var shader = Resources.Load<Shader>("MotorCity/UI/ModalWorldBlur");
                 if (shader != null && shader.isSupported)
                 {
                     var root = new GameObject("Modal World Blur", typeof(RectTransform), typeof(RawImage), typeof(ModalWorldBackdrop));
-                    root.transform.SetParent(safeAreaRoot.parent, false);
+                    root.transform.SetParent(safeAreaRoot, false);
                     root.transform.SetAsFirstSibling();
                     var rect = (RectTransform)root.transform;
                     rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one;
@@ -610,15 +613,15 @@ namespace MotorCity.UI
                     modalWorldBackdrop.Initialize(shader);
                 }
             }
-            if (modalWorldBackdrop != null) modalWorldBackdrop.SetVisible(blocked);
+
             SetModalHudInput(touchUtilityRoot, blocked);
             SetModalHudInput(touchControlsRoot, blocked && !touchLayoutEditing);
             SetModalHudInput(navigatorPanel, blocked);
             // Utility controls are constructed after the overlays. Put the
             // selected overlay above them while leaving the HUD rendered.
-            GameObject modal = pauseMenuOpen ? pauseOverlay : storeOpen ? storeOverlay : clubOpen ? clubOverlay : null;
             if (modal != null && modal.transform.GetSiblingIndex() != modal.transform.parent.childCount - 1)
                 modal.transform.SetAsLastSibling();
+            if (modalWorldBackdrop != null) modalWorldBackdrop.SetModal(blocked ? modal : null);
         }
 
         private static void SetModalHudInput(GameObject root, bool blocked)
@@ -631,7 +634,7 @@ namespace MotorCity.UI
                 group = root.AddComponent<CanvasGroup>();
             }
             group.blocksRaycasts = !blocked;
-            group.interactable = !blocked;
+            // Do not change Selectable interactability: its disabled tint affects only buttons.
         }
 
         private void Update()
@@ -2142,13 +2145,19 @@ namespace MotorCity.UI
         }
 
     }
-    // Overlay samples the existing URP opaque copy; no second camera or render.
+    // Capture the composed screen (world + HUD), then keep a single blurred
+    // snapshot behind the modal. No camera override or per-frame readback.
     internal sealed class ModalWorldBackdrop : MonoBehaviour
     {
         private RawImage image;
         private Material material;
-        private UniversalAdditionalCameraData cameraData;
-        private CameraOverrideOption previous;
+        private RenderTexture snapshot;
+        private GameObject current;
+        private CanvasGroup hidden;
+        private float previousAlpha;
+        private Coroutine capture;
+        private int width, height;
+        private bool attempted;
 
         public void Initialize(Shader shader)
         {
@@ -2159,39 +2168,84 @@ namespace MotorCity.UI
             image.enabled = false;
         }
 
-        public void SetVisible(bool visible)
+        public void SetModal(GameObject modal)
         {
-            var camera = visible ? Camera.main : null;
-            UniversalAdditionalCameraData next = null;
-            if (camera != null) camera.TryGetComponent(out next);
-            if (cameraData != next)
-            {
-                RestoreCamera();
-                cameraData = next;
-                if (cameraData != null)
-                {
-                    previous = cameraData.requiresColorOption;
-                    cameraData.requiresColorOption = CameraOverrideOption.On;
-                }
-            }
-            if (image != null) image.enabled = visible && cameraData != null;
+            if (current == modal && (modal == null || (width == Screen.width && height == Screen.height && attempted))) return;
+            if (capture != null) { StopCoroutine(capture); capture = null; }
+            RestoreModal();
+            image.enabled = false;
+            current = modal;
+            attempted = false;
+            if (modal == null || !modal.activeInHierarchy) { ReleaseSnapshot(); return; }
+            transform.SetSiblingIndex(modal.transform.GetSiblingIndex());
+            // SetSiblingIndex can shift the modal; explicitly keep it on top.
+            modal.transform.SetAsLastSibling();
+            transform.SetSiblingIndex(modal.transform.GetSiblingIndex() - 1);
+            width = Screen.width; height = Screen.height;
+            attempted = true;
+            capture = StartCoroutine(Capture(modal));
         }
 
-        private void RestoreCamera()
+        private IEnumerator Capture(GameObject modal)
         {
-            if (cameraData != null) cameraData.requiresColorOption = previous;
-            cameraData = null;
+            hidden = modal.GetComponent<CanvasGroup>();
+            if (hidden == null) hidden = modal.AddComponent<CanvasGroup>();
+            previousAlpha = hidden.alpha;
+            hidden.alpha = 0;
+            yield return new WaitForEndOfFrame();
+            if (current == modal && modal.activeInHierarchy)
+            {
+                RenderTexture full = null;
+                try
+                {
+                    ReleaseSnapshot();
+                    full = RenderTexture.GetTemporary(width, height, 0, RenderTextureFormat.ARGB32);
+                    ScreenCapture.CaptureScreenshotIntoRenderTexture(full);
+                    snapshot = new RenderTexture(Mathf.Max(1,width / 2), Mathf.Max(1,height / 2), 0, RenderTextureFormat.ARGB32);
+                    snapshot.filterMode = FilterMode.Bilinear;
+                    snapshot.wrapMode = TextureWrapMode.Clamp;
+                    snapshot.Create();
+                    Graphics.Blit(full, snapshot);
+                    image.texture = snapshot;
+                    image.enabled = true;
+                }
+                catch (System.Exception e)
+                {
+                    ReleaseSnapshot();
+                    Debug.LogWarning("Modal backdrop capture unavailable: " + e.Message);
+                }
+                finally { if (full != null) RenderTexture.ReleaseTemporary(full); }
+            }
+            RestoreModal();
+            capture = null;
+        }
+
+        private void RestoreModal()
+        {
+            if (hidden != null) hidden.alpha = previousAlpha;
+            hidden = null;
+        }
+
+        private void ReleaseSnapshot()
+        {
+            if (image != null) { image.enabled = false; image.texture = null; }
+            if (snapshot != null) { snapshot.Release(); Destroy(snapshot); snapshot = null; }
         }
 
         private void OnDisable()
         {
-            RestoreCamera();
-            if (image != null) image.enabled = false;
+            StopAllCoroutines();
+            capture = null;
+            RestoreModal();
+            ReleaseSnapshot();
+            current = null;
+            attempted = false;
         }
 
         private void OnDestroy()
         {
-            RestoreCamera();
+            RestoreModal();
+            ReleaseSnapshot();
             if (material != null) Destroy(material);
         }
     }
