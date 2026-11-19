@@ -320,3 +320,9 @@ Audit COMPLETE: 21690 MeshRenderer, 2 missing meshes; 64m 364 cells/1900 crossin
 
 - `7bd3617`: оставшийся Street/PlayerCarVisual и девять prefab маркеров (CarWash, Tow, Profession, Discovery, Delivery, Sprint, Underground, Circuit, Drift) включены в существующий городской пакет. Проверено наличие их .meta в репозитории. Потребители маркеров, динамические checkpoint/static marker и debug lookup переведены на LoadGameplay (коммиты 2f1403a–de1677e). Нативные сборки и Editor сохраняют Resources fallback. Исходные prefab, эффекты, сохранения и параметры импорта не изменены.
 - Film Grain найден в DefaultVolumeProfile и URP global settings; не удалён без проверки фактической зависимости/влияния. Гараж, независимые пакеты автомобилей/компаньонов, полный аудит шрифтов остаются открытыми. Прирост DATA, компиляция, работа в Unity и отсутствие дублирования с player не подтверждены. Промежуточная сборка не требуется.
+
+
+### Аудит дублирования, 20.11.2026
+
+- `d6fda47`: штатный split Build автоматически пишет Library/MotorCityStreamOverlap.tsv — пересечение зависимостей city bundle с фактически упакованными player assets, GUID и packed bytes. Это диагностика, не дедупликация и не измерение сетевого размера; district-only зависимости отдельно не анализируются.
+- Film Grain: DefaultVolumeProfile intensity=0, но URP global settings содержат ресурсы эффекта. Изменения не внесены без подтверждения безопасности. Компиляция и размер не проверены; отдельные пакеты гаража и автомобилей остаются открытыми.
