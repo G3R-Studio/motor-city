@@ -77,12 +77,14 @@ namespace MotorCity.EditorTools
             AssetDatabase.CreateFolder("Assets", "MotorCity_DistrictBuildTemp");
             var source = AssetDatabase.LoadAssetAtPath<GameObject>(TemporaryCity);
             var clone = (GameObject)PrefabUtility.InstantiatePrefab(source);
+            int rendererCount = 0;
             var districts = new List<MotorCityCityBundle.District>();
             var builds = new List<AssetBundleBuild>();
             try
             {
                 PrefabUtility.UnpackPrefabInstance(clone, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
                 var renderers = clone.GetComponentsInChildren<MeshRenderer>(true);
+                rendererCount = renderers.Length;
                 var groups = new Dictionary<Transform, List<int>>();
                 for (int i = 0; i < renderers.Length; i++)
                 {
@@ -190,7 +192,7 @@ namespace MotorCity.EditorTools
                 File.Move(Path.Combine(directory, district.file), Path.Combine(directory, versioned));
                 district.file = versioned;
             }
-            var catalog = new MotorCityCityBundle.DistrictCatalog { districts = districts.ToArray() };
+            var catalog = new MotorCityCityBundle.DistrictCatalog { districts = districts.ToArray(), rendererCount = rendererCount };
             File.WriteAllText(DistrictCatalogPath, JsonUtility.ToJson(catalog));
             AssetDatabase.ImportAsset(DistrictCatalogPath, ImportAssetOptions.ForceSynchronousImport);
             return catalog;
