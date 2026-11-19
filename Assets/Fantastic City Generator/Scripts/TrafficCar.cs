@@ -168,14 +168,11 @@ namespace FCG
 
         private Transform GetTransformWheel(string wheelName)
         {
-            GameObject[] wt;
-
-            wt = GameObject.FindObjectsOfType(typeof(GameObject)).Select(g => g as GameObject).Where(g => g.name.Equals(wheelName) && g.transform.parent.root == transform).ToArray();
-
-            if (wt.Length > 0)
-                return wt[0].transform;
-            else
-                return null;
+            // Wheels belong to this vehicle; never scan the entire city.
+            foreach (Transform child in GetComponentsInChildren<Transform>(false))
+                if (child != transform && child.name.Equals(wheelName))
+                    return child;
+            return null;
 
         }
 
@@ -202,13 +199,10 @@ namespace FCG
                 wheelsTransforms.backLeft2 = transform.Find("BL2");
 
 
-            if (!transform.GetComponent<Rigidbody>())
-                transform.gameObject.AddComponent<Rigidbody>();
-
-            if (transform.gameObject.GetComponent<Rigidbody>().mass < 4000f)
-                transform.gameObject.GetComponent<Rigidbody>().mass = 4000f;
-
-            transform.gameObject.GetComponent<Rigidbody>().interpolation = RigidbodyInterpolation.Interpolate;
+            Rigidbody body = GetComponent<Rigidbody>();
+            if (body == null) body = gameObject.AddComponent<Rigidbody>();
+            if (body.mass < 4000f) body.mass = 4000f;
+            body.interpolation = RigidbodyInterpolation.Interpolate;
 
             if (!wheelsTransforms.frontLeft || !wheelsTransforms.frontRight || !wheelsTransforms.backRight || !wheelsTransforms.backLeft)
             {
