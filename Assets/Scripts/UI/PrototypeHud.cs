@@ -542,6 +542,7 @@ namespace MotorCity.UI
 
             lastHudLanguageCode =
                 languageCode;
+            cachedUpgradeEngine = -1;
 
             lastHudTouchPrompts =
                 touchPrompts;
@@ -584,6 +585,9 @@ namespace MotorCity.UI
 
             RefreshTouchLocalizedLabels();
         }
+
+        private int cachedUpgradeEngine = -1, cachedUpgradeGrip = -1, cachedUpgradeStability = -1;
+        private string cachedUpgradeMastery;
 
         private void Update()
         {
@@ -678,17 +682,27 @@ namespace MotorCity.UI
     
                 if (upgradesText != null)
                 {
-                    upgradesText.text =
-                        garage == null
-                            ? string.Empty
-                            : MotorCityLocalization.Format(
-                                "hud.upgrades",
-                                garage.EngineLevel,
-                                garage.GripLevel,
-                                garage.StabilityLevel,
-                                garage.VehicleMasteryShort);
+                    if (garage == null)
+                    {
+                        if (!string.IsNullOrEmpty(upgradesText.text)) upgradesText.text = string.Empty;
+                        cachedUpgradeEngine = -1;
+                    }
+                    else
+                    {
+                        int engine = garage.EngineLevel, grip = garage.GripLevel, stability = garage.StabilityLevel;
+                        string mastery = garage.VehicleMasteryShort;
+                        if (engine != cachedUpgradeEngine || grip != cachedUpgradeGrip ||
+                            stability != cachedUpgradeStability || mastery != cachedUpgradeMastery)
+                        {
+                            cachedUpgradeEngine = engine;
+                            cachedUpgradeGrip = grip;
+                            cachedUpgradeStability = stability;
+                            cachedUpgradeMastery = mastery;
+                            upgradesText.text = MotorCityLocalization.Format("hud.upgrades", engine, grip, stability, mastery);
+                        }
+                    }
                 }
-    
+
                 if (careerText != null)
                 {
                     careerText.text =
@@ -1029,11 +1043,7 @@ namespace MotorCity.UI
 
                 garagePassportOpen = false;
 
-                if (garagePassportPanel != null)
-                {
-                    garagePassportPanel.SetActive(
-                        false);
-                }
+                SetActiveIfChanged(garagePassportPanel, false);
             }
 
             if (garageOpen)
