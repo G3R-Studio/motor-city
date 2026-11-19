@@ -194,6 +194,15 @@ namespace MotorCity.World
         public static T Load<T>(string path) where T : UnityEngine.Object =>
             Enabled ? (bundle == null ? null : bundle.LoadAsset<T>(path)) : Resources.Load<T>(path);
 
+        // Gameplay visuals may be packed with the city or retained in Resources.
+        // Native players and Editor use the same original resource addresses.
+        public static T LoadGameplay<T>(string path) where T : UnityEngine.Object
+        {
+            if (Enabled && bundle != null && bundle.Contains(path))
+                return bundle.LoadAsset<T>(path);
+            return Resources.Load<T>(path);
+        }
+
         public static T[] LoadAll<T>(string path) where T : UnityEngine.Object =>
             !Enabled ? Resources.LoadAll<T>(path) :
             bundle == null ? Array.Empty<T>() :
