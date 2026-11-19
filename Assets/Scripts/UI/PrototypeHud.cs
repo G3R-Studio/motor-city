@@ -614,8 +614,6 @@ namespace MotorCity.UI
             RefreshHudLocalizationState();
 
             if (MotorCityInput.RewardedBonusPressed &&
-                activityManager != null &&
-                activityManager.SecondaryProgressionAllowed &&
                 !HasBlockingModalUi())
             {
                 rewardedBonus?.TryShow();
