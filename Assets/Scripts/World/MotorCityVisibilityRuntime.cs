@@ -2,6 +2,7 @@
 using PlayerPrefs = MotorCity.Platform.MotorCityBridgePrefs;
 #endif
 using System;
+using System.Collections.Generic;
 using MotorCity.Platform;
 using UnityEngine;
 
@@ -53,6 +54,101 @@ namespace MotorCity.World
         private const float EditorFogStart = 120f;
         private const float EditorFogEnd = 520f;
         private static bool editorPreview;
+
+        // Independent renderer.enabled ownership for large, opaque city geometry.
+        // Existing detail/parked/vegetation systems retain their own flags.
+        private sealed class VisualCell
+        {
+            public Bounds Bounds;
+            public readonly List<MeshRenderer> Renderers = new();
+            public bool Sleeping;
+        }
+        private readonly Dictionary<Vector2Int, VisualCell> visualCells = new();
+        private GameObject visualCity;
+        private float nextVisualScan;
+        private readonly Plane[] visualPlanes = new Plane[6];
+
+        private void WakeVisualCells()
+        {
+            foreach (var cell in visualCells.Values)
+                SetCellSleeping(cell, false);
+        }
+
+        private static void SetCellSleeping(VisualCell cell, bool sleeping)
+        {
+            if (cell.Sleeping == sleeping) return;
+            cell.Sleeping = sleeping;
+            foreach (var renderer in cell.Renderers)
+                if (renderer != null) renderer.enabled = !sleeping;
+        }
+
+        private void UpdateVisualCells()
+        {
+            // Do not compete with HLOD or remove off-camera shadow casters on High.
+            if (hlodAvailable || MotorCityQualityRuntime.CurrentPreset == MotorCityQualityPreset.High ||
+                UrlOptedOut(Application.absoluteURL, "motorcity_cells"))
+            {
+                WakeVisualCells();
+                return;
+            }
+            if (visualCity == null)
+            {
+                if (Time.unscaledTime < nextVisualScan) return;
+                nextVisualScan = Time.unscaledTime + 1f;
+                visualCells.Clear();
+                visualCity = GameObject.Find("MotorCity_FCGCity");
+                if (visualCity == null) return;
+                foreach (var renderer in visualCity.GetComponentsInChildren<MeshRenderer>(true))
+                {
+                    if (!renderer.enabled || !renderer.gameObject.activeInHierarchy ||
+                        renderer.forceRenderingOff || renderer.isPartOfStaticBatch ||
+                        renderer.HasPropertyBlock() || renderer.bounds.extents.magnitude <= 7f ||
+                        renderer.GetComponentInParent<Rigidbody>() != null ||
+                        renderer.GetComponentInParent<Animator>() != null ||
+                        renderer.GetComponentInParent<LODGroup>() != null ||
+                        renderer.GetComponent<MonoBehaviour>() != null) continue;
+                    // Only the authored opaque architectural atlas; no windows,
+                    // foliage, vehicles, road materials or custom light shaders.
+                    var materials = renderer.sharedMaterials;
+                    if (materials.Length == 0) continue;
+                    bool eligible = true;
+                    foreach (var m in materials)
+                        if (m == null || m.name != "Atlas-1_59aa769b" ||
+                            m.renderQueue != 2000) { eligible = false; break; }
+                    if (!eligible) continue;
+                    var bounds = renderer.bounds;
+                    var center = bounds.center;
+                    var key = new Vector2Int(Mathf.FloorToInt(center.x / 128f),
+                        Mathf.FloorToInt(center.z / 128f));
+                    if (!visualCells.TryGetValue(key, out var cell))
+                        visualCells.Add(key, cell = new VisualCell { Bounds = bounds });
+                    else cell.Bounds.Encapsulate(bounds);
+                    cell.Renderers.Add(renderer);
+                }
+            }
+            // Fail open for alternate camera setups (garage, cutscenes, etc.).
+            if (targetCamera == null || !targetCamera.isActiveAndEnabled ||
+                Camera.main != targetCamera || Camera.allCamerasCount != 1 ||
+                QualitySettings.shadowDistance > 0f)
+            {
+                WakeVisualCells();
+                return;
+            }
+            GeometryUtility.CalculateFrustumPlanes(targetCamera, visualPlanes);
+            foreach (var cell in visualCells.Values)
+            {
+                var expanded = cell.Bounds;
+                expanded.Expand(cell.Sleeping ? 256f : 384f);
+                bool near = expanded.Contains(targetCamera.transform.position);
+                SetCellSleeping(cell, !near &&
+                    !GeometryUtility.TestPlanesAABB(visualPlanes, expanded));
+            }
+        }
+
+        private void LateUpdate()
+        {
+            UpdateVisualCells();
+        }
 
         private Camera targetCamera;
         private CityFoliageCullingExperiment browserFoliage;
@@ -180,6 +276,7 @@ namespace MotorCity.World
 
         private void OnDisable()
         {
+            WakeVisualCells();
             MotorCityQualityRuntime.PresetChanged -= ApplyDistances;
             MotorCityDrawDistanceSettings.Changed -= ApplyDistances;
             if (browserFoliage != null)
