@@ -658,7 +658,7 @@ namespace FCG
 
             brake = (brake2 > brake) ? brake2 : brake;
 
-            if (BreakLight) BreakLight.SetActive(brake > 200);
+            if (BreakLight && BreakLight.activeSelf != (brake > 200)) BreakLight.SetActive(brake > 200);
 
             float bk = 0;
 
@@ -909,9 +909,17 @@ namespace FCG
             int hitCount = Physics.RaycastNonAlloc(
                 origin, direction, forwardProbeHits, probeDistance);
 
+            // A full NonAlloc buffer is not guaranteed to contain the nearest
+            // hits. Keep the rare dense-case safety fallback.
+            RaycastHit[] hits = forwardProbeHits;
+            if (hitCount == hits.Length)
+            {
+                hits = Physics.RaycastAll(origin, direction, probeDistance);
+                hitCount = hits.Length;
+            }
             for (int i = 0; i < hitCount; i++)
             {
-                RaycastHit candidate = forwardProbeHits[i];
+                RaycastHit candidate = hits[i];
                 Transform detected = candidate.transform;
                 if (detected == null || detected.IsChildOf(transform) ||
                     candidate.distance >= closestDistance)
@@ -937,7 +945,8 @@ namespace FCG
         void DefineNewPath()
         {
 
-            nodes = new Transform[atualWay.childCount];
+            if (nodes == null || nodes.Length != atualWay.childCount)
+                nodes = new Transform[atualWay.childCount];
             int n = 0;
             foreach (Transform child in atualWay)
                 nodes[n++] = child;
