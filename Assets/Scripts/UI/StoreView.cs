@@ -430,7 +430,7 @@ namespace MotorCity.UI
                 bool showBuy =
                     true;
                 var label = storeBuyButton.transform.Find("Label")?.GetComponent<Text>();
-                if (label != null) label.text = MotorCityLocalization.Text(cosmeticStore.SelectedAdProduct ? "store.watch_ad" : "touch.store.buy");
+                if (label != null) label.text = cosmeticStore.SelectedAdProduct ? cosmeticStore.SelectedAdButtonLabel : MotorCityLocalization.Text("touch.store.buy");
 
                 var button = storeBuyButton.GetComponent<Button>();
                 if (button != null) button.interactable = !cosmeticStore.SelectedBlocked;
