@@ -600,7 +600,22 @@ namespace MotorCity.EditorTools
                     string hash = manifest.GetAssetBundleHash("motorcity-city.bundle").ToString();
                     File.WriteAllText(MarkerPath, hash);
                     AssetDatabase.ImportAsset(MarkerPath, ImportAssetOptions.ForceSynchronousImport);
-                    Build(profile, stripped, Path.Combine(bundles, "Bundles.manifest"));
+                    BuildReport releaseReport = Build(profile, stripped, Path.Combine(bundles, "Bundles.manifest"));
+                    // Record real player overlap before original resource paths are restored.
+                    var streamedDependencies = new HashSet<string>(
+                        AssetDatabase.GetDependencies(bundleRoots, true), StringComparer.Ordinal);
+                    var overlap = releaseReport.packedAssets.SelectMany(p => p.contents)
+                        .Where(c => streamedDependencies.Contains(c.sourceAssetPath))
+                        .GroupBy(c => c.sourceAssetPath)
+                        .Select(g => new { Path = g.Key, Bytes = g.Aggregate(0UL, (sum, c) => sum + c.packedSize) })
+                        .OrderByDescending(x => x.Bytes).ToArray();
+                    var overlapReport = new StringBuilder("PackedPlayerBytes\tGUID\tAssetPath\n");
+                    foreach (var item in overlap)
+                        overlapReport.AppendLine(item.Bytes + "\t" + AssetDatabase.AssetPathToGUID(item.Path) + "\t" + item.Path);
+                    File.WriteAllText("Library/MotorCityStreamOverlap.tsv", overlapReport.ToString(), Encoding.UTF8);
+                    log.AppendLine("Stream dependency paths also packed in player: " + overlap.Length);
+                    log.AppendLine("Overlap player packed bytes (not transfer savings): " +
+                        overlap.Aggregate(0UL, (sum, item) => sum + item.Bytes));
                     string streaming = Path.Combine(stripped, "StreamingAssets");
                     Directory.CreateDirectory(streaming);
                     File.Copy(Path.Combine(bundles, "motorcity-city.bundle"),
