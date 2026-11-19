@@ -105,6 +105,7 @@ namespace FCG
         private Transform behind = null;
         // Reused sensor buffer: avoid allocating raycast arrays per traffic car.
         private readonly RaycastHit[] forwardProbeHits = new RaycastHit[24];
+        private bool wheelVisualPhase;
 
         //[HideInInspector]
         public Transform player;
@@ -667,6 +668,11 @@ namespace FCG
 
             if (bk > brake) brake = bk;
 
+            // Only visual wheel poses use a lower update rate out of reach.
+            // Every physics torque, steering and obstacle decision stays at 50Hz.
+            wheelVisualPhase = !wheelVisualPhase;
+            bool updateWheelVisuals = player == null ||
+                (transform.position - player.position).sqrMagnitude <= 8100f || wheelVisualPhase;
             for (int k = 0; k < 4; k++)
             {
 
@@ -691,13 +697,16 @@ namespace FCG
                     wCollider[k].steerAngle = steer;
                 }
 
-                wCollider[k].GetWorldPose(out Vector3 _pos, out Quaternion _rot);
-                wheel[k].position = _pos;
-                wheel[k].rotation = _rot;
+                if (updateWheelVisuals)
+                {
+                    wCollider[k].GetWorldPose(out Vector3 _pos, out Quaternion _rot);
+                    wheel[k].position = _pos;
+                    wheel[k].rotation = _rot;
+                }
 
             }
 
-            if (wheelsTransforms.backRight2)
+            if (updateWheelVisuals && wheelsTransforms.backRight2 && wheelsTransforms.backLeft2)
             {
                 wheelsTransforms.backRight2.rotation = wheelsTransforms.backRight.rotation;
                 wheelsTransforms.backLeft2.rotation = wheelsTransforms.backRight.rotation;
@@ -906,6 +915,9 @@ namespace FCG
             ref RaycastHit closestHit,
             ref float closestDistance)
         {
+            // A farther hit cannot improve the best accepted obstacle.
+            probeDistance = Mathf.Min(probeDistance, closestDistance);
+            if (probeDistance <= 0f) return;
             int hitCount = Physics.RaycastNonAlloc(
                 origin, direction, forwardProbeHits, probeDistance);
 
