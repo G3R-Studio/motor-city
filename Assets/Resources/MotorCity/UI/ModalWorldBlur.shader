@@ -1,35 +1,31 @@
 Shader "MotorCity/UI/ModalWorldBlur"
 {
+    Properties { [PerRendererData] _MainTex ("Background", 2D) = "white" {} }
     SubShader
     {
-        Tags { "RenderPipeline"="UniversalPipeline" "Queue"="Transparent" }
+        Tags { "Queue"="Transparent" "RenderType"="Transparent" }
         Pass
         {
             Cull Off ZWrite Off ZTest Always
             Blend SrcAlpha OneMinusSrcAlpha
-            HLSLPROGRAM
+            CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareOpaqueTexture.hlsl"
-            struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; };
-            struct Varyings { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; };
-            Varyings vert(Attributes v)
+            #include "UnityCG.cginc"
+            sampler2D _MainTex;
+            float4 _MainTex_TexelSize;
+            struct appdata { float4 vertex : POSITION; float2 uv : TEXCOORD0; };
+            struct v2f { float4 vertex : SV_POSITION; float2 uv : TEXCOORD0; };
+            v2f vert(appdata v) { v2f o; o.vertex = UnityObjectToClipPos(v.vertex); o.uv = v.uv; return o; }
+            fixed4 frag(v2f i) : SV_Target
             {
-                Varyings o;
-                o.positionCS = TransformObjectToHClip(v.positionOS.xyz);
-                o.uv = v.uv;
-                return o;
+                float2 d = abs(_MainTex_TexelSize.xy) * 1.25;
+                fixed3 c = tex2D(_MainTex,i.uv).rgb * .4;
+                c += (tex2D(_MainTex,i.uv+float2(d.x,0)).rgb + tex2D(_MainTex,i.uv-float2(d.x,0)).rgb
+                    + tex2D(_MainTex,i.uv+float2(0,d.y)).rgb + tex2D(_MainTex,i.uv-float2(0,d.y)).rgb) * .15;
+                return fixed4(c,1);
             }
-            half4 frag(Varyings i) : SV_Target
-            {
-                float2 d = _CameraOpaqueTexture_TexelSize.xy * 1.5;
-                half3 c = SampleSceneColor(i.uv) * .4;
-                c += (SampleSceneColor(i.uv + float2(d.x,0)) + SampleSceneColor(i.uv - float2(d.x,0))
-                    + SampleSceneColor(i.uv + float2(0,d.y)) + SampleSceneColor(i.uv - float2(0,d.y))) * .15;
-                return half4(c,.42);
-            }
-            ENDHLSL
+            ENDCG
         }
     }
 }
