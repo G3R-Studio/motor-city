@@ -898,7 +898,7 @@ namespace MotorCity.UI
             out Text valueText,
             UnityEngine.Events.UnityAction minusAction,
             UnityEngine.Events.UnityAction plusAction,
-            UnityEngine.Events.UnityAction wideAction)
+            UnityEngine.Events.UnityAction wideAction, System.Action<RectTransform> sliderBuilder = null)
         {
             GameObject rowObject =
                 new(
@@ -1063,6 +1063,7 @@ namespace MotorCity.UI
             layout.childForceExpandHeight =
                 true;
 
+            sliderBuilder?.Invoke(controls);
             if (minusAction != null)
             {
                 CreateFrontEndLayoutButton(
