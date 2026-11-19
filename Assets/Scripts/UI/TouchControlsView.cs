@@ -198,6 +198,8 @@ namespace MotorCity.UI
                     out actionIcon,
                     out actionIconColor);
 
+            bool bonusButton = action == MotorCityInputAction.RewardedBonus;
+
             if (hasActionIcon)
             {
                 RectTransform iconRect =
@@ -214,13 +216,11 @@ namespace MotorCity.UI
 
                 iconRect.anchoredPosition =
                     new Vector2(
-                        10f,
+                        bonusButton ? 8f : 10f,
                         0f);
 
                 iconRect.sizeDelta =
-                    new Vector2(
-                        20f,
-                        20f);
+                    bonusButton ? new Vector2(16f, 16f) : new Vector2(20f, 20f);
 
                 GarageReferenceGraphic icon =
                     iconRect.gameObject.AddComponent<
@@ -244,7 +244,7 @@ namespace MotorCity.UI
                 CreateText(
                     rect,
                     "Label",
-                    compactGarageButton
+                    compactGarageButton || bonusButton
                         ? 10
                         : 12,
                     FontStyle.Bold,
@@ -270,6 +270,19 @@ namespace MotorCity.UI
 
             MakeButtonTextCrisp(
                 text);
+
+            if (bonusButton && hasActionIcon)
+            {
+                // Reserve disjoint icon and text areas, including localized labels.
+                RectTransform label = text.rectTransform;
+                label.anchorMin = Vector2.zero;
+                label.anchorMax = Vector2.one;
+                label.offsetMin = new Vector2(30f, 4f);
+                label.offsetMax = new Vector2(-6f, -4f);
+                text.alignment = TextAnchor.MiddleCenter;
+                text.horizontalOverflow = HorizontalWrapMode.Wrap;
+                text.verticalOverflow = VerticalWrapMode.Truncate;
+            }
 
             touchLocalizedLabels.Add(
                 new TouchLocalizedLabel(
