@@ -595,6 +595,9 @@ namespace MotorCity.UI
         {
             if (safeAreaRoot == null) return;
             bool blocked = HasBlockingModalUi();
+            MotorCityPlatformRuntime.SetGameplayWindowPaused(pauseMenuOpen ||
+                storeOpen || clubOpen || navigatorMenuOpen ||
+                (activityManager != null && activityManager.HasResult));
             GameObject modal = pauseMenuOpen ? pauseOverlay : storeOpen ? storeOverlay : clubOpen ? clubOverlay :
                 navigatorMenuOpen ? navigatorMenuOverlay :
                 activityManager != null && activityManager.HasResult ? activityResultOverlay : null;
