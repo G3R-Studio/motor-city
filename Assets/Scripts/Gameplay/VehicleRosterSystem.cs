@@ -473,6 +473,13 @@ namespace MotorCity.Gameplay
                 return false;
             }
 
+            // Verify the actual prefab before committing the new selection.
+            if (MotorCity.World.MotorCityCityBundle.LoadGameplay<GameObject>(profile.ResourcePath) == null)
+            {
+                status = MotorCityLocalization.Format("vehicle.visual_missing", profile.DisplayName);
+                return false;
+            }
+
             SelectedIndex =
                 candidate;
 
@@ -1122,9 +1129,7 @@ namespace MotorCity.Gameplay
             if (!Valid(index))
                 return false;
 
-            return MotorCity.World.MotorCityCityBundle.LoadGameplay<GameObject>(
-                       profiles[index].ResourcePath) !=
-                   null;
+            return MotorCity.World.MotorCityCityBundle.HasGameplayAsset(profiles[index].ResourcePath);
         }
 
         private bool Valid(
