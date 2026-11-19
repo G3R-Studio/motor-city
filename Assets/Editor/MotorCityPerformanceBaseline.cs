@@ -7,6 +7,8 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 using Unity.Profiling;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 namespace MotorCity.EditorTools
 {
@@ -20,6 +22,59 @@ namespace MotorCity.EditorTools
         private static double start, last;
         private static int lastFrame;
         private static string context;
+        private static ScriptableRendererFeature ssaoOverride;
+        private static bool ssaoOriginal;
+
+        private static ScriptableRendererFeature FindSsao()
+        {
+            var pipeline = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
+            if (pipeline == null) return null;
+            var data = new SerializedObject(pipeline).FindProperty("m_RendererDataList");
+            if (data == null || data.arraySize != 1) return null;
+            var renderer = data.GetArrayElementAtIndex(0).objectReferenceValue as ScriptableRendererData;
+            if (renderer == null) return null;
+            var matches = renderer.rendererFeatures.Where(f => f != null && f.GetType().FullName ==
+                "UnityEngine.Rendering.Universal.ScreenSpaceAmbientOcclusion").ToArray();
+            return matches.Length == 1 ? matches[0] : null;
+        }
+
+        [MenuItem("Tools/Motor City/Audit/SSAO Pilot OFF")]
+        private static void SsaoOff() => SetSsao(false);
+        [MenuItem("Tools/Motor City/Audit/SSAO Pilot ON")]
+        private static void SsaoOn() => SetSsao(true);
+        [MenuItem("Tools/Motor City/Audit/SSAO Pilot OFF", true)]
+        [MenuItem("Tools/Motor City/Audit/SSAO Pilot ON", true)]
+        private static bool CanSetSsao() => CanBegin();
+
+        private static void SetSsao(bool active)
+        {
+            if (!CanSetSsao()) return;
+            var feature = FindSsao();
+            if (feature == null || (ssaoOverride != null && ssaoOverride != feature))
+            {
+                Debug.LogWarning("SSAO pilot: expected exactly one SSAO feature in the active single-renderer URP asset.");
+                return;
+            }
+            if (ssaoOverride == null)
+            {
+                ssaoOverride = feature;
+                ssaoOriginal = feature.isActive;
+            }
+            feature.SetActive(active);
+            Debug.Log("SSAO pilot: " + (feature.isActive ? "ON" : "OFF") + "; verify passes in Frame Debugger.");
+        }
+
+        private static void RestoreSsao()
+        {
+            if (ssaoOverride != null) ssaoOverride.SetActive(ssaoOriginal);
+            ssaoOverride = null;
+        }
+
+        private static string SsaoState()
+        {
+            var feature = FindSsao();
+            return feature == null ? "N/A" : feature.isActive ? "ON" : "OFF";
+        }
 
         private sealed class Counter
         {
@@ -33,13 +88,18 @@ namespace MotorCity.EditorTools
         {
             EditorApplication.playModeStateChanged += state =>
             {
-                if (running && state == PlayModeStateChange.ExitingPlayMode)
-                    Finish(false);
+                if (state == PlayModeStateChange.ExitingPlayMode)
+                {
+                    if (running) Finish(false);
+                    RestoreSsao();
+                }
             };
             AssemblyReloadEvents.beforeAssemblyReload += () =>
             {
                 if (running) Finish(false);
+                RestoreSsao();
             };
+            EditorApplication.quitting += RestoreSsao;
         }
 
         [MenuItem("Tools/Motor City/Audit/Start Performance Baseline (60s)")]
@@ -58,7 +118,7 @@ namespace MotorCity.EditorTools
             Add(ProfilerCategory.Memory, "Total Used Memory");
             Add(ProfilerCategory.Memory, "GC Used Memory");
             Add(ProfilerCategory.Memory, "GC Allocated In Frame");
-            context = $"lampInstancingRenderers={MotorCityLampInstancingPilot.Count} lodPilot={MotorCity.Platform.MotorCityBuildingLodPilot.Enabled} lodRenderers={MotorCity.Platform.MotorCityBuildingLodPilot.RendererCount} Unity={Application.unityVersion} target={EditorUserBuildSettings.activeBuildTarget} screen={Screen.width}x{Screen.height} qualityIndex={QualitySettings.GetQualityLevel()} targetFPS={Application.targetFrameRate} vSync={QualitySettings.vSyncCount} GPU={SystemInfo.graphicsDeviceName}";
+            context = $"ssao={SsaoState()} preset={MotorCity.Platform.MotorCityQualityRuntime.CurrentPreset} renderScale={(GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset)?.renderScale} lampInstancingRenderers={MotorCityLampInstancingPilot.Count} lodPilot={MotorCity.Platform.MotorCityBuildingLodPilot.Enabled} lodRenderers={MotorCity.Platform.MotorCityBuildingLodPilot.RendererCount} Unity={Application.unityVersion} target={EditorUserBuildSettings.activeBuildTarget} screen={Screen.width}x{Screen.height} qualityIndex={QualitySettings.GetQualityLevel()} targetFPS={Application.targetFrameRate} vSync={QualitySettings.vSyncCount} GPU={SystemInfo.graphicsDeviceName}";
             start = last = EditorApplication.timeSinceStartup;
             lastFrame = Time.frameCount;
             running = true;
