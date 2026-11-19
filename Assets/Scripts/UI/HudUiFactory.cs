@@ -425,7 +425,8 @@ namespace MotorCity.UI
             {
                 if ((owner.name == "Minimap" ||
                      owner.name == "HUD Utility Rail" ||
-                     owner.name == "HUD Secondary Actions") &&
+                     owner.name == "HUD Secondary Actions" ||
+                     owner.name == "HUD Quick Menu") &&
                     Mathf.Abs(owner.localScale.x - hudGroupScale) < 0.001f)
                 {
                     rect.localScale = Vector3.one / hudGroupScale;
@@ -442,7 +443,7 @@ namespace MotorCity.UI
                 go.AddComponent<Shadow>();
 
             shadow.effectColor =
-                new Color(0f, 0f, 0f, 0.72f);
+                new Color(0f, 0f, 0f, fontSize <= 18 ? 0.40f : 0.72f);
             shadow.effectDistance =
                 new Vector2(1f, -1f);
             shadow.useGraphicAlpha = true;
