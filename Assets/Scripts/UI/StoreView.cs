@@ -11,25 +11,7 @@ namespace MotorCity.UI
 
         private void HandleStoreInput()
         {
-#if !UNITY_EDITOR
-            if (!MotorCity.Platform.MotorCityPlatform.SupportsPurchases) return;
-#endif
-            if (cosmeticStore == null)
-                return;
-
-            if (activityManager == null ||
-                !activityManager.SecondaryProgressionAllowed)
-            {
-                if (storeOpen)
-                {
-                    SetStoreOpen(
-                        false);
-
-                    RefreshDrivingEnabledForUi();
-                }
-
-                return;
-            }
+            if (cosmeticStore == null) return;
 
             if (MotorCityInput.ToggleStorePressed)
             {
@@ -150,7 +132,7 @@ namespace MotorCity.UI
                     26,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
-                    new Vector2(-102f, -27f),
+                    new Vector2(-50f, -27f),
                     new Vector2(440f, 44f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
@@ -441,14 +423,14 @@ namespace MotorCity.UI
                 cosmeticStore.ProductDetailsLine;
 
             storeOwnershipText.text =
-                cosmeticStore.SelectedOwnershipLine;
+                cosmeticStore.ShowMessage ? cosmeticStore.StatusText : cosmeticStore.SelectedOwnershipLine;
 
             if (storeBuyButton != null)
             {
                 bool showBuy =
-                    !cosmeticStore.SelectedOwned &&
-                    cosmeticStore.ProductCatalogResolved &&
-                    cosmeticStore.SelectedProductAvailable;
+                    true;
+                var label = storeBuyButton.transform.Find("Label")?.GetComponent<Text>();
+                if (label != null) label.text = MotorCityLocalization.Text(cosmeticStore.SelectedAdProduct ? "store.watch_ad" : "touch.store.buy");
 
                 SetActiveIfChanged(
                     storeBuyButton,
