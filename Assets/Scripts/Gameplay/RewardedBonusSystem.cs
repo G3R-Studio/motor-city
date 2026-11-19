@@ -294,9 +294,9 @@ namespace MotorCity.Gameplay
             return Mathf.Clamp(
                 MotorCityRemoteConfigRuntime.GetInt(
                     "rewarded_credits",
-                    250),
+                    1500),
                 50,
-                2000);
+                2500);
         }
 
         private static int DailyLimit()
