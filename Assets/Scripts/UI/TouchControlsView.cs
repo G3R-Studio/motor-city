@@ -1187,15 +1187,44 @@ namespace MotorCity.UI
         {
             if (touchDrivingRootRect == null || touchLayoutEditing) return;
             var space = touchDrivingRootRect;
-            SeparateTouch(touchBrakeRect, touchThrottleRect, space, false, false);
-            SeparateTouch(touchHandbrakeRect, touchThrottleRect, space, true, true);
-            SeparateTouch(touchHandbrakeRect, touchBrakeRect, space, true, true);
-            SeparateTouch(touchActionRect, touchHandbrakeRect, space, true, true);
-            if (touchActivityCancelRoot != null)
+            var cancel = touchActivityCancelRoot == null ? null : touchActivityCancelRoot.transform as RectTransform;
+            if (cancel != null)
             {
-                var cancel = touchActivityCancelRoot.transform as RectTransform;
+                ApplyStoredTouchScale(cancel, MotorCityInput.CurrentControlScheme, "Cancel");
                 cancel.anchoredPosition = new Vector2(-52f, 438f);
-                SeparateTouch(cancel, touchActionRect, space, true, true);
+            }
+            // Reserve the upper right HUD (minimap, store, bonus and utility rail).
+            float ceiling = space.rect.yMin + space.rect.height * 0.54f;
+            if (navigatorPanel != null)
+            {
+                var bonus = navigatorPanel.transform.Find("HUD Bonus") as RectTransform;
+                if (bonus != null)
+                    ceiling = Mathf.Min(ceiling, TouchBounds(bonus, space).yMin - 20f);
+            }
+            // Fit the entire pedal/action stack as a unit when requested sizes
+            // exceed the available area. Saved user scales remain unchanged.
+            var controls = new[] { touchThrottleRect, touchBrakeRect, touchHandbrakeRect, touchActionRect, cancel };
+            var positions = new Vector2[controls.Length];
+            for (int i = 0; i < controls.Length; i++)
+                if (controls[i] != null) positions[i] = controls[i].anchoredPosition;
+            for (int pass = 0; pass < 12; pass++)
+            {
+                for (int i = 0; i < controls.Length; i++)
+                    if (controls[i] != null) controls[i].anchoredPosition = positions[i];
+                SeparateTouch(touchBrakeRect, touchThrottleRect, space, false, false);
+                SeparateTouch(touchHandbrakeRect, touchThrottleRect, space, true, true);
+                SeparateTouch(touchHandbrakeRect, touchBrakeRect, space, true, true);
+                SeparateTouch(touchActionRect, touchHandbrakeRect, space, true, true);
+                if (cancel != null) SeparateTouch(cancel, touchActionRect, space, true, true);
+                float top = float.MinValue;
+                foreach (var control in controls)
+                    if (control != null) top = Mathf.Max(top, TouchBounds(control, space).yMax);
+                if (top <= ceiling || pass == 11) break;
+                foreach (var control in controls)
+                    if (control != null) control.localScale *= 0.9f;
+                // Compact the authored vertical gaps too.
+                for (int i = 0; i < positions.Length; i++)
+                    positions[i].y *= 0.9f;
             }
             if (MotorCityInput.CurrentControlScheme == MotorCityControlScheme.Arrows)
             {
@@ -2048,13 +2077,12 @@ namespace MotorCity.UI
                 return;
 
             bool touchUi = MotorCityInput.CurrentControlScheme != MotorCityControlScheme.Keyboard || touchLayoutEditing;
-            if (touchActivityCancelRoot != null)
+            if (!touchUi && touchActivityCancelRoot != null)
             {
                 var cancel = touchActivityCancelRoot.transform as RectTransform;
-                ApplyStoredTouchScale(cancel, MotorCityInput.CurrentControlScheme == MotorCityControlScheme.Keyboard ? MotorCityControlScheme.Wheel : MotorCityInput.CurrentControlScheme, "Cancel");
-                cancel.anchoredPosition = new Vector2(-52f, 438f);
-                if (touchUi && touchDrivingRootRect != null && !touchLayoutEditing)
-                    SeparateTouch(cancel, touchActionRect, touchDrivingRootRect, true, true);
+                ApplyStoredTouchScale(cancel, MotorCityControlScheme.Wheel, "Cancel");
+                cancel.anchoredPosition = new Vector2(-52f, 300f);
+                cancel.localScale = Vector3.one * Mathf.Min(cancel.localScale.x, 1.5f);
             }
 
             bool garageOpen =
