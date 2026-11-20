@@ -1279,7 +1279,7 @@ namespace MotorCity.UI
                 null,
                 ToggleLanguage);
 
-            MotorCityControlSettings.Create(window.Content, () => hud?.RefreshMobileControlLayout());
+            MotorCityControlSettings.Create(window.Content, () => hud?.RefreshMobileControlLayout(), true);
 
             // Keep the primary page exit in the persistent footer.
             // The five setting rows remain in the scrollable body at narrow
