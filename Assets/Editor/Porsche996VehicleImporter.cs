@@ -39,6 +39,7 @@ public static class Porsche996VehicleImporter
 
     private static void TryAutoBuild()
     {
+        if (MotorCity.EditorTools.MotorCityCityBundleExperiment.HasParkedAssets) return;
         if (EditorApplication.isPlayingOrWillChangePlaymode)
             return;
 
