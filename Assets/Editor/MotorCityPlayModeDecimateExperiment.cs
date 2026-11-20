@@ -276,9 +276,16 @@ namespace MotorCity.EditorTools
             Mesh simplified = null;
             try
             {
+                // Preserve atlas UV island borders and UV foldovers. The library defaults
+                // these protections to false, which can badly distort city-building textures.
+                var options = SimplificationOptions.Default;
+                options.PreserveBorderEdges = true;
+                options.PreserveUVSeamEdges = true;
+                options.PreserveUVFoldoverEdges = true;
+
                 var simplifier = new MeshSimplifier
                 {
-                    SimplificationOptions = SimplificationOptions.Default
+                    SimplificationOptions = options
                 };
 
                 simplifier.Initialize(source);
@@ -291,7 +298,9 @@ namespace MotorCity.EditorTools
                 if (simplified.subMeshCount != source.subMeshCount ||
                     !TryGetTriangleCount(simplified, out long simplifiedTriangles) ||
                     simplifiedTriangles <= 0 ||
-                    simplifiedTriangles >= sourceTriangles)
+                    simplifiedTriangles >= sourceTriangles ||
+                    !HasCompatibleSubMeshes(source, simplified) ||
+                    !HasCompatibleUvChannels(source, simplified))
                 {
                     UnityEngine.Object.DestroyImmediate(simplified);
                     simplified = null;
@@ -345,6 +354,49 @@ namespace MotorCity.EditorTools
                     "[Motor City Decimate] Could not simplify mesh '" + source.name +
                     "': " + exception.Message);
             }
+        }
+
+        private static bool HasCompatibleSubMeshes(Mesh source, Mesh simplified)
+        {
+            if (source == null || simplified == null ||
+                source.subMeshCount != simplified.subMeshCount)
+                return false;
+
+            for (int i = 0; i < source.subMeshCount; i++)
+            {
+                if (source.GetTopology(i) != MeshTopology.Triangles ||
+                    simplified.GetTopology(i) != MeshTopology.Triangles)
+                    return false;
+
+                if (source.GetIndexCount(i) > 0 && simplified.GetIndexCount(i) == 0)
+                    return false;
+            }
+
+            return true;
+        }
+
+        private static bool HasCompatibleUvChannels(Mesh source, Mesh simplified)
+        {
+            if (source == null || simplified == null)
+                return false;
+
+            // Unity supports eight UV channels. Preserve every populated source channel
+            // and require the generated values to match the generated vertex count.
+            for (int channel = 0; channel < 8; channel++)
+            {
+                var sourceUvs = new List<Vector4>();
+                var simplifiedUvs = new List<Vector4>();
+                source.GetUVs(channel, sourceUvs);
+                simplified.GetUVs(channel, simplifiedUvs);
+
+                if (sourceUvs.Count > 0 && simplifiedUvs.Count != simplified.vertexCount)
+                    return false;
+
+                if (sourceUvs.Count == 0 && simplifiedUvs.Count > 0)
+                    return false;
+            }
+
+            return true;
         }
 
         private static bool TryGetTriangleCount(Mesh mesh, out long triangles)
