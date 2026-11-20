@@ -47,14 +47,11 @@ namespace MotorCity.World
         internal static readonly Dictionary<string, WarmDistrict> Warm = new();
         public static bool DistrictStreamingEnabled => catalog != null;
 
-        // Opt-in WebGL experiment. It gates district bundle downloads by camera
-        // frustum and building-collider line of sight. The default release path
-        // remains unchanged until the browser A/B test is accepted.
-        internal static bool OcclusionStreamingExperimentEnabled =>
-            !string.IsNullOrEmpty(Application.absoluteURL) &&
-            Application.absoluteURL.IndexOf(
-                "motorcity_occlusion=on",
-                StringComparison.OrdinalIgnoreCase) >= 0;
+        // District bundles contain roads, sidewalks and buildings together.
+        // Hiding/unloading an occluded district therefore removes infrastructure
+        // as well as buildings. Keep district-level occlusion streaming disabled
+        // until the content pipeline produces building-only bundles.
+        internal static bool OcclusionStreamingExperimentEnabled => false;
 
         private static IEnumerator WarmSpawnDistricts()
         {
@@ -65,11 +62,9 @@ namespace MotorCity.World
             var nearby = catalog.districts.Where(d => d.bounds.SqrDistance(position) <= radius * radius)
                 .OrderBy(d => d.bounds.SqrDistance(position)).ToArray();
 
-            // The opt-in occlusion test warms only the spawn district. Other
-            // district bundles wait until their bounds enter the camera view
-            // and have a clear line of sight past other building colliders.
-            if (OcclusionStreamingExperimentEnabled)
-                nearby = nearby.Take(1).ToArray();
+            // Keep all normal spawn-radius districts available. District bundles
+            // contain both roads and buildings, so they cannot be gated by
+            // building-only occlusion.
             foreach (var district in nearby)
             {
                 string url = Application.streamingAssetsPath.TrimEnd('/') + "/" + district.file;
