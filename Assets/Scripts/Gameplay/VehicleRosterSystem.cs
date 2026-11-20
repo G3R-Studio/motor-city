@@ -551,9 +551,6 @@ namespace MotorCity.Gameplay
             if (!Valid(SelectedIndex))
                 return string.Empty;
 
-            VehicleProfile current =
-                profiles[SelectedIndex];
-
             return
                 MotorCityLocalization.Format(
                     "vehicle.garage_current",
