@@ -21,6 +21,15 @@ namespace MotorCity.EditorTools
         private const double SceneScanIntervalSeconds = 0.75;
         private const string ReportPath = "Library/MotorCityPlayModeDecimate_0_8.txt";
 
+        // Names of actual building-model assets in Fantastic City Generator/Buildings/FBX.
+        // Props placed under the same Marcador hierarchy (palms, lamps, benches, etc.)
+        // are intentionally excluded.
+        private static readonly string[] BuildingMeshPrefixes =
+        {
+            "BB-", "BC-", "BL-", "BR-", "Base-", "DC-", "EB-", "EC-",
+            "M-", "QD-", "Fabrica-", "Shopping-"
+        };
+
         private static readonly Dictionary<Renderer, Mesh> OriginalMeshes =
             new Dictionary<Renderer, Mesh>();
 
@@ -54,6 +63,7 @@ namespace MotorCity.EditorTools
         private static int skippedTooSmall;
         private static int failedMeshCount;
         private static int unchangedMeshCount;
+        private static int nonBuildingRenderersSkipped;
         private static bool warnedNoBuildingsRoot;
 
         static MotorCityPlayModeDecimateExperiment()
@@ -279,10 +289,36 @@ namespace MotorCity.EditorTools
             }
         }
 
+        private static bool IsBuildingMesh(Mesh mesh)
+        {
+            if (mesh == null)
+                return false;
+
+            string meshName = mesh.name.Trim();
+            if (meshName.IndexOf("Collider", StringComparison.OrdinalIgnoreCase) >= 0)
+                return false;
+
+            for (int i = 0; i < BuildingMeshPrefixes.Length; i++)
+            {
+                if (meshName.StartsWith(BuildingMeshPrefixes[i], StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+
+            return false;
+        }
+
         private static void TrackRenderer(Renderer renderer, Mesh source)
         {
             if (renderer == null || source == null || GeneratedMeshes.Contains(source))
                 return;
+
+            // The Buildings container also contains decorative props beneath Marcador.
+            // Only process meshes whose names match actual building FBX assets.
+            if (!IsBuildingMesh(source))
+            {
+                nonBuildingRenderersSkipped++;
+                return;
+            }
 
             BuildingRenderersSeen.Add(renderer);
 
@@ -598,7 +634,8 @@ namespace MotorCity.EditorTools
             report.AppendLine("Unchanged meshes: " + unchangedMeshCount);
             report.AppendLine("Failed meshes: " + failedMeshCount);
             report.AppendLine("Buildings hierarchy roots found: " + BuildingRootsSeen.Count);
-            report.AppendLine("Building renderers discovered: " + BuildingRenderersSeen.Count);
+            report.AppendLine("Building renderers discovered (FBX-name whitelist): " + BuildingRenderersSeen.Count);
+            report.AppendLine("Non-building renderers skipped by mesh name: " + nonBuildingRenderersSkipped);
             report.AppendLine("Static-batched building renderers skipped: " + StaticBatchedRenderers.Count);
             report.AppendLine("Pending meshes not processed before stop: " + PendingMeshes.Count);
             report.AppendLine("All changed renderer meshes restored: YES");
@@ -644,6 +681,7 @@ namespace MotorCity.EditorTools
             skippedTooSmall = 0;
             failedMeshCount = 0;
             unchangedMeshCount = 0;
+            nonBuildingRenderersSkipped = 0;
         }
     }
 }
