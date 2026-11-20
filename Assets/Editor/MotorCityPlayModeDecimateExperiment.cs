@@ -43,6 +43,8 @@ namespace MotorCity.EditorTools
         private static readonly Queue<Mesh> PendingMeshes = new Queue<Mesh>();
 
         private static bool running;
+        private static bool selectedOnly;
+        private static GameObject selectedRoot;
         private static double nextSceneScanTime;
         private static int processedMeshCount;
         private static int skippedUnreadable;
@@ -59,6 +61,24 @@ namespace MotorCity.EditorTools
 
         [MenuItem("Tools/Motor City/Play Mode Decimate 0.8/Start - all loaded meshes")]
         private static void Start()
+        {
+            StartInternal(false);
+        }
+
+        [MenuItem("Tools/Motor City/Play Mode Decimate 0.8/Start - selected object only")]
+        private static void StartSelected()
+        {
+            StartInternal(true);
+        }
+
+        [MenuItem("Tools/Motor City/Play Mode Decimate 0.8/Start - all loaded meshes", true)]
+        [MenuItem("Tools/Motor City/Play Mode Decimate 0.8/Start - selected object only", true)]
+        private static bool ValidateStart()
+        {
+            return EditorApplication.isPlaying && !running;
+        }
+
+        private static void StartInternal(bool onlySelected)
         {
             if (!EditorApplication.isPlaying)
             {
@@ -80,23 +100,28 @@ namespace MotorCity.EditorTools
                 return;
             }
 
+            if (onlySelected && Selection.activeGameObject == null)
+            {
+                Debug.LogWarning("[Motor City Decimate] Select one building or object in the Hierarchy first.");
+                return;
+            }
+
             ClearState();
+            selectedOnly = onlySelected;
+            selectedRoot = onlySelected ? Selection.activeGameObject : null;
             running = true;
             nextSceneScanTime = 0;
             EditorApplication.update -= Tick;
             EditorApplication.update += Tick;
 
+            string scope = onlySelected
+                ? "selected hierarchy object: " + selectedRoot.name
+                : "all loaded scenes, including objects spawned later";
+
             Debug.Log(
                 "[Motor City Decimate] STARTED. Target quality=0.8 (about 80% of source triangles). " +
-                "All loaded scenes are scanned repeatedly, including objects spawned later. " +
-                "Only temporary in-memory meshes are changed. Use Tools > Motor City > " +
-                "Play Mode Decimate 0.8 > Stop and restore, or exit Play Mode.");
-        }
-
-        [MenuItem("Tools/Motor City/Play Mode Decimate 0.8/Start - all loaded meshes", true)]
-        private static bool ValidateStart()
-        {
-            return EditorApplication.isPlaying && !running;
+                "Scope: " + scope + ". UV seams, UV foldovers and borders are protected. " +
+                "Only temporary in-memory meshes are changed. Stop and restore or exit Play Mode.");
         }
 
         [MenuItem("Tools/Motor City/Play Mode Decimate 0.8/Stop and restore")]
@@ -141,8 +166,14 @@ namespace MotorCity.EditorTools
 
         private static void ScanLoadedScenes()
         {
-            int sceneCount = SceneManager.sceneCount;
+            if (selectedOnly)
+            {
+                if (selectedRoot != null)
+                    ScanRoot(selectedRoot);
+                return;
+            }
 
+            int sceneCount = SceneManager.sceneCount;
             for (int sceneIndex = 0; sceneIndex < sceneCount; sceneIndex++)
             {
                 Scene scene = SceneManager.GetSceneAt(sceneIndex);
@@ -151,44 +182,46 @@ namespace MotorCity.EditorTools
 
                 GameObject[] roots = scene.GetRootGameObjects();
                 for (int rootIndex = 0; rootIndex < roots.Length; rootIndex++)
-                {
-                    GameObject root = roots[rootIndex];
-                    if (root == null)
-                        continue;
+                    ScanRoot(roots[rootIndex]);
+            }
+        }
 
-                    MeshFilter[] filters = root.GetComponentsInChildren<MeshFilter>(true);
-                    for (int i = 0; i < filters.Length; i++)
-                    {
-                        MeshFilter filter = filters[i];
-                        if (filter == null)
-                            continue;
+        private static void ScanRoot(GameObject root)
+        {
+            if (root == null)
+                return;
 
-                        MeshRenderer meshRenderer = filter.GetComponent<MeshRenderer>();
-                        if (meshRenderer != null)
-                            TrackRenderer(meshRenderer, filter.sharedMesh);
-                    }
+            MeshFilter[] filters = root.GetComponentsInChildren<MeshFilter>(true);
+            for (int i = 0; i < filters.Length; i++)
+            {
+                MeshFilter filter = filters[i];
+                if (filter == null)
+                    continue;
 
-                    SkinnedMeshRenderer[] skinnedRenderers =
-                        root.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+                MeshRenderer meshRenderer = filter.GetComponent<MeshRenderer>();
+                if (meshRenderer != null)
+                    TrackRenderer(meshRenderer, filter.sharedMesh);
+            }
 
-                    for (int i = 0; i < skinnedRenderers.Length; i++)
-                    {
-                        SkinnedMeshRenderer skinned = skinnedRenderers[i];
-                        if (skinned != null)
-                            TrackRenderer(skinned, skinned.sharedMesh);
-                    }
+            SkinnedMeshRenderer[] skinnedRenderers =
+                root.GetComponentsInChildren<SkinnedMeshRenderer>(true);
 
-                    ParticleSystemRenderer[] particleRenderers =
-                        root.GetComponentsInChildren<ParticleSystemRenderer>(true);
+            for (int i = 0; i < skinnedRenderers.Length; i++)
+            {
+                SkinnedMeshRenderer skinned = skinnedRenderers[i];
+                if (skinned != null)
+                    TrackRenderer(skinned, skinned.sharedMesh);
+            }
 
-                    for (int i = 0; i < particleRenderers.Length; i++)
-                    {
-                        ParticleSystemRenderer particleRenderer = particleRenderers[i];
-                        if (particleRenderer != null &&
-                            particleRenderer.renderMode == ParticleSystemRenderMode.Mesh)
-                            TrackRenderer(particleRenderer, particleRenderer.mesh);
-                    }
-                }
+            ParticleSystemRenderer[] particleRenderers =
+                root.GetComponentsInChildren<ParticleSystemRenderer>(true);
+
+            for (int i = 0; i < particleRenderers.Length; i++)
+            {
+                ParticleSystemRenderer particleRenderer = particleRenderers[i];
+                if (particleRenderer != null &&
+                    particleRenderer.renderMode == ParticleSystemRenderMode.Mesh)
+                    TrackRenderer(particleRenderer, particleRenderer.mesh);
             }
         }
 
@@ -541,6 +574,8 @@ namespace MotorCity.EditorTools
             FailedMeshes.Clear();
             StaticBatchedRenderers.Clear();
             PendingMeshes.Clear();
+            selectedOnly = false;
+            selectedRoot = null;
 
             processedMeshCount = 0;
             skippedUnreadable = 0;
