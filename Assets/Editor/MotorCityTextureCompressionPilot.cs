@@ -183,7 +183,7 @@ public static class MotorCityTextureCompressionPilot
                 "City atlases keep their key 2048px resolution; sky panoramas are capped at 1024px; " +
                 "intro artwork stays up to 2048px. Normal maps use standard compression without Crunch.\n\n" +
                 "Original WebGL importer settings are backed up in Library.\n" +
-                "To undo: Tools > Motor City > Texture Compression Pilot > Restore Original Settings.",
+                "To undo: Tools > Motor City > Texture Compression > 2 - Restore Original Settings.",
                 "OK");
         }
         catch (Exception exception)
