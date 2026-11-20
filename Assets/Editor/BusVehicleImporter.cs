@@ -41,6 +41,7 @@ public static class BusVehicleImporter
 
     private static void TryAutoBuild()
     {
+        if (MotorCity.EditorTools.MotorCityCityBundleExperiment.HasParkedAssets) return;
         if (EditorApplication.isPlayingOrWillChangePlaymode)
             return;
 
