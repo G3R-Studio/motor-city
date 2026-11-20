@@ -16,6 +16,7 @@ namespace MotorCity.UI
         // Pause owns time/audio state while the shared front-end view is open.
         private MotorCityFrontEndFlow pauseExperienceFrontEnd;
         private bool pauseExperienceOpen;
+        private System.Action pauseScrollCueRefresh;
 
         private void BuildPauseMenu(
             Transform canvas)
@@ -87,31 +88,59 @@ namespace MotorCity.UI
             scroll.viewport = view; scroll.content = content; scroll.horizontal = false; scroll.vertical = true;
             scroll.movementType = ScrollRect.MovementType.Clamped; scroll.scrollSensitivity = 32f;
 
-            // Keep the scrollbar outside the clipped settings viewport.
-            var track = new GameObject("Pause Scroll Track", typeof(RectTransform), typeof(Image), typeof(Scrollbar));
+            // Match the front-end scroll cue: thin left track, proportional
+            // cyan marker and down arrow, outside the clipped content.
+            var track = new GameObject("Pause Scroll Track", typeof(RectTransform), typeof(Image));
             track.transform.SetParent(window.Panel, false);
             var trackRect = track.GetComponent<RectTransform>();
-            trackRect.anchorMin = new Vector2(1f, 0f);
-            trackRect.anchorMax = Vector2.one;
-            trackRect.offsetMin = new Vector2(-29f, 182f);
-            trackRect.offsetMax = new Vector2(-15f, -82f);
-            track.GetComponent<Image>().color = new Color(0.36f, 0.48f, 0.71f, 0.5f);
+            trackRect.anchorMin = Vector2.zero;
+            trackRect.anchorMax = new Vector2(0f, 1f);
+            trackRect.offsetMin = new Vector2(20f, 202f);
+            trackRect.offsetMax = new Vector2(26f, -84f);
+            var trackImage = track.GetComponent<Image>();
+            trackImage.color = new Color(0.36f, 0.48f, 0.71f, 0.5f);
+            trackImage.raycastTarget = false;
             var handle = new GameObject("Scroll Position", typeof(RectTransform), typeof(Image));
             handle.transform.SetParent(track.transform, false);
             var handleRect = handle.GetComponent<RectTransform>();
-            handleRect.anchorMin = Vector2.zero;
-            handleRect.anchorMax = Vector2.one;
             handleRect.offsetMin = Vector2.zero;
             handleRect.offsetMax = Vector2.zero;
             var handleImage = handle.GetComponent<Image>();
-            handleImage.color = new Color(0.35f, 0.86f, 1f, 1f);
-            var scrollbar = track.GetComponent<Scrollbar>();
-            scrollbar.direction = Scrollbar.Direction.BottomToTop;
-            scrollbar.handleRect = handleRect;
-            scrollbar.targetGraphic = handleImage;
-            scrollbar.value = 1f;
-            scroll.verticalScrollbar = scrollbar;
-            scroll.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHide;
+            handleImage.color = new Color(0.40f, 0.86f, 1f, 1f);
+            handleImage.raycastTarget = false;
+            var arrow = new GameObject("Scroll Down Arrow", typeof(RectTransform), typeof(Text));
+            arrow.transform.SetParent(window.Panel, false);
+            var hint = arrow.GetComponent<Text>();
+            hint.font = MotorCityTypography.Bold;
+            hint.fontSize = 21;
+            hint.fontStyle = FontStyle.Bold;
+            hint.alignment = TextAnchor.MiddleCenter;
+            hint.text = "↓";
+            hint.color = new Color(0.52f, 0.84f, 1f, 0.95f);
+            hint.raycastTarget = false;
+            var hintRect = hint.rectTransform;
+            hintRect.anchorMin = hintRect.anchorMax = Vector2.zero;
+            hintRect.pivot = new Vector2(0.5f, 0f);
+            hintRect.anchoredPosition = new Vector2(23f, 170f);
+            hintRect.sizeDelta = new Vector2(30f, 26f);
+            MotorCityTextLayout.Configure(hint);
+            pauseScrollCueRefresh = () =>
+            {
+                float viewHeight = view.rect.height;
+                float contentHeight = content.rect.height;
+                bool overflow = viewHeight > 0f && contentHeight > viewHeight + 4f;
+                track.SetActive(overflow);
+                float position = Mathf.Clamp01(scroll.verticalNormalizedPosition);
+                arrow.SetActive(overflow && position > 0.04f);
+                if (!overflow) return;
+                float ratio = Mathf.Clamp(viewHeight / contentHeight, 0.16f, 1f);
+                float bottom = (1f - ratio) * position;
+                handleRect.anchorMin = new Vector2(0f, bottom);
+                handleRect.anchorMax = new Vector2(1f, bottom + ratio);
+            };
+            scroll.onValueChanged.AddListener(_ => pauseScrollCueRefresh?.Invoke());
+            track.SetActive(false);
+            arrow.SetActive(false);
 
             var footer = new GameObject("Pause Fixed Footer", typeof(RectTransform), typeof(VerticalLayoutGroup));
             footer.transform.SetParent(window.Panel, false);
@@ -555,6 +584,8 @@ namespace MotorCity.UI
                 true);
 
             RefreshPauseMenuText();
+            Canvas.ForceUpdateCanvases();
+            pauseScrollCueRefresh?.Invoke();
         }
 
         private void ClosePauseMenu()
