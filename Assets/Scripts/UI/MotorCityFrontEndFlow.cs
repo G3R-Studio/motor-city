@@ -2703,47 +2703,6 @@ namespace MotorCity.UI
         {
             ReportLoading(false);
             ChooseControlScheme(MotorCityInput.CurrentControlScheme);
-            return;
-            // Keep gameplay paused until the player explicitly chooses the
-            // control scheme. The control screen uses the main-menu artwork.
-            Time.timeScale =
-                0f;
-
-            AudioListener.pause =
-                true;
-
-            MotorCityMusicRuntime.SetMenuActive(
-                false);
-
-            MotorCityMusicRuntime.SetGameplayActive(
-                true);
-
-            mainRoot.SetActive(
-                false);
-
-            aboutRoot.SetActive(
-                false);
-
-            settingsRoot.SetActive(
-                false);
-
-            introRoot.SetActive(
-                false);
-
-            loadingRoot.SetActive(
-                false);
-
-            controlChoiceRoot.SetActive(
-                true);
-
-            // Opening this compact dialog should always start at the top,
-            // including after returning from the main menu on mobile.
-            ScrollRect controlScroll = controlChoiceModalPanel == null
-                ? null
-                : controlChoiceModalPanel.GetComponentInChildren<ScrollRect>();
-            if (controlScroll != null)
-                controlScroll.verticalNormalizedPosition = 1f;
-            RefreshFrontEndScrollCues();
         }
 
         public void AttachGameplay(
