@@ -1988,6 +1988,12 @@ namespace MotorCity.UI
             return rect;
         }
 
+        public void RefreshMobileControlLayout()
+        {
+            ApplyTouchControlLayout(true);
+            UpdateTouchControlsVisibility();
+        }
+
         private void UpdateTouchControlsVisibility()
         {
             ApplyResponsiveCanvasScale(
@@ -1996,9 +2002,10 @@ namespace MotorCity.UI
             if (touchControlsRoot == null)
                 return;
 
-            bool touchUi =
-                ShouldUseTouchUi() ||
-                touchLayoutEditing;
+            bool touchUi = MotorCityInput.CurrentControlScheme != MotorCityControlScheme.Keyboard || touchLayoutEditing;
+            if (touchActivityCancelRoot != null)
+                ApplyStoredTouchScale(touchActivityCancelRoot.transform as RectTransform,
+                    MotorCityInput.CurrentControlScheme == MotorCityControlScheme.Keyboard ? MotorCityControlScheme.Wheel : MotorCityInput.CurrentControlScheme, "Cancel");
 
             bool garageOpen =
                 garage != null &&
