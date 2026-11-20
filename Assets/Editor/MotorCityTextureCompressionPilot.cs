@@ -11,7 +11,7 @@ using UnityEngine;
 /// </summary>
 public static class MotorCityTextureCompressionPilot
 {
-    private const string BackupPath = "Library/MotorCityTextureCompressionPilotBackup.json";
+    private const string BackupPath = "Library/MotorCityTextureCompressionBatchBackup.json";
 
     private sealed class TextureTarget
     {
