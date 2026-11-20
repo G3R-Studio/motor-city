@@ -56,9 +56,8 @@ namespace MotorCity.World
             var nearby = catalog.districts.Where(d => d.bounds.SqrDistance(position) <= radius * radius)
                 .OrderBy(d => d.bounds.SqrDistance(position)).ToArray();
 
-            // Keep all normal spawn-radius districts available. District bundles
-            // contain both roads and buildings, so they cannot be gated by
-            // building-only occlusion.
+            // Keep all districts inside the normal spawn radius available.
+            // Each district bundle contains the full visual mesh set for its area.
             foreach (var district in nearby)
             {
                 string url = Application.streamingAssetsPath.TrimEnd('/') + "/" + district.file;
@@ -414,8 +413,7 @@ namespace MotorCity.World
                 float distance = Mathf.Sqrt(
                     state.Data.bounds.SqrDistance(camera.transform.position));
 
-                // Keep the existing distance-based district streaming policy.
-                // No camera-occlusion test is performed.
+                // Stream district mesh bundles using distance only.
                 if (state.Bundle != null && !state.Busy &&
                     distance > radius + 128f)
                     Release(state);
