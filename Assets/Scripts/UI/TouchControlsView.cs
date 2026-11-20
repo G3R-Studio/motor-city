@@ -458,7 +458,12 @@ namespace MotorCity.UI
                 new Vector2(0f, 26f);
 
             CreatePauseButton(rail, "HUD Ranking", "touch.utility.ranking",
-                new Vector2(0f, -26f), new Vector2(100f, 44f), MotorCityRankingWindow.Open);
+                new Vector2(0f, -26f), new Vector2(100f, 44f), () =>
+                {
+                    if (HasBlockingModalUi()) return;
+                    OpenPauseMenu();
+                    MotorCityRankingWindow.Open(ClosePauseMenu);
+                });
 
             CreatePauseButton(
                 rail,
