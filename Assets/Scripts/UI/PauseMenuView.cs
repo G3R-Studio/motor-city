@@ -87,6 +87,32 @@ namespace MotorCity.UI
             scroll.viewport = view; scroll.content = content; scroll.horizontal = false; scroll.vertical = true;
             scroll.movementType = ScrollRect.MovementType.Clamped; scroll.scrollSensitivity = 32f;
 
+            // Keep the scrollbar outside the clipped settings viewport.
+            var track = new GameObject("Pause Scroll Track", typeof(RectTransform), typeof(Image), typeof(Scrollbar));
+            track.transform.SetParent(window.Panel, false);
+            var trackRect = track.GetComponent<RectTransform>();
+            trackRect.anchorMin = new Vector2(1f, 0f);
+            trackRect.anchorMax = Vector2.one;
+            trackRect.offsetMin = new Vector2(-29f, 182f);
+            trackRect.offsetMax = new Vector2(-15f, -82f);
+            track.GetComponent<Image>().color = new Color(0.36f, 0.48f, 0.71f, 0.5f);
+            var handle = new GameObject("Scroll Position", typeof(RectTransform), typeof(Image));
+            handle.transform.SetParent(track.transform, false);
+            var handleRect = handle.GetComponent<RectTransform>();
+            handleRect.anchorMin = Vector2.zero;
+            handleRect.anchorMax = Vector2.one;
+            handleRect.offsetMin = Vector2.zero;
+            handleRect.offsetMax = Vector2.zero;
+            var handleImage = handle.GetComponent<Image>();
+            handleImage.color = new Color(0.35f, 0.86f, 1f, 1f);
+            var scrollbar = track.GetComponent<Scrollbar>();
+            scrollbar.direction = Scrollbar.Direction.BottomToTop;
+            scrollbar.handleRect = handleRect;
+            scrollbar.targetGraphic = handleImage;
+            scrollbar.value = 1f;
+            scroll.verticalScrollbar = scrollbar;
+            scroll.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHide;
+
             var footer = new GameObject("Pause Fixed Footer", typeof(RectTransform), typeof(VerticalLayoutGroup));
             footer.transform.SetParent(window.Panel, false);
             var footerRect = footer.GetComponent<RectTransform>();
