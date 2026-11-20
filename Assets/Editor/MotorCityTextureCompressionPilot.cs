@@ -39,7 +39,6 @@ public static class MotorCityTextureCompressionPilot
         public int compressionQuality;
         public bool crunchedCompression;
         public bool allowsAlphaSplitting;
-        public int androidETC2FallbackOverride;
     }
 
     [MenuItem("Tools/Motor City/Texture Compression Pilot/1 - Apply Crunch to Test Textures")]
@@ -82,7 +81,6 @@ public static class MotorCityTextureCompressionPilot
                 compressionQuality = current.compressionQuality,
                 crunchedCompression = current.crunchedCompression,
                 allowsAlphaSplitting = current.allowsAlphaSplitting,
-                androidETC2FallbackOverride = (int)current.androidETC2FallbackOverride
             });
             importers.Add(importer);
         }
@@ -179,8 +177,6 @@ public static class MotorCityTextureCompressionPilot
                 settings.compressionQuality = item.compressionQuality;
                 settings.crunchedCompression = item.crunchedCompression;
                 settings.allowsAlphaSplitting = item.allowsAlphaSplitting;
-                settings.androidETC2FallbackOverride =
-                    (AndroidETC2FallbackOverride)item.androidETC2FallbackOverride;
 
                 importer.SetPlatformTextureSettings(settings);
             }
