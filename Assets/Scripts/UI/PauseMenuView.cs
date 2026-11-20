@@ -80,6 +80,7 @@ namespace MotorCity.UI
             content.anchorMin = new Vector2(0f, 1f); content.anchorMax = Vector2.one;
             content.pivot = new Vector2(.5f, 1f);
             content.anchoredPosition = Vector2.zero; content.sizeDelta = new Vector2(0f, 0f);
+            content.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(12, 12, 12, 12);
             var fit = content.gameObject.AddComponent<ContentSizeFitter>();
             fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             var scroll = viewport.GetComponent<ScrollRect>();
@@ -171,12 +172,6 @@ namespace MotorCity.UI
 
             MotorCityControlSettings.Create(window.Content, RefreshMobileControlLayout);
 
-#if UNITY_WEBGL && !UNITY_EDITOR
-            var rankingActions = CreateButtonRow(window.Content, "Pause Rankings");
-            CreatePrimaryButton(rankingActions, "Pause Leaderboards",
-                "pause.leaderboards", () => MotorCityRankingOpen("reputation"),
-                role: MotorCityButtonRole.Secondary);
-#endif
 
 
             RectTransform experienceActions =
@@ -228,10 +223,6 @@ namespace MotorCity.UI
         }
 #endif
 
-#if UNITY_WEBGL && !UNITY_EDITOR
-        [System.Runtime.InteropServices.DllImport("__Internal")]
-        private static extern void MotorCityRankingOpen(string id);
-#endif
 
         private void OpenPausePlayerExperience()
         {
