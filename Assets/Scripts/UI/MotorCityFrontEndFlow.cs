@@ -2994,6 +2994,7 @@ namespace MotorCity.UI
         {
             RefreshMainMenuText();
             RefreshSettingsText();
+            RefreshPlayerExperience();
 
             if (aboutRoot != null)
             {
@@ -3037,7 +3038,7 @@ namespace MotorCity.UI
                 "Edit" or "Изменить" => russian ? "Изменить" : "Edit",
                 "Collapse" or "Свернуть" => russian ? "Свернуть" : "Collapse",
                 "Expand" or "Развернуть" => russian ? "Развернуть" : "Expand",
-                "On / Off" or "ВКЛ / ВЫКЛ" => russian ? "ВКЛ / ВЫКЛ" : "ON / OFF",
+                "On / Off" or "ON / OFF" or "ВКЛ / ВЫКЛ" => russian ? "ВКЛ / ВЫКЛ" : "ON / OFF",
                 "On" or "Вкл" => russian ? "Вкл" : "On",
                 "Off" or "Выкл" => russian ? "Выкл" : "Off",
                 _ => value
