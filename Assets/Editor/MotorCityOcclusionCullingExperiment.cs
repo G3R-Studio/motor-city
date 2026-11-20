@@ -5,43 +5,24 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
 /// <summary>
-/// Editor-only, reversible pilot for Unity's native GPU Resident Drawer
-/// occlusion culling. It modifies only MotorCityQualityRuntime's transient
-/// Play Mode URP clone; serialized project assets are never changed.
-/// Requires a compute-capable graphics API and a Forward+/Deferred+ renderer.
+/// Arms a one-shot native URP GPU Resident Drawer + GPU Occlusion test.
+/// The settings are applied to MotorCityQualityRuntime's transient URP clone
+/// before Unity activates that pipeline. No serialized asset is modified.
 /// </summary>
-[InitializeOnLoad]
 public static class MotorCityOcclusionCullingExperiment
 {
-    private static UniversalRenderPipelineAsset activePipeline;
-    private static GPUResidentDrawerMode originalDrawerMode;
-    private static bool originalGpuOcclusion;
+    private const string PilotKey =
+        "MotorCity.NativeGpuOcclusionPilot.NextPlayMode";
 
-    static MotorCityOcclusionCullingExperiment()
+    [MenuItem("Tools/Motor City/Occlusion Culling/Arm Native GPU Pilot (Next Play Mode)")]
+    private static void ArmNativeGpuPilot()
     {
-        EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
-        EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
-        AssemblyReloadEvents.beforeAssemblyReload -= Restore;
-        AssemblyReloadEvents.beforeAssemblyReload += Restore;
-        EditorApplication.quitting -= Restore;
-        EditorApplication.quitting += Restore;
-    }
-
-    [MenuItem("Tools/Motor City/Occlusion Culling/Start Native GPU Pilot")]
-    private static void StartPilot()
-    {
-        if (!EditorApplication.isPlaying)
+        if (EditorApplication.isPlaying)
         {
             EditorUtility.DisplayDialog(
                 "Native GPU Occlusion Pilot",
-                "Start Play Mode first and wait until the player camera and city have loaded.",
+                "Stop Play Mode first. The GPU culling systems must be configured before URP initializes.",
                 "OK");
-            return;
-        }
-
-        if (activePipeline != null)
-        {
-            Debug.Log("[Motor City Native Occlusion] Pilot is already active.");
             return;
         }
 
@@ -49,48 +30,24 @@ public static class MotorCityOcclusionCullingExperiment
         {
             EditorUtility.DisplayDialog(
                 "Native GPU Occlusion Pilot",
-                "This graphics API does not support compute shaders. " +
-                "Unity GPU Occlusion cannot run here. WebGL 2 does not support compute shaders; " +
-                "test on a compute-capable desktop API such as Direct3D 11/12, Vulkan or Metal.",
+                "The active Editor graphics API does not support compute shaders.",
                 "OK");
             return;
         }
 
-        // MotorCityQualityRuntime creates this hidden transient copy in Editor
-        // Play Mode. Refuse to touch the serialized project URP asset.
         UniversalRenderPipelineAsset pipeline =
-            QualitySettings.renderPipeline as UniversalRenderPipelineAsset;
+            GraphicsSettings.defaultRenderPipeline as UniversalRenderPipelineAsset;
 
-        if (pipeline == null ||
-            !pipeline.name.EndsWith(" (Play Mode)", System.StringComparison.Ordinal) ||
-            (pipeline.hideFlags & HideFlags.HideAndDontSave) == 0)
+        if (pipeline == null)
         {
-            EditorUtility.DisplayDialog(
-                "Native GPU Occlusion Pilot",
-                "The temporary Motor City Play Mode URP asset was not found. " +
-                "No project asset was changed. Wait for the quality runtime to initialize, then try again.",
-                "OK");
-            return;
+            pipeline = QualitySettings.renderPipeline as UniversalRenderPipelineAsset;
         }
 
-        UniversalRendererData rendererData = GetDefaultRendererData(pipeline);
-        if (rendererData == null)
+        if (pipeline == null)
         {
             EditorUtility.DisplayDialog(
                 "Native GPU Occlusion Pilot",
-                "Could not resolve the active Universal Renderer. No settings were changed.",
-                "OK");
-            return;
-        }
-
-        if (rendererData.renderingMode != RenderingMode.ForwardPlus &&
-            rendererData.renderingMode != RenderingMode.DeferredPlus)
-        {
-            EditorUtility.DisplayDialog(
-                "Native GPU Occlusion Pilot",
-                "GPU Resident Drawer requires Forward+ or Deferred+. " +
-                "Current renderer mode: " + rendererData.renderingMode +
-                ". No settings were changed.",
+                "Could not find the project's active URP Asset.",
                 "OK");
             return;
         }
@@ -99,67 +56,50 @@ public static class MotorCityOcclusionCullingExperiment
         {
             EditorUtility.DisplayDialog(
                 "Native GPU Occlusion Pilot",
-                "SRP Batcher is disabled on the temporary URP asset. " +
-                "GPU Resident Drawer requires SRP Batcher. No settings were changed.",
+                "SRP Batcher is disabled on the project URP Asset.",
                 "OK");
             return;
         }
 
-        if (!pipeline.IsGPUResidentDrawerSupportedBySRP(
-            out string supportMessage,
-            out LogType supportSeverity))
+        UniversalRendererData rendererData = GetDefaultRendererData(pipeline);
+        if (rendererData == null ||
+            (rendererData.renderingMode != RenderingMode.ForwardPlus &&
+             rendererData.renderingMode != RenderingMode.DeferredPlus))
         {
-            Debug.LogWarning(
-                "[Motor City Native Occlusion] URP rejected GPU Resident Drawer: " +
-                supportMessage);
             EditorUtility.DisplayDialog(
                 "Native GPU Occlusion Pilot",
-                "URP reports that GPU Resident Drawer is not supported with the current pipeline setup. " +
-                "No settings were changed.\n\n" + supportMessage,
+                "The active Universal Renderer must use Forward+ or Deferred+.",
                 "OK");
             return;
         }
 
-        originalDrawerMode = pipeline.gpuResidentDrawerMode;
-        originalGpuOcclusion = pipeline.gpuResidentDrawerEnableOcclusionCullingInCameras;
-        activePipeline = pipeline;
+        EditorPrefs.SetBool(PilotKey, true);
+        Debug.Log(
+            "[Motor City Native Occlusion] Armed for the NEXT Play Mode. " +
+            "Stop/enter Play Mode so MotorCityQualityRuntime can configure the " +
+            "transient URP clone before pipeline initialization. " +
+            "Graphics API=" + SystemInfo.graphicsDeviceType +
+            "; ComputeShaders=" + SystemInfo.supportsComputeShaders +
+            "; Renderer=" + rendererData.renderingMode + ".");
 
-        try
-        {
-            pipeline.gpuResidentDrawerMode = GPUResidentDrawerMode.InstancedDrawing;
-            pipeline.gpuResidentDrawerEnableOcclusionCullingInCameras = true;
-
-            Debug.Log(
-                "[Motor City Native Occlusion] Unity GPU Resident Drawer pilot ENABLED. " +
-                "GPU Occlusion=true; Renderer=" + rendererData.renderingMode +
-                "; API=" + SystemInfo.graphicsDeviceType +
-                "; ComputeShaders=" + SystemInfo.supportsComputeShaders +
-                "; SRPBatcher=" + pipeline.useSRPBatcher +
-                ". This changes only the transient Play Mode URP clone. " +
-                "Use Stop and Restore or exit Play Mode to revert.");
-        }
-        catch (System.Exception exception)
-        {
-            Debug.LogException(exception);
-            Restore();
-            EditorUtility.DisplayDialog(
-                "Native GPU Occlusion Pilot",
-                "Unity could not enable GPU Resident Drawer. Original temporary settings were restored.\n\n" +
-                exception.Message,
-                "OK");
-        }
+        EditorUtility.DisplayDialog(
+            "Native GPU Occlusion Pilot",
+            "Armed for the next Play Mode. Enter Play Mode now and wait for the city to load. " +
+            "The pilot will be consumed once when MotorCityQualityRuntime creates its temporary URP clone.",
+            "OK");
     }
 
-    [MenuItem("Tools/Motor City/Occlusion Culling/Stop and Restore")]
-    private static void StopPilot()
+    [MenuItem("Tools/Motor City/Occlusion Culling/Arm Native GPU Pilot (Next Play Mode)", true)]
+    private static bool ValidateArmNativeGpuPilot()
     {
-        Restore();
+        return !EditorApplication.isPlaying;
     }
 
-    [MenuItem("Tools/Motor City/Occlusion Culling/Stop and Restore", true)]
-    private static bool ValidateStop()
+    [MenuItem("Tools/Motor City/Occlusion Culling/Disarm Native GPU Pilot")]
+    private static void DisarmNativeGpuPilot()
     {
-        return EditorApplication.isPlaying && activePipeline != null;
+        EditorPrefs.SetBool(PilotKey, false);
+        Debug.Log("[Motor City Native Occlusion] Next Play Mode pilot disarmed.");
     }
 
     private static UniversalRendererData GetDefaultRendererData(
@@ -169,39 +109,12 @@ public static class MotorCityOcclusionCullingExperiment
         SerializedProperty list = serialized.FindProperty("m_RendererDataList");
         SerializedProperty defaultIndex = serialized.FindProperty("m_DefaultRendererIndex");
 
-        if (list == null || defaultIndex == null ||
-            list.arraySize == 0)
+        if (list == null || defaultIndex == null || list.arraySize == 0)
             return null;
 
         int index = Mathf.Clamp(defaultIndex.intValue, 0, list.arraySize - 1);
         return list.GetArrayElementAtIndex(index).objectReferenceValue
             as UniversalRendererData;
-    }
-
-    private static void OnPlayModeStateChanged(PlayModeStateChange state)
-    {
-        if (state == PlayModeStateChange.ExitingPlayMode ||
-            state == PlayModeStateChange.EnteredEditMode)
-            Restore();
-    }
-
-    private static void Restore()
-    {
-        if (activePipeline == null)
-            return;
-
-        // This is a transient Play Mode copy, never the serialized project asset.
-        if (activePipeline != null)
-        {
-            activePipeline.gpuResidentDrawerMode = originalDrawerMode;
-            activePipeline.gpuResidentDrawerEnableOcclusionCullingInCameras =
-                originalGpuOcclusion;
-        }
-
-        activePipeline = null;
-        Debug.Log(
-            "[Motor City Native Occlusion] Native GPU pilot stopped. " +
-            "Temporary GPU Resident Drawer and GPU Occlusion settings restored.");
     }
 }
 #endif
