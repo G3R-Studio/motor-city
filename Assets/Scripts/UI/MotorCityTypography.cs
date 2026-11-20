@@ -178,6 +178,131 @@ namespace MotorCity.UI
         }
     }
 
+    internal sealed class MotorCityRankingWindow : MonoBehaviour
+    {
+        private static MotorCityRankingWindow current;
+        private static readonly string[] Ids = {"reputation","drift_score","race_time","completed_jobs","distance"};
+        private static readonly string[] Ru = {"Лучшие водители","Короли дрифта","Лучшие гонщики","Профессионалы","Активные водители"};
+        private static readonly string[] En = {"Best drivers","Drift kings","Best racers","Professionals","Active drivers"};
+        [System.Serializable] private sealed class Entry { public int rank; public string name; public int score; }
+        [System.Serializable] private sealed class Response { public bool ok; public Entry[] rows; }
+#if UNITY_WEBGL && !UNITY_EDITOR
+        [System.Runtime.InteropServices.DllImport("__Internal")] private static extern void MotorCityRankingFetch(string id);
+        [System.Runtime.InteropServices.DllImport("__Internal")] private static extern string MotorCityRankingPoll();
+#endif
+        private RectTransform results;
+        private UnityEngine.UI.ScrollRect scroll;
+        private UnityEngine.UI.Button[] tabs;
+        private int selected;
+        private bool pending;
+        private float deadline;
+        private System.Action closed;
+        private static bool Russian => MotorCity.Localization.MotorCityLocalization.LanguageCode == "ru";
+        private static string L(string ru,string en) => Russian?ru:en;
+        public static void Open() => Open(null);
+        public static void Open(System.Action onClosed)
+        {
+            if(current != null) return;
+            var root = new GameObject("Motor City Rankings",typeof(RectTransform),typeof(Canvas),typeof(UnityEngine.UI.CanvasScaler),typeof(UnityEngine.UI.GraphicRaycaster));
+            var canvas = root.GetComponent<Canvas>(); canvas.renderMode=RenderMode.ScreenSpaceOverlay; canvas.sortingOrder=30000;
+            var scaler=root.GetComponent<UnityEngine.UI.CanvasScaler>(); scaler.uiScaleMode=UnityEngine.UI.CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution=new Vector2(1920,1080); scaler.screenMatchMode=UnityEngine.UI.CanvasScaler.ScreenMatchMode.Expand;
+            current=root.AddComponent<MotorCityRankingWindow>(); current.closed=onClosed; current.Build();
+        }
+        private static RectTransform RectNode(Transform parent,string name,Vector2 min,Vector2 max,Vector2 low,Vector2 high)
+        {
+            var go=new GameObject(name,typeof(RectTransform)); go.transform.SetParent(parent,false);
+            var rect=(RectTransform)go.transform; rect.anchorMin=min;rect.anchorMax=max;rect.offsetMin=low;rect.offsetMax=high;return rect;
+        }
+        private static void Surface(RectTransform rect)
+        {
+            var graphic=rect.gameObject.AddComponent<GarageReferenceGraphic>();graphic.symbol=GarageReferenceGraphic.Symbol.Surface;graphic.color=MotorCityUiSkin.Panel;graphic.raycastTarget=false;
+        }
+        private static UnityEngine.UI.Text TextAt(Transform owner,string caption,int size,TextAnchor align)
+        {
+            var rect=RectNode(owner,"Label",Vector2.zero,Vector2.one,new Vector2(12,3),new Vector2(-12,-3));
+            var t=rect.gameObject.AddComponent<UnityEngine.UI.Text>();t.font=MotorCityTypography.Regular;t.fontSize=size;t.color=MotorCityUiSkin.TextPrimary;t.text=caption;t.alignment=align;t.raycastTarget=false;t.supportRichText=false;
+            MotorCityTextLayout.Configure(t);return t;
+        }
+        private static UnityEngine.UI.Button ButtonAt(RectTransform rect,string caption,System.Action click)
+        {
+            rect.gameObject.AddComponent<UnityEngine.UI.Image>();var button=rect.gameObject.AddComponent<UnityEngine.UI.Button>();
+            MotorCityUiSkin.ApplyVectorButton(button,MotorCityButtonRole.Secondary);TextAt(rect,caption,22,TextAnchor.MiddleCenter);
+            button.onClick.AddListener(()=>click());return button;
+        }
+        private void Build()
+        {
+            var shade=RectNode(transform,"Backdrop",Vector2.zero,Vector2.one,Vector2.zero,Vector2.zero);
+            shade.gameObject.AddComponent<UnityEngine.UI.Image>().color=new Color(.005f,.01f,.025f,.86f);
+            var panel=RectNode(transform,"Ranking Panel",new Vector2(.5f,.5f),new Vector2(.5f,.5f),new Vector2(-630,-455),new Vector2(630,455));Surface(panel);
+            TextAt(RectNode(panel,"Title",new Vector2(0,1),Vector2.one,new Vector2(30,-82),new Vector2(-30,-16)),L("Рейтинг игроков","Leaderboards"),38,TextAnchor.MiddleCenter);
+            tabs=new UnityEngine.UI.Button[Ids.Length];
+            for(int i=0;i<Ids.Length;i++)
+            {
+                int index=i;
+                var tab=RectNode(panel,"Tab "+i,new Vector2(0,1),new Vector2(0,1),new Vector2(34+i*239,-154),new Vector2(260+i*239,-94));
+                tabs[i]=ButtonAt(tab,(Russian?Ru:En)[i],()=>Select(index));
+            }
+            var header=RectNode(panel,"Columns",new Vector2(0,1),new Vector2(1,1),new Vector2(44,-216),new Vector2(-44,-168));
+            TextAt(RectNode(header,"Rank",Vector2.zero,new Vector2(.15f,1),Vector2.zero,Vector2.zero),L("Место","Rank"),23,TextAnchor.MiddleCenter);
+            TextAt(RectNode(header,"Player",new Vector2(.15f,0),new Vector2(.72f,1),Vector2.zero,Vector2.zero),L("Игрок","Player"),23,TextAnchor.MiddleLeft);
+            TextAt(RectNode(header,"Score",new Vector2(.72f,0),Vector2.one,Vector2.zero,Vector2.zero),L("Результат","Score"),23,TextAnchor.MiddleRight);
+            var viewport=RectNode(panel,"Results Viewport",Vector2.zero,Vector2.one,new Vector2(32,110),new Vector2(-32,-220));
+            viewport.gameObject.AddComponent<UnityEngine.UI.Image>().color=Color.clear;viewport.gameObject.AddComponent<UnityEngine.UI.RectMask2D>();
+            scroll=viewport.gameObject.AddComponent<UnityEngine.UI.ScrollRect>();scroll.viewport=viewport;scroll.horizontal=false;scroll.movementType=UnityEngine.UI.ScrollRect.MovementType.Clamped;
+            results=RectNode(viewport,"Results",new Vector2(0,1),Vector2.one,Vector2.zero,Vector2.zero);results.pivot=new Vector2(.5f,1);
+            var group=results.gameObject.AddComponent<UnityEngine.UI.VerticalLayoutGroup>();group.padding=new RectOffset(12,12,12,12);group.spacing=12;group.childControlHeight=true;group.childControlWidth=true;group.childForceExpandHeight=false;
+            results.gameObject.AddComponent<UnityEngine.UI.ContentSizeFitter>().verticalFit=UnityEngine.UI.ContentSizeFitter.FitMode.PreferredSize;scroll.content=results;
+            ButtonAt(RectNode(panel,"Refresh",new Vector2(0,0),new Vector2(.5f,0),new Vector2(44,30),new Vector2(-12,88)),L("Обновить","Refresh"),()=>Select(selected));
+            ButtonAt(RectNode(panel,"Close",new Vector2(.5f,0),new Vector2(1,0),new Vector2(12,30),new Vector2(-44,88)),L("Закрыть","Close"),Close);
+            Select(0);
+        }
+        private RectTransform Row()
+        {
+            var row=RectNode(results,"Result Row",Vector2.zero,Vector2.one,Vector2.zero,Vector2.zero);
+            var layout=row.gameObject.AddComponent<UnityEngine.UI.LayoutElement>();layout.minHeight=layout.preferredHeight=60;Surface(row);return row;
+        }
+        private void Clear()
+        {
+            for(int i=results.childCount-1;i>=0;i--){var child=results.GetChild(i);child.gameObject.SetActive(false);Destroy(child.gameObject);}
+            scroll.verticalNormalizedPosition=1;
+        }
+        private void Status(string value){Clear();TextAt(Row(),value,24,TextAnchor.MiddleCenter);}
+        private void Select(int index)
+        {
+            selected=index; for(int i=0;i<tabs.Length;i++)tabs[i].interactable=i!=index;
+#if UNITY_WEBGL && !UNITY_EDITOR
+            Status(L("Загрузка...","Loading..."));pending=true;deadline=Time.realtimeSinceStartup+20;MotorCityRankingFetch(Ids[index]);
+#else
+            Status(L("Онлайн-рейтинг доступен в WebGL через Playgama.","Online rankings are available in WebGL via Playgama."));
+#endif
+        }
+        private void Update()
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            if(!pending)return;
+            string json=MotorCityRankingPoll();
+            if(string.IsNullOrEmpty(json)){if(Time.realtimeSinceStartup>deadline){pending=false;Status(L("Не удалось загрузить. Обновите таблицу.","Unable to load. Refresh the table."));}return;}
+            pending=false;
+            Response response;
+            try{response=JsonUtility.FromJson<Response>(json);}catch{response=null;}
+            if(response==null||!response.ok){Status(L("Ошибка загрузки рейтинга","Leaderboard unavailable"));return;}
+            if(response.rows==null||response.rows.Length==0){Status(L("Пока нет результатов","No scores yet"));return;}
+            Clear();
+            foreach(var entry in response.rows)
+            {
+                var row=Row();
+                TextAt(RectNode(row,"Rank",Vector2.zero,new Vector2(.15f,1),Vector2.zero,Vector2.zero),entry.rank.ToString(),26,TextAnchor.MiddleCenter);
+                TextAt(RectNode(row,"Player",new Vector2(.15f,0),new Vector2(.72f,1),Vector2.zero,Vector2.zero),string.IsNullOrEmpty(entry.name)?L("Игрок","Player"):entry.name,24,TextAnchor.MiddleLeft);
+                string score=selected==2?(entry.score/1000f).ToString("F2")+L(" с"," s"):selected==4?(entry.score/1000f).ToString("F2")+L(" км"," km"):entry.score.ToString("N0");
+                TextAt(RectNode(row,"Score",new Vector2(.72f,0),Vector2.one,Vector2.zero,Vector2.zero),score,26,TextAnchor.MiddleRight);
+            }
+#endif
+        }
+        private void Close(){var callback=closed;closed=null;current=null;Destroy(gameObject);callback?.Invoke();}
+        private void OnDestroy(){if(current==this)current=null;}
+    }
+
     public static class MotorCityTypography
     {
         private static Font regular;
