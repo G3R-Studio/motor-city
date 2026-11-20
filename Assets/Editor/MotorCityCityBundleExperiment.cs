@@ -1018,8 +1018,9 @@ namespace MotorCity.EditorTools
                 }
                 finally
                 {
-                    File.WriteAllText(split ? "Library/MotorCitySplitCityTest.txt" : Report, log.ToString(), Encoding.UTF8);
-                    Debug.Log("City bundle experiment report: " + Report);
+                    string reportPath = split ? "Library/MotorCitySplitCityTest.txt" : Report;
+                    File.WriteAllText(reportPath, log.ToString(), Encoding.UTF8);
+                    Debug.Log("City bundle experiment report: " + reportPath);
                 }
             }
         }
