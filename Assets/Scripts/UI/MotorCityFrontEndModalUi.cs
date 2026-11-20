@@ -441,6 +441,7 @@ namespace MotorCity.UI
             track.offsetMax = new Vector2(26f, -headerHeight - 24f);
             Image background = track.GetComponent<Image>();
             background.color = new Color(0.36f, 0.48f, 0.71f, 0.5f);
+            MotorCityVolumeSlider.RoundTrack(background, true);
             background.raycastTarget = false;
 
             RectTransform handle = new GameObject(
@@ -453,6 +454,7 @@ namespace MotorCity.UI
             handle.offsetMax = Vector2.zero;
             Image marker = handle.GetComponent<Image>();
             marker.color = new Color(0.40f, 0.86f, 1f, 1f);
+            MotorCityVolumeSlider.RoundTrack(marker, true);
             marker.raycastTarget = false;
 
             // The full-width "scroll down" caption used to overlay
