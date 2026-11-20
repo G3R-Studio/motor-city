@@ -8,6 +8,7 @@ namespace MotorCity.EditorTools
     {
         private const string Prefix = "Assets/Resources/MotorCity/UI/Icons/Tabler/";
         public override int GetPostprocessOrder() => 100;
+        public override uint GetVersion() => 2;
 
         private void OnPreprocessTexture()
         {
@@ -20,8 +21,8 @@ namespace MotorCity.EditorTools
             settings.name = "WebGL";
             settings.overridden = true;
             settings.maxTextureSize = 128;
-            settings.format = TextureImporterFormat.RGBA32;
-            settings.textureCompression = TextureImporterCompression.Uncompressed;
+            settings.format = TextureImporterFormat.DXT5;
+            settings.textureCompression = TextureImporterCompression.CompressedHQ;
             importer.SetPlatformTextureSettings(settings);
         }
 
