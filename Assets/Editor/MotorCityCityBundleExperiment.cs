@@ -428,6 +428,7 @@ namespace MotorCity.EditorTools
                             objectName.Contains("tree") ||
                             objectName.Contains("park-") ||
                             objectName.Contains("light") ||
+                            objectName.Contains("collider") ||
                             current.GetComponent<MonoBehaviour>() != null)
                         {
                             protectedPath = true;
