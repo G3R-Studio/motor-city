@@ -144,6 +144,14 @@ namespace MotorCity.UI
 
             MotorCityControlSettings.Create(window.Content, RefreshMobileControlLayout);
 
+#if UNITY_WEBGL && !UNITY_EDITOR
+            var rankingActions = CreateButtonRow(window.Content, "Pause Rankings");
+            CreatePrimaryButton(rankingActions, "Pause Leaderboards",
+                "pause.leaderboards", () => MotorCityRankingOpen("reputation"),
+                role: MotorCityButtonRole.Secondary);
+#endif
+
+
             RectTransform experienceActions =
                 CreateButtonRow(
                     window.Content,
@@ -191,6 +199,11 @@ namespace MotorCity.UI
             DebugOpenPauseForUiQa();
             OpenPausePlayerExperience();
         }
+#endif
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+        [System.Runtime.InteropServices.DllImport("__Internal")]
+        private static extern void MotorCityRankingOpen(string id);
 #endif
 
         private void OpenPausePlayerExperience()
