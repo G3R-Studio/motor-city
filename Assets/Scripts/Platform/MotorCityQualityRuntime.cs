@@ -406,6 +406,29 @@ namespace MotorCity.Platform
                     editorPipeline = UnityEngine.Object.Instantiate(urp);
                     editorPipeline.name = urp.name + " (Play Mode)";
                     editorPipeline.hideFlags = HideFlags.HideAndDontSave;
+
+                    // GPU Resident Drawer and GPU Occlusion must be configured
+                    // before URP initializes this pipeline instance. Changing
+                    // these asset properties after the pipeline is already
+                    // running does not reliably create its GPU culling systems.
+                    const string nativeGpuOcclusionPilotKey =
+                        "MotorCity.NativeGpuOcclusionPilot.NextPlayMode";
+                    bool enableNativeGpuOcclusionPilot =
+                        UnityEditor.EditorPrefs.GetBool(nativeGpuOcclusionPilotKey, false);
+
+                    if (enableNativeGpuOcclusionPilot)
+                    {
+                        UnityEditor.EditorPrefs.SetBool(nativeGpuOcclusionPilotKey, false);
+                        editorPipeline.gpuResidentDrawerMode =
+                            GPUResidentDrawerMode.InstancedDrawing;
+                        editorPipeline.gpuResidentDrawerEnableOcclusionCullingInCameras = true;
+
+                        Debug.Log(
+                            "[Motor City Native Occlusion] Configured on transient URP clone " +
+                            "BEFORE pipeline activation. GPU Resident Drawer=Instanced Drawing; " +
+                            "GPU Occlusion=true. This is a one-shot Editor Play Mode test.");
+                    }
+
                     QualitySettings.renderPipeline = editorPipeline;
                 }
                 urp = editorPipeline;
