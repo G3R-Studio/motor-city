@@ -331,6 +331,7 @@ namespace MotorCity.Gameplay
             }
 
             distanceMeters += step;
+            MotorCity.Persistence.MotorCitySaveService.SetFloat("MotorCity.Ranking.DistanceMeters", MotorCity.Persistence.MotorCitySaveService.GetFloat("MotorCity.Ranking.DistanceMeters", 0f) + step);
             dirty = true;
         }
 
@@ -357,6 +358,8 @@ namespace MotorCity.Gameplay
             }
 
             victories++;
+            if (activityId == "delivery" || activityId == "carwash" || activityId == "tow" || activityId.StartsWith("profession"))
+                MotorCity.Persistence.MotorCitySaveService.SetInt("MotorCity.Ranking.Jobs", MotorCity.Persistence.MotorCitySaveService.GetInt("MotorCity.Ranking.Jobs", 0) + 1);
 
             if (activityManager != null)
             {
