@@ -2994,6 +2994,54 @@ namespace MotorCity.UI
         {
             RefreshMainMenuText();
             RefreshSettingsText();
+
+            if (aboutRoot != null)
+            {
+                Transform oldAbout = aboutRoot.transform.Find("About Panel");
+                if (oldAbout != null)
+                {
+                    oldAbout.gameObject.SetActive(false);
+                    Object.Destroy(oldAbout.gameObject);
+                }
+                BuildAbout();
+            }
+
+            if (settingsRoot != null)
+            {
+                bool russian = IsRussian();
+                foreach (Text label in settingsRoot.GetComponentsInChildren<Text>(true))
+                    label.text = LocalizeSettingsLiteral(label.text, russian);
+                RefreshSettingsText();
+            }
+        }
+
+        private static string LocalizeSettingsLiteral(string value, bool russian)
+        {
+            return value switch
+            {
+                "Graphics" or "Графика" => russian ? "Графика" : "Graphics",
+                "Draw distance" or "Дальность" => russian ? "Дальность" : "Draw distance",
+                "Audio" or "Звук" => russian ? "Звук" : "Audio",
+                "Music" or "Музыка" => russian ? "Музыка" : "Music",
+                "Language" or "Язык" => russian ? "Язык" : "Language",
+                "Mobile controls" or "Мобильное управление" => russian ? "Мобильное управление" : "Mobile controls",
+                "Controls" or "Управление" => russian ? "Управление" : "Controls",
+                "Wheel" or "Руль" => russian ? "Руль" : "Wheel",
+                "Arrows" or "Стрелки" => russian ? "Стрелки" : "Arrows",
+                "Throttle" or "Газ" => russian ? "Газ" : "Throttle",
+                "Brake" or "Тормоз" => russian ? "Тормоз" : "Brake",
+                "Handbrake" or "Ручник" => russian ? "Ручник" : "Handbrake",
+                "Action" or "Действие" => russian ? "Действие" : "Action",
+                "Cancel" or "Отмена" => russian ? "Отмена" : "Cancel",
+                "Change" or "Сменить" => russian ? "Сменить" : "Change",
+                "Edit" or "Изменить" => russian ? "Изменить" : "Edit",
+                "Collapse" or "Свернуть" => russian ? "Свернуть" : "Collapse",
+                "Expand" or "Развернуть" => russian ? "Развернуть" : "Expand",
+                "On / Off" or "ВКЛ / ВЫКЛ" => russian ? "ВКЛ / ВЫКЛ" : "ON / OFF",
+                "On" or "Вкл" => russian ? "Вкл" : "On",
+                "Off" or "Выкл" => russian ? "Выкл" : "Off",
+                _ => value
+            };
         }
 
         private Slider settingsAudioSlider, settingsMusicSlider;
