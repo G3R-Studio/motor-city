@@ -275,6 +275,16 @@ namespace MotorCity.UI
             RefreshPauseMenuText();
         }
 
+        public void OpenPauseForFocusLoss()
+        {
+            if (pauseMenuOpen || pauseOverlay == null ||
+                storeOpen || clubOpen || navigatorMenuOpen ||
+                (activityManager != null && activityManager.HasResult))
+                return;
+
+            OpenPauseMenu();
+        }
+
 #if UNITY_EDITOR || DEBUG
         // Uses the same pause owner, Time.timeScale and modal flow as players.
         public void DebugOpenPauseForUiQa()
