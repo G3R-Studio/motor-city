@@ -301,6 +301,12 @@ namespace MotorCity.Gameplay
                 Mathf.Max(
                     BestDrift,
                     finishedScore);
+            int savedBest = MotorCity.Persistence.MotorCitySaveService.GetInt("MotorCity.Ranking.BestDrift", 0);
+            if (BestDrift > savedBest)
+            {
+                MotorCity.Persistence.MotorCitySaveService.SetInt("MotorCity.Ranking.BestDrift", BestDrift);
+                MotorCity.Persistence.MotorCitySaveService.Save();
+            }
 
             bool freeRoam =
                 activityManager == null ||
