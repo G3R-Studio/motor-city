@@ -61,6 +61,10 @@ namespace MotorCity.EditorTools
         private static string GameplayOriginal(string name) => "Assets/Resources/MotorCity/" + name + GameplayExtension(name);
         private static string GameplayParked(string name) => "Assets/MotorCity_GameplayStream_" + name.Replace('/', '_') + GameplayExtension(name);
 
+        public static bool HasParkedAssets =>
+            Directory.GetFileSystemEntries("Assets", "MotorCity_GameplayStream_*").Length != 0 ||
+            Exists(TemporaryCity) || Exists(ParkedIntro);
+
         private static bool Exists(string path) => File.Exists(path) || Directory.Exists(path);
         private const string Profile = "Assets/Settings/Build Profiles/Web - Desktop - Release.asset";
         private const string Report = "Library/MotorCityCityBundleExperiment.txt";
