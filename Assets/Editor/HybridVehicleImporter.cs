@@ -42,6 +42,7 @@ public static class HybridVehicleImporter
 
     private static void TryAutoBuild()
     {
+        if (MotorCity.EditorTools.MotorCityCityBundleExperiment.HasParkedAssets) return;
         if (EditorApplication.isPlayingOrWillChangePlaymode)
             return;
 
