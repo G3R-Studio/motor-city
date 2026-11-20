@@ -445,13 +445,17 @@ namespace MotorCity.UI
             if (activityManager != null)
             {
                 activityManager.ActivityResultShown -= CaptureJournalBeforeActivityResult;
+#if UNITY_WEBGL && !UNITY_EDITOR && !DEBUG
                 activityManager.ActivityCompleted -= OnRankingActivityCompleted;
+#endif
             }
             activityManager = manager;
             if (activityManager != null)
             {
                 activityManager.ActivityResultShown += CaptureJournalBeforeActivityResult;
+#if UNITY_WEBGL && !UNITY_EDITOR && !DEBUG
                 activityManager.ActivityCompleted += OnRankingActivityCompleted;
+#endif
             }
             journalBeforeResult = null;
             journalLastResultName = null;
@@ -672,17 +676,18 @@ namespace MotorCity.UI
             // Do not change Selectable interactability: its disabled tint affects only buttons.
         }
 
+#if UNITY_WEBGL && !UNITY_EDITOR && !DEBUG
         private float nextRankingSync;
-#if UNITY_WEBGL && !UNITY_EDITOR
         [System.Runtime.InteropServices.DllImport("__Internal")]
         private static extern void MotorCityRankingSubmit(string id, int score);
-#endif
+
         private void OnRankingActivityCompleted(string activityId)
         {
             // A completed activity may change one or more leaderboard values.
             // Submit on the next HUD update instead of waiting for the 30-second poll.
             nextRankingSync = 0f;
         }
+#endif
 
         private void SyncRankings()
         {
