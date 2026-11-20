@@ -2758,9 +2758,7 @@ namespace MotorCity.UI
         {
             playerExperienceReturnToPause = null;
             ReleaseIntroResources();
-
-            MotorCityMusicRuntime.SetMenuActive(
-                false);
+            PlayerVehicleAudio.SetFrontEndMuted(false);
 
             MotorCityMusicRuntime.SetGameplayActive(
                 true);
@@ -2887,11 +2885,9 @@ namespace MotorCity.UI
             playerExperienceReturnToPause = null;
             Time.timeScale = 0f;
             AudioListener.pause = true;
-            MotorCityMusicRuntime.SetGameplayActive(
-                false);
-
-            MotorCityMusicRuntime.SetMenuActive(
-                true);
+            PlayerVehicleAudio.SetFrontEndMuted(true);
+            if (!returningToLoadedGameplay)
+                MotorCityMusicRuntime.SetMenuActive(true);
 
             car?.SetDrivingBlocked(
                 "FrontEnd",
@@ -2930,8 +2926,8 @@ namespace MotorCity.UI
         private void ShowAbout()
         {
             AudioListener.pause = true;
-            MotorCityMusicRuntime.SetMenuActive(
-                true);
+            if (!returningToLoadedGameplay)
+                MotorCityMusicRuntime.SetMenuActive(true);
             mainRoot.SetActive(false);
             settingsRoot.SetActive(false);
             playerExperienceRoot?.SetActive(false);
@@ -2946,8 +2942,8 @@ namespace MotorCity.UI
         {
             MotorCityQualityRuntime.Initialize();
             AudioListener.pause = true;
-            MotorCityMusicRuntime.SetMenuActive(
-                true);
+            if (!returningToLoadedGameplay)
+                MotorCityMusicRuntime.SetMenuActive(true);
             mainRoot.SetActive(false);
             aboutRoot.SetActive(false);
             playerExperienceRoot?.SetActive(false);
