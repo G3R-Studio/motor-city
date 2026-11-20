@@ -10,10 +10,11 @@ namespace MotorCity.World
     /// below that instance is hidden/restored together. Colliders and assets are
     /// never disabled or modified.
     /// </summary>
+    [DefaultExecutionOrder(10000)]
     [DisallowMultipleComponent]
     public sealed class CityOcclusionCullingPilot : MonoBehaviour
     {
-        private const float ScanInterval = 0.25f;
+        private const float ScanInterval = 0.05f;
         private const float NearKeepDistance = 38f;
 
         // These are the building prefab name families used by the city generator.
@@ -230,8 +231,21 @@ namespace MotorCity.World
             int hidden = 0;
             foreach (BuildingGroup building in buildings.Values)
             {
+                // Always restore nearby buildings before testing the frustum.
+                // This prevents a stale camera frustum from leaving a close
+                // building hidden while the chase camera is moving/rotating.
+                float distanceToBuildingSqr =
+                    building.Bounds.SqrDistance(targetCamera.transform.position);
+
+                if (distanceToBuildingSqr <= NearKeepDistance * NearKeepDistance)
+                {
+                    building.OccludedChecks = 0;
+                    SetBuildingHidden(building, false);
+                    continue;
+                }
+
                 // Unity's frustum culling already handles buildings outside view.
-                // Keep our last state until the building returns into the frustum.
+                // Keep the last state until the building returns into the frustum.
                 if (!GeometryUtility.TestPlanesAABB(frustumPlanes, building.Bounds))
                     continue;
 
