@@ -10,10 +10,44 @@ mergeInto(LibraryManager.library, {
     Promise.resolve().then(function(){return b.setScore(id,score);}).then(function(){state[id].pending=false;},function(){if(previous) state[id]=previous; else delete state[id];});
   },
   MotorCityRankingOpen: function(idPtr) {
-    var id = UTF8ToString(idPtr);
+    var initial = UTF8ToString(idPtr);
     var b = window.bridge && window.bridge.leaderboards;
-    if (!b || b.type === 'not_available') return;
-    if (b.type === 'native_popup') Promise.resolve(b.showNativePopup(id)).catch(function(){});
+    if (!b || b.type === 'not_available' || b.type === 'native') return;
+    if (b.type === 'native_popup') { Promise.resolve().then(function(){return b.showNativePopup(initial);}).catch(function(){}); return; }
+    if (document.getElementById('motorcity-ranking')) return;
+    var ru = window.bridge.platform.language === 'ru';
+    var ids = ['reputation','drift_score','race_time','completed_jobs','distance'];
+    var names = ru ? ['Лучшие водители','Короли дрифта','Лучшие гонщики','Профессионалы','Активные водители'] : ['Best drivers','Drift kings','Best racers','Professionals','Active drivers'];
+    var overlay = document.createElement('div');
+    overlay.id = 'motorcity-ranking';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:2147483646;background:rgba(5,8,18,.94);color:white;display:flex;align-items:center;justify-content:center;font:16px Arial,sans-serif;touch-action:auto';
+    var panel = document.createElement('div');
+    panel.style.cssText = 'width:min(90vw,760px);max-height:85vh;overflow:auto;padding:20px;background:#131c30;border:1px solid #36c9ff;border-radius:12px;box-sizing:border-box';
+    overlay.appendChild(panel);
+    var title = document.createElement('h2'); title.textContent = ru?'Рейтинг игроков':'Leaderboards'; panel.appendChild(title);
+    var select = document.createElement('select'); select.style.cssText='max-width:100%;padding:10px;background:#202d44;color:white;font:inherit';
+    ids.forEach(function(id,i){var o=document.createElement('option');o.value=id;o.textContent=names[i];select.appendChild(o);}); select.value=initial;panel.appendChild(select);
+    var close=document.createElement('button');close.textContent=ru?'Закрыть':'Close';close.style.cssText='margin:8px;padding:10px;background:#283952;color:white;border:1px solid #36c9ff;border-radius:6px;font:inherit';panel.appendChild(close);
+    var list=document.createElement('div');list.style.cssText='margin-top:12px;min-height:70px';panel.appendChild(list);
+    var generation=0;
+    function refresh(){
+      var seq=++generation,id=select.value;list.textContent=ru?'Загрузка...':'Loading...';
+      Promise.resolve().then(function(){return b.getEntries(id);}).then(function(entries){
+        if(seq!==generation||!overlay.isConnected)return;
+        list.textContent='';
+        if(!Array.isArray(entries)||!entries.length){list.textContent=ru?'Пока нет результатов':'No scores yet';return;}
+        entries.slice(0,100).forEach(function(e){
+          var row=document.createElement('div');row.style.cssText='display:flex;gap:12px;justify-content:space-between;padding:10px 4px;border-bottom:1px solid #33415a';
+          var name=document.createElement('span');name.textContent=String(e.rank||'—')+'. '+String(e.name|| (ru?'Игрок':'Player'));name.style.overflowWrap='anywhere';
+          var value=document.createElement('span');value.textContent=id==='race_time'?(Number(e.score)/1000).toFixed(2)+' s':id==='distance'?(Number(e.score)/1000).toFixed(2)+' km':String(e.score);
+          row.appendChild(name);row.appendChild(value);list.appendChild(row);
+        });
+      }).catch(function(){if(seq===generation)list.textContent=ru?'Ошибка загрузки. Выберите рейтинг повторно.':'Loading failed. Select a board again.';});
+    }
+    close.onclick=function(){generation++;overlay.remove();};
+    select.onchange=refresh;
+    var retry=document.createElement('button');retry.textContent=ru?'Обновить':'Refresh';retry.onclick=refresh;panel.insertBefore(retry,list);
+    document.body.appendChild(overlay);refresh();
   },
   MotorCityWebConfigureBrowser: function() {
     try {
