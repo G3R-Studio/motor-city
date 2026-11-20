@@ -784,7 +784,29 @@ namespace MotorCity.EditorTools
                 if (districts) roots.Add(DistrictCatalogPath);
                 if (hlod)
                 {
-                    if (!PrepareHlod()) throw new InvalidOperationException("No safe HLOD groups found.");
+                    if (!PrepareHlod())
+                        throw new InvalidOperationException("No eligible static opaque building groups were found for HLOD.");
+
+                    CityHlodData bakedHlod =
+                        AssetDatabase.LoadAssetAtPath<CityHlodData>(HlodPath);
+                    if (bakedHlod == null || bakedHlod.Cells == null || bakedHlod.Cells.Length == 0)
+                        throw new InvalidOperationException("HLOD data asset was not created.");
+
+                    int includedRenderers = bakedHlod.Cells.Sum(cell =>
+                        cell != null && cell.SourceRendererIndices != null
+                            ? cell.SourceRendererIndices.Length
+                            : 0);
+                    double reduction = bakedHlod.SourceTriangles > 0
+                        ? 100.0 * (bakedHlod.SourceTriangles - bakedHlod.ProxyTriangles) /
+                            bakedHlod.SourceTriangles
+                        : 0.0;
+
+                    log.AppendLine("HLOD cells: " + bakedHlod.Cells.Length);
+                    log.AppendLine("HLOD source renderers: " + includedRenderers);
+                    log.AppendLine("HLOD source triangles: " + bakedHlod.SourceTriangles);
+                    log.AppendLine("HLOD proxy triangles: " + bakedHlod.ProxyTriangles);
+                    log.AppendLine("HLOD triangle reduction percent: " +
+                        reduction.ToString("F1", System.Globalization.CultureInfo.InvariantCulture));
                     roots.Add(HlodPath);
                 }
                 foreach (string name in ExtraRoots)
