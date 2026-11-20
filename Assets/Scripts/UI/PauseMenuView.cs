@@ -788,8 +788,12 @@ namespace MotorCity.UI
             MotorCityLocalization.SetLanguage(next);
             MotorCity.Persistence.MotorCitySaveService.SetString("MotorCity.Settings.LanguageOverride", next);
             MotorCity.Persistence.MotorCitySaveService.Save();
-            RefreshHudLocalizationState();
-            Object.FindAnyObjectByType<MotorCityFrontEndFlow>()?.RefreshLocalizationAfterLanguageChange();
+            MotorCityFrontEndFlow frontEnd =
+                Object.FindAnyObjectByType<MotorCityFrontEndFlow>();
+            if (frontEnd != null)
+                frontEnd.RefreshLocalizationAfterLanguageChange();
+            else
+                RefreshLocalizationAfterLanguageChange();
             RefreshPauseMenuText();
         }
         private void RefreshPauseMenuText()
