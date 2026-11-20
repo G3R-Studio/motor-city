@@ -65,7 +65,7 @@ namespace MotorCity.EditorTools
         private const string Profile = "Assets/Settings/Build Profiles/Web - Desktop - Release.asset";
         private const string Report = "Library/MotorCityCityBundleExperiment.txt";
         private static readonly string[] LocalPilotRoots =
-            { "Assets/Resources/MotorCityLodPilot", "Assets/Resources/MotorCityLodExpanded" };
+            { "Assets/Resources/MotorCityLodPilot", "Assets/Resources/MotorCityLodExpanded", "Assets/Resources/MotorCity/Garage" };
         private static string ParkedPilotRoot(string path) =>
             "Assets/MotorCity_BuildExcluded_" + Path.GetFileName(path);
 
