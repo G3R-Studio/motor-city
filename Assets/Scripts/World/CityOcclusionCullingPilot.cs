@@ -10,10 +10,11 @@ namespace MotorCity.World
     /// below that instance is hidden/restored together. Colliders and assets are
     /// never disabled or modified.
     /// </summary>
+    [DefaultExecutionOrder(10000)]
     [DisallowMultipleComponent]
     public sealed class CityOcclusionCullingPilot : MonoBehaviour
     {
-        private const float ScanInterval = 0.25f;
+        private const float ScanInterval = 0.05f;
         private const float NearKeepDistance = 38f;
 
         // These are the building prefab name families used by the city generator.
@@ -31,6 +32,7 @@ namespace MotorCity.World
             public Bounds Bounds;
             public readonly List<Renderer> Renderers = new List<Renderer>();
             public int OccludedChecks;
+            public int VisibleChecks;
             public bool Hidden;
         }
 
@@ -217,7 +219,7 @@ namespace MotorCity.World
             nextScan = Time.unscaledTime + ScanInterval;
 
             if (targetCamera == null || !targetCamera.isActiveAndEnabled ||
-                Camera.main != targetCamera || Camera.allCamerasCount != 1)
+                Camera.main != targetCamera)
             {
                 RestoreAll();
                 return;
@@ -245,14 +247,18 @@ namespace MotorCity.World
 
                 if (visible)
                 {
+                    building.VisibleChecks++;
                     building.OccludedChecks = 0;
-                    SetBuildingHidden(building, false);
+                    // Require two clear scans before revealing a whole building.
+                    if (building.VisibleChecks >= 2)
+                        SetBuildingHidden(building, false);
                 }
                 else
                 {
                     building.OccludedChecks++;
-                    // Require two consecutive blocked scans to prevent flicker.
-                    if (building.OccludedChecks >= 2)
+                    building.VisibleChecks = 0;
+                    // Three blocked scans (~150 ms) prevent one-frame occlusion pops.
+                    if (building.OccludedChecks >= 3)
                         SetBuildingHidden(building, true);
                 }
 
@@ -304,6 +310,7 @@ namespace MotorCity.World
             {
                 building.Hidden = false;
                 building.OccludedChecks = 0;
+                building.VisibleChecks = 0;
             }
         }
 
