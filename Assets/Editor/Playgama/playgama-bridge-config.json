@@ -26,5 +26,25 @@
         }
       ]
     }
-  }
+  },
+  "saas": {
+    "publicToken": "cmwlabf8914h2mw0h10446s05"
+  },
+  "leaderboards": [
+    {
+      "id": "reputation"
+    },
+    {
+      "id": "drift_score"
+    },
+    {
+      "id": "race_time"
+    },
+    {
+      "id": "completed_jobs"
+    },
+    {
+      "id": "distance"
+    }
+  ]
 }
