@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
@@ -263,6 +262,7 @@ namespace MotorCity.EditorTools
                 return;
             }
 
+            Mesh simplified = null;
             try
             {
                 var simplifier = new MeshSimplifier
@@ -273,7 +273,7 @@ namespace MotorCity.EditorTools
                 simplifier.Initialize(source);
                 simplifier.SimplifyMesh(TargetQuality);
 
-                Mesh simplified = simplifier.ToMesh();
+                simplified = simplifier.ToMesh();
                 if (simplified == null)
                     throw new InvalidOperationException("Simplifier returned a null mesh.");
 
@@ -283,6 +283,7 @@ namespace MotorCity.EditorTools
                     simplifiedTriangles >= sourceTriangles)
                 {
                     UnityEngine.Object.DestroyImmediate(simplified);
+                    simplified = null;
                     unchangedMeshCount++;
                     FailedMeshes.Add(source);
                     WaitingRenderers.Remove(source);
@@ -310,6 +311,8 @@ namespace MotorCity.EditorTools
                     WaitingRenderers.Remove(source);
                 }
 
+                simplified = null; // The generated-mesh registry now owns it.
+
                 if (processedMeshCount == 1 || processedMeshCount % 25 == 0)
                 {
                     Debug.Log(
@@ -321,6 +324,9 @@ namespace MotorCity.EditorTools
             }
             catch (Exception exception)
             {
+                if (simplified != null && !GeneratedMeshes.Contains(simplified))
+                    UnityEngine.Object.DestroyImmediate(simplified);
+
                 failedMeshCount++;
                 FailedMeshes.Add(source);
                 WaitingRenderers.Remove(source);
