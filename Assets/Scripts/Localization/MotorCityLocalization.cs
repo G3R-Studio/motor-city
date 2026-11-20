@@ -886,6 +886,7 @@ namespace MotorCity.Localization
                 { "pause.controls", E("Используй кнопки ниже   •   Backspace - Продолжить", "Use the buttons below   •   Backspace - Resume") },
                 { "pause.controls_touch", E("Настройки И Продолжение", "Settings and resume") },
                 { "pause.audio_touch", E("Звук вкл / Выкл", "Toggle audio") },
+                { "pause.leaderboards", E("Рейтинг игроков", "Leaderboards") },
                 { "pause.resume", E("Продолжить", "Resume") },
                 { "pause.main_menu", E("Главное меню", "Main menu") },
                 { "pause.quality_hint", E("Графика", "Graphics") },
