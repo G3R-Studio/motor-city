@@ -5,9 +5,9 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// Reversible WebGL Crunch-compression pilot for four large city textures.
-/// Saves original WebGL importer settings before applying changes.
-/// Use Restore to return the exact previous WebGL platform settings.
+/// Reversible WebGL texture compression pass for large city, skybox and UI textures.
+/// Applies per-texture WebGL size caps and Crunch where appropriate; normal maps
+/// use standard compression. Saves the original importer settings before changes.
 /// </summary>
 public static class MotorCityTextureCompressionPilot
 {
