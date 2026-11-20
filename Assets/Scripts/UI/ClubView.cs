@@ -7,6 +7,8 @@ namespace MotorCity.UI
 {
     public sealed partial class PrototypeHud
     {
+        private Text clubTitleText;
+
         private void BuildClubOverlay(
             Transform canvas)
         {
@@ -59,7 +61,7 @@ namespace MotorCity.UI
             ApplyModalPanelTexture(
                 panel);
 
-            Text title =
+            clubTitleText =
                 CreateText(
                     panel,
                     "Club Title",
@@ -80,7 +82,7 @@ namespace MotorCity.UI
                         1f),
                     TextColor);
 
-            title.text =
+            clubTitleText.text =
                 MotorCityLocalization.Text(
                     "club.title");
 
@@ -334,6 +336,9 @@ namespace MotorCity.UI
             {
                 return;
             }
+
+            if (clubTitleText != null)
+                clubTitleText.text = MotorCityLocalization.Text("club.title");
 
             clubEmblemText.text =
                 club.BrowseClubEmblem;
