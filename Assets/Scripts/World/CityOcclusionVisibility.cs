@@ -80,7 +80,7 @@ namespace MotorCity.World
             Vector3 extents = targetBounds.extents;
             bool testedSample = false;
 
-            if (SampleIsVisible(camera, center, targetBounds, buildingOccluders, raycastHits, ref testedSample))
+            if (SampleIsVisible(camera, center, targetBounds, targetRoot, buildingOccluders, raycastHits, ref testedSample))
                 return true;
 
             if (SampleIsVisible(
@@ -98,19 +98,19 @@ namespace MotorCity.World
             if (SampleIsVisible(
                 camera,
                 center - Vector3.right * extents.x * 0.7f,
-                targetBounds, buildingOccluders, raycastHits, ref testedSample))
+                targetBounds, targetRoot, buildingOccluders, raycastHits, ref testedSample))
                 return true;
 
             if (SampleIsVisible(
                 camera,
                 center + Vector3.forward * extents.z * 0.7f,
-                targetBounds, buildingOccluders, raycastHits, ref testedSample))
+                targetBounds, targetRoot, buildingOccluders, raycastHits, ref testedSample))
                 return true;
 
             if (SampleIsVisible(
                 camera,
                 center - Vector3.forward * extents.z * 0.7f,
-                targetBounds, buildingOccluders, raycastHits, ref testedSample))
+                targetBounds, targetRoot, buildingOccluders, raycastHits, ref testedSample))
                 return true;
 
             // A thin/oddly shaped bound may intersect the frustum even though
