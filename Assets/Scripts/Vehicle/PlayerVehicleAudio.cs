@@ -63,6 +63,18 @@ namespace MotorCity.Vehicle
         private EngineProfile activeProfile;
         private float nextCollisionSoundTime;
         private bool muted;
+        private static bool frontEndMuted;
+
+        public static void SetFrontEndMuted(bool value)
+        {
+            frontEndMuted = value;
+            if (!value) return;
+            foreach (var vehicle in Object.FindObjectsByType<PlayerVehicleAudio>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                if (vehicle.engineSource != null) { vehicle.engineSource.volume = 0f; vehicle.engineSource.Stop(); }
+                if (vehicle.tireSource != null) { vehicle.tireSource.volume = 0f; vehicle.tireSource.Stop(); }
+            }
+        }
 
         private int currentGear = 1;
         private float shiftTimer;
@@ -219,7 +231,7 @@ namespace MotorCity.Vehicle
 
             // WebGL does not reliably silence looped sources via listener pause alone.
             // Never restart a vehicle loop while the front end or pause menu owns audio.
-            if (muted || AudioListener.pause)
+            if (muted || frontEndMuted || AudioListener.pause)
             {
                 if (engineSource != null)
                 {
@@ -674,7 +686,7 @@ namespace MotorCity.Vehicle
         private void OnCollisionEnter(
             Collision collision)
         {
-            if (muted || AudioListener.pause)
+            if (muted || frontEndMuted || AudioListener.pause)
                 return;
 
             if (collision == null ||
