@@ -56,6 +56,7 @@ namespace MotorCity.World
         public static bool IsBoundsVisible(
             Camera camera,
             Bounds targetBounds,
+            Transform targetRoot,
             HashSet<Collider> buildingOccluders,
             Plane[] frustumPlanes,
             RaycastHit[] raycastHits,
@@ -85,13 +86,13 @@ namespace MotorCity.World
             if (SampleIsVisible(
                 camera,
                 center + Vector3.up * extents.y * 0.75f,
-                targetBounds, buildingOccluders, raycastHits, ref testedSample))
+                targetBounds, targetRoot, buildingOccluders, raycastHits, ref testedSample))
                 return true;
 
             if (SampleIsVisible(
                 camera,
                 center + Vector3.right * extents.x * 0.7f,
-                targetBounds, buildingOccluders, raycastHits, ref testedSample))
+                targetBounds, targetRoot, buildingOccluders, raycastHits, ref testedSample))
                 return true;
 
             if (SampleIsVisible(
@@ -121,6 +122,7 @@ namespace MotorCity.World
             Camera camera,
             Vector3 sample,
             Bounds targetBounds,
+            Transform targetRoot,
             HashSet<Collider> buildingOccluders,
             RaycastHit[] raycastHits,
             ref bool testedSample)
@@ -160,8 +162,14 @@ namespace MotorCity.World
                 if (hitCollider == null || !buildingOccluders.Contains(hitCollider))
                     continue;
 
-                // Ignore colliders belonging to the target cell/district itself.
-                if (hitCollider.bounds.Intersects(targetBounds))
+                // Ignore every collider that belongs to this exact building
+                // prefab instance. Renderer bounds and collider bounds are not
+                // guaranteed to overlap (base/foundation colliders often sit
+                // below the visible mesh), so bounds intersection is not a
+                // safe way to identify self-hits.
+                Transform hitTransform = hitCollider.transform;
+                if (targetRoot != null &&
+                    (hitTransform == targetRoot || hitTransform.IsChildOf(targetRoot)))
                     continue;
 
                 if (raycastHits[i].distance < rayLength - 0.5f)
