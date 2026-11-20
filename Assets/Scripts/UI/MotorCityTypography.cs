@@ -91,11 +91,37 @@ namespace MotorCity.UI
                 go.GetComponent<UnityEngine.UI.LayoutElement>().preferredHeight = 36;
                 return t;
             }
-            void Button(string caption, System.Action action)
+            Transform Row(string caption, string value)
             {
-                var t = Label(root.transform, caption);
-                var button = t.gameObject.AddComponent<UnityEngine.UI.Button>();
-                button.targetGraphic = t; button.onClick.AddListener(() => action());
+                var go = new GameObject("Control Setting Row", typeof(RectTransform), typeof(UnityEngine.UI.LayoutElement), typeof(UnityEngine.UI.HorizontalLayoutGroup));
+                go.transform.SetParent(root.transform, false);
+                var le = go.GetComponent<UnityEngine.UI.LayoutElement>(); le.minHeight = le.preferredHeight = 64;
+                var surface = new GameObject("Reference HUD Surface", typeof(RectTransform), typeof(GarageReferenceGraphic), typeof(UnityEngine.UI.LayoutElement));
+                surface.transform.SetParent(go.transform, false);
+                surface.GetComponent<UnityEngine.UI.LayoutElement>().ignoreLayout = true;
+                var rect = surface.GetComponent<RectTransform>(); rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one; rect.offsetMin = rect.offsetMax = Vector2.zero;
+                var graphic = surface.GetComponent<GarageReferenceGraphic>(); graphic.symbol = GarageReferenceGraphic.Symbol.Surface; graphic.color = new Color(0.08f,0.13f,0.21f,0.95f); graphic.raycastTarget = false;
+                var group = go.GetComponent<UnityEngine.UI.HorizontalLayoutGroup>(); group.padding = new RectOffset(18,10,8,8); group.spacing = 8;
+                group.childControlWidth = group.childControlHeight = true; group.childForceExpandWidth = false; group.childForceExpandHeight = true;
+                var label = Label(go.transform, caption); label.color = MotorCityUiSkin.AccentCyan; label.fontSize = 20;
+                var labelLayout = label.GetComponent<UnityEngine.UI.LayoutElement>(); labelLayout.minWidth = 150; labelLayout.flexibleWidth = 1;
+                if (!string.IsNullOrEmpty(value))
+                {
+                    var v = Label(go.transform, value); v.alignment = TextAnchor.MiddleCenter;
+                    v.GetComponent<UnityEngine.UI.LayoutElement>().preferredWidth = 110;
+                }
+                return go.transform;
+            }
+            void Button(Transform owner, string caption, System.Action action)
+            {
+                var go = new GameObject("Control Setting Button", typeof(RectTransform), typeof(UnityEngine.UI.Image), typeof(UnityEngine.UI.Button), typeof(UnityEngine.UI.LayoutElement));
+                go.transform.SetParent(owner, false);
+                var le = go.GetComponent<UnityEngine.UI.LayoutElement>(); le.minWidth = 132; le.preferredWidth = 164;
+                var button = go.GetComponent<UnityEngine.UI.Button>();
+                MotorCityUiSkin.ApplyVectorButton(button, MotorCityButtonRole.Secondary);
+                var t = Label(go.transform, caption); t.alignment = TextAnchor.MiddleCenter; t.raycastTarget = false;
+                var rect = t.rectTransform; rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one; rect.offsetMin = rect.offsetMax = Vector2.zero;
+                button.onClick.AddListener(() => action());
             }
             bool expanded = false;
             void Refresh()
@@ -103,18 +129,18 @@ namespace MotorCity.UI
                 for (int i = root.transform.childCount - 1; i >= 0; i--) { var child = root.transform.GetChild(i); child.gameObject.SetActive(false); Object.Destroy(child.gameObject); }
                 var scheme = MotorCity.Input.MotorCityInput.CurrentControlScheme;
                 bool enabled = scheme != MotorCity.Input.MotorCityControlScheme.Keyboard;
-                Button(L("Мобильное управление: ", "Mobile controls: ") + (enabled ? L("Вкл", "On") : L("Выкл", "Off")), () => {
+                Button(Row(L("Мобильное управление", "Mobile controls"), enabled ? L("Вкл", "On") : L("Выкл", "Off")), L("ВКЛ / ВЫКЛ", "ON / OFF"), () => {
                     MotorCity.Input.MotorCityInput.SetControlScheme(enabled ? MotorCity.Input.MotorCityControlScheme.Keyboard :
                         (MotorCity.Input.MotorCityControlScheme)PlayerPrefs.GetInt("MotorCity.LastTouchScheme", (int)MotorCity.Input.MotorCityControlScheme.Wheel));
                     changed?.Invoke(); Refresh();
                 });
                 if (!enabled) return;
-                Button(L("Управление: ", "Controls: ") + (scheme == MotorCity.Input.MotorCityControlScheme.Wheel ? L("Руль", "Wheel") : L("Стрелки", "Arrows")), () => {
+                Button(Row(L("Управление", "Controls"), scheme == MotorCity.Input.MotorCityControlScheme.Wheel ? L("Руль", "Wheel") : L("Стрелки", "Arrows")), L("Сменить", "Switch"), () => {
                     var next = scheme == MotorCity.Input.MotorCityControlScheme.Wheel ? MotorCity.Input.MotorCityControlScheme.Arrows : MotorCity.Input.MotorCityControlScheme.Wheel;
                     PlayerPrefs.SetInt("MotorCity.LastTouchScheme", (int)next);
                     MotorCity.Input.MotorCityInput.SetControlScheme(next); changed?.Invoke(); Refresh();
                 });
-                Button(L("Изменить HUD", "Customize HUD"), () => { expanded = !expanded; Refresh(); });
+                Button(Row("HUD", ""), expanded ? L("Свернуть", "Collapse") : L("Изменить", "Customize"), () => { expanded = !expanded; Refresh(); });
                 if (!expanded) return;
                 var keys = scheme == MotorCity.Input.MotorCityControlScheme.Wheel ?
                     new[] {"Steering","Throttle","Brake","Handbrake","Action","Cancel"} :
@@ -122,10 +148,13 @@ namespace MotorCity.UI
                 foreach (var key in keys)
                 {
                     string caption = key == "Cancel" ? L("Отмена", "Cancel") : MotorCity.Localization.MotorCityLocalization.Text("touch.layout." + (key == "SteerLeft" ? "left" : key == "SteerRight" ? "right" : key.ToLowerInvariant()));
-                    var label = Label(root.transform, caption + "  " + Mathf.RoundToInt(TouchControlLayoutStore.LoadScale(scheme,key)*100) + "%");
-                    MotorCityVolumeSlider.Create(root.transform, (TouchControlLayoutStore.LoadScale(scheme,key)-0.7f)/1.3f, v => {
+                    var row = Row(caption, "");
+                    var label = Label(row, "").GetComponent<UnityEngine.UI.Text>();
+                    label.alignment = TextAnchor.MiddleCenter; label.GetComponent<UnityEngine.UI.LayoutElement>().preferredWidth = 80;
+                    label.text = Mathf.RoundToInt(TouchControlLayoutStore.LoadScale(scheme,key)*100) + "%";
+                    MotorCityVolumeSlider.Create(row, (TouchControlLayoutStore.LoadScale(scheme,key)-0.7f)/1.3f, v => {
                         float scale = 0.7f + v*1.3f; TouchControlLayoutStore.SaveScale(scheme,key,scale);
-                        label.text = caption + "  " + Mathf.RoundToInt(scale*100) + "%"; changed?.Invoke();
+                        label.text = Mathf.RoundToInt(scale*100) + "%"; changed?.Invoke();
                     });
                 }
             }
