@@ -457,6 +457,7 @@ namespace MotorCity.World
                     CityOcclusionVisibility.IsBoundsVisible(
                         camera,
                         state.Data.bounds,
+                        null, // A district bundle has no single building Transform root.
                         buildingOccluders,
                         frustumPlanes,
                         raycastHits,
