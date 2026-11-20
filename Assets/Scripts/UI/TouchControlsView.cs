@@ -425,14 +425,14 @@ namespace MotorCity.UI
             rail.anchoredPosition =
                 new Vector2(-280f, -70f);
             rail.sizeDelta =
-                new Vector2(108f, 154f);
+                new Vector2(108f, 206f);
             rail.localScale = Vector3.one * 1.15f;
 
             CreatePauseButton(
                 rail,
                 "HUD Pause",
                 "touch.utility.pause",
-                new Vector2(0f, 52f),
+                new Vector2(0f, 78f),
                 new Vector2(100f, 44f),
                 OpenPauseMenu);
 
@@ -455,13 +455,16 @@ namespace MotorCity.UI
             rescueRect.pivot =
                 new Vector2(0.5f, 0.5f);
             rescueRect.anchoredPosition =
-                Vector2.zero;
+                new Vector2(0f, 26f);
+
+            CreatePauseButton(rail, "HUD Ranking", "touch.utility.ranking",
+                new Vector2(0f, -26f), new Vector2(100f, 44f), MotorCityRankingWindow.Open);
 
             CreatePauseButton(
                 rail,
                 "HUD More",
                 "touch.utility.more",
-                new Vector2(0f, -52f),
+                new Vector2(0f, -78f),
                 new Vector2(100f, 44f),
                 ToggleHudQuickMenu);
 
