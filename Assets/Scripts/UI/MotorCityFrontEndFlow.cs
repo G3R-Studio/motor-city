@@ -2990,14 +2990,74 @@ namespace MotorCity.UI
             (introRoot != null && introRoot.activeSelf) ||
             (loadingRoot != null && loadingRoot.activeSelf);
 
+        private void RebuildPlayerExperiencePagesForLanguage()
+        {
+            if (playerExperienceRoot == null)
+                return;
+
+            int activePage = 0;
+            if (playerExperienceActivitiesPanel != null && playerExperienceActivitiesPanel.activeSelf) activePage = 1;
+            else if (playerExperienceJournalPanel != null && playerExperienceJournalPanel.activeSelf) activePage = 2;
+            else if (playerExperienceClubPanel != null && playerExperienceClubPanel.activeSelf) activePage = 3;
+            else if (playerExperienceInspectorPanel != null && playerExperienceInspectorPanel.activeSelf) activePage = 4;
+            else if (playerExperiencePixiePanel != null && playerExperiencePixiePanel.activeSelf) activePage = 5;
+            else if (playerExperienceGaragePanel != null && playerExperienceGaragePanel.activeSelf) activePage = 6;
+            else if (playerExperienceAchievementsPanel != null && playerExperienceAchievementsPanel.activeSelf) activePage = 7;
+            else if (playerExperienceNightClubPanel != null && playerExperienceNightClubPanel.activeSelf) activePage = 8;
+
+            bool wasVisible = playerExperienceRoot.activeSelf;
+            playerExperienceRoot.SetActive(false);
+
+            // Preserve the shared background; recreate every page so titles,
+            // subtitles, hints, buttons and body text all use the same locale.
+            for (int i = playerExperienceRoot.transform.childCount - 1; i >= 0; i--)
+            {
+                Transform child = playerExperienceRoot.transform.GetChild(i);
+                if (child.name == "Front End Background" ||
+                    child.name == "Front End Shade")
+                    continue;
+                child.gameObject.SetActive(false);
+                Object.Destroy(child.gameObject);
+            }
+
+            playerExperienceModalPanels.Clear();
+            frontEndScrollCues.Clear();
+            frontEndModalFrames.Clear();
+            playerExperienceLastOverviewSelection = null;
+            playerExperienceSectionActions = null;
+            playerExperienceProgressActions = null;
+            playerExperienceMoreActions = null;
+            lastPlayerExperienceLayoutSize = Vector2Int.zero;
+            lastPlayerExperienceSafeArea = default;
+            lastPlayerExperienceCanvasScale = -1f;
+
+            BuildPlayerExperienceScreen();
+            BuildPlayerExperienceSections();
+            ApplyPlayerExperienceModalLayout(true);
+
+            GameObject selected = activePage switch
+            {
+                1 => playerExperienceActivitiesPanel,
+                2 => playerExperienceJournalPanel,
+                3 => playerExperienceClubPanel,
+                4 => playerExperienceInspectorPanel,
+                5 => playerExperiencePixiePanel,
+                6 => playerExperienceGaragePanel,
+                7 => playerExperienceAchievementsPanel,
+                8 => playerExperienceNightClubPanel,
+                _ => null
+            };
+            SwitchPlayerExperiencePage(selected);
+            CapturePlayerExperienceSourceStamp();
+            playerExperienceRoot.SetActive(wasVisible);
+        }
+
         public void RefreshLocalizationAfterLanguageChange()
         {
             hud?.RefreshLocalizationAfterLanguageChange();
             RefreshMainMenuText();
             RefreshSettingsText();
-            RefreshPlayerExperience();
-            RefreshPlayerExperienceSections();
-            RefreshPlayerExperienceJournalFilters();
+            RebuildPlayerExperiencePagesForLanguage();
 
             if (aboutRoot != null)
             {
