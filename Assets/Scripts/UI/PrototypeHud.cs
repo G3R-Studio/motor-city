@@ -587,6 +587,30 @@ namespace MotorCity.UI
             RefreshTouchLocalizedLabels();
         }
 
+        public void RefreshLocalizationAfterLanguageChange()
+        {
+            // Force the language snapshot to be re-read even when the caller
+            // changed language while the pause menu was blocking Update().
+            hudLocalizationStateInitialized = false;
+            RefreshHudLocalizationState();
+
+            // AdventureDirector stores the current objective text in its
+            // MissionDefinition. Re-resolve it so that cached objective text
+            // is rebuilt in the newly selected language.
+            adventureDirector?.RefreshMission();
+
+            garageUiDirty = true;
+            if (garage != null && garage.IsOpen)
+                UpdateGarage();
+            if (storeOpen)
+                UpdateStoreOverlay();
+            if (clubOpen)
+                UpdateClubOverlay();
+
+            // The regular HUD update will refresh its remaining cached lines.
+            slowHudUpdateTimer = 0f;
+        }
+
         private int cachedUpgradeEngine = -1, cachedUpgradeGrip = -1, cachedUpgradeStability = -1;
         private string cachedUpgradeMastery;
 
