@@ -1018,9 +1018,11 @@ namespace MotorCity.EditorTools
                 }
                 finally
                 {
-                    string reportPath = split ? "Library/MotorCitySplitCityTest.txt" : Report;
+                    string reportPath = hlod
+                        ? "Library/MotorCityHlodSplitCityCandidate.txt"
+                        : split ? "Library/MotorCitySplitCityTest.txt" : Report;
                     File.WriteAllText(reportPath, log.ToString(), Encoding.UTF8);
-                    Debug.Log("City bundle experiment report: " + reportPath);
+                    Debug.Log("Motor City: experiment report written to: " + reportPath);
                 }
             }
         }
