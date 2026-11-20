@@ -2992,9 +2992,12 @@ namespace MotorCity.UI
 
         public void RefreshLocalizationAfterLanguageChange()
         {
+            hud?.RefreshLocalizationAfterLanguageChange();
             RefreshMainMenuText();
             RefreshSettingsText();
             RefreshPlayerExperience();
+            RefreshPlayerExperienceSections();
+            RefreshPlayerExperienceJournalFilters();
 
             if (aboutRoot != null)
             {
