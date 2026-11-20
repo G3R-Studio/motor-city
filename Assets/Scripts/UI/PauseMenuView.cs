@@ -173,7 +173,14 @@ namespace MotorCity.UI
             var languageRow = CreateSettingsRow(window.Content, "Pause Language", "pause.language_label");
             pauseLanguageText = languageRow.Value;
             CreatePrimaryButton(languageRow.Controls, "Pause Language Toggle", "pause.language_toggle", TogglePauseLanguage, 104f);
-            MotorCityControlSettings.Create(window.Content, RefreshMobileControlLayout);
+            MotorCityControlSettings.Create(window.Content, RefreshMobileControlLayout, (parent, caption, value, actionCaption, action, slider) =>
+            {
+                var row = CreateSettingsRow(parent, "Control Setting", caption);
+                row.Label.text = caption;
+                row.Value.text = value;
+                if (action != null) CreatePrimaryButton(row.Controls, "Control Toggle", actionCaption, () => action(), 104f);
+                slider?.Invoke(row.Controls);
+            });
 
 
 
