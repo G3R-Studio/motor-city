@@ -57,6 +57,17 @@ namespace MotorCity.World
 
         private void Start()
         {
+            // Safety stop: the current physics-ray visibility heuristic causes
+            // visible buildings to pop in/out during camera movement. Keep this
+            // experimental pilot disabled until a proper occlusion solution is
+            // implemented and validated against the city geometry.
+            Debug.LogWarning(
+                "[Motor City Occlusion] Play Mode Pilot is temporarily disabled: " +
+                "the current visibility heuristic is not reliable enough. " +
+                "No buildings will be hidden. Use ordinary frustum culling for now.");
+            enabled = false;
+            return;
+
             targetCamera = GetComponent<Camera>();
             if (targetCamera == null)
                 targetCamera = Camera.main;
