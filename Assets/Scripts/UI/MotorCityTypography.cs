@@ -26,19 +26,12 @@ namespace MotorCity.UI
             return circle;
         }
 
-        private static Sprite rounded;
         public static void RoundTrack(UnityEngine.UI.Image image, bool vertical = false)
         {
-            if (rounded == null)
-            {
-                // A bordered circle keeps the end caps round when stretched.
-                var original = Circle();
-                rounded = Sprite.Create(original.texture, original.rect, new Vector2(.5f,.5f),
-                    100f, 0, SpriteMeshType.FullRect, new Vector4(31,31,31,31));
-            }
-            image.sprite = rounded;
-            image.type = UnityEngine.UI.Image.Type.Sliced;
-            image.pixelsPerUnitMultiplier = 10f;
+            // Generate the capsule from the final rectangle instead of relying
+            // on sliced sprites and canvas-dependent border compression.
+            if (image.GetComponent<MotorCityRoundedTrack>() == null)
+                image.gameObject.AddComponent<MotorCityRoundedTrack>();
         }
 
         public static UnityEngine.UI.Slider Create(Transform parent, float value, System.Action<float> changed)
@@ -83,6 +76,43 @@ namespace MotorCity.UI
             slider.SetValueWithoutNotify(Mathf.RoundToInt(value * 100));
             slider.onValueChanged.AddListener(v => changed(v * .01f));
             return slider;
+        }
+    }
+
+    [RequireComponent(typeof(UnityEngine.UI.Image))]
+    internal sealed class MotorCityRoundedTrack : UnityEngine.UI.BaseMeshEffect
+    {
+        public override void ModifyMesh(UnityEngine.UI.VertexHelper vh)
+        {
+            if (!IsActive()) return;
+            vh.Clear();
+            Rect r = graphic.GetPixelAdjustedRect();
+            if (r.width <= 0f || r.height <= 0f) return;
+            float radius = Mathf.Min(r.width, r.height) * .5f;
+            Color32 color = graphic.color;
+            var v = UnityEngine.UIVertex.simpleVert;
+            v.color = color;
+            v.position = r.center;
+            vh.AddVert(v);
+            const int segments = 12;
+            Vector2[] centers = {
+                new Vector2(r.xMax-radius,r.yMax-radius),
+                new Vector2(r.xMin+radius,r.yMax-radius),
+                new Vector2(r.xMin+radius,r.yMin+radius),
+                new Vector2(r.xMax-radius,r.yMin+radius)
+            };
+            for (int corner = 0; corner < 4; corner++)
+            {
+                for (int i = 0; i <= segments; i++)
+                {
+                    float angle = (corner * 90f + i * 90f / segments) * Mathf.Deg2Rad;
+                    v.position = centers[corner] + new Vector2(Mathf.Cos(angle),Mathf.Sin(angle))*radius;
+                    vh.AddVert(v);
+                }
+            }
+            int count = 4 * (segments + 1);
+            for (int i = 0; i < count; i++)
+                vh.AddTriangle(0, 1 + (i+1)%count, 1+i);
         }
     }
 
