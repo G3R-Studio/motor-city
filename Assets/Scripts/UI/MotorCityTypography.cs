@@ -86,7 +86,8 @@ namespace MotorCity.UI
         {
             if (!IsActive()) return;
             vh.Clear();
-            Rect r = graphic.GetPixelAdjustedRect();
+            // Avoid independent pixel snapping of the two edges on scaled canvases.
+            Rect r = graphic.rectTransform.rect;
             if (r.width <= 0f || r.height <= 0f) return;
             float radius = Mathf.Min(r.width, r.height) * .5f;
             Color32 color = graphic.color;
