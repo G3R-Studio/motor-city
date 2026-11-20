@@ -115,3 +115,70 @@ public static class MotorCityBundleContentAudit
                 }
                 if (firstRow)
                     rows.Add(new Row { Path = path, Type = "Unknown", Bytes = bytes });
+
+            }
+        }
+        finally
+        {
+            EditorUtility.ClearProgressBar();
+        }
+
+        string output = EditorUtility.SaveFilePanel(
+            "Save City Bundle Content Audit",
+            Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+            "MotorCity_CityBundle_Content_Audit",
+            "csv");
+        if (string.IsNullOrEmpty(output))
+            return;
+
+        var csv = new StringBuilder();
+        csv.AppendLine("AssetPath,Type,SourceBytes,SourceMiB,Vertices,Triangles,Width,Height,Details");
+        foreach (Row r in rows.OrderByDescending(x => x.Bytes)
+                              .ThenByDescending(x => x.Triangles))
+        {
+            csv.Append(Csv(r.Path)).Append(',')
+                .Append(Csv(r.Type)).Append(',')
+                .Append(r.Bytes).Append(',')
+                .Append((r.Bytes / 1048576.0).ToString("F3", CultureInfo.InvariantCulture)).Append(',')
+                .Append(r.Vertices).Append(',')
+                .Append(r.Triangles).Append(',')
+                .Append(r.Width).Append(',')
+                .Append(r.Height).Append(',')
+                .Append(Csv(r.Details)).AppendLine();
+        }
+
+        File.WriteAllText(output, csv.ToString(), new UTF8Encoding(true));
+
+        long totalSourceBytes = rows
+            .GroupBy(r => r.Path, StringComparer.Ordinal)
+            .Sum(g => g.Max(r => r.Bytes));
+        int meshCount = rows.Count(r => r.Type == "Mesh");
+        int textureCount = rows.Count(r =>
+            r.Type == "Texture2D" || r.Type == "Cubemap" || r.Type == "Texture");
+
+        Debug.Log("[Motor City City Bundle Content Audit]\n" +
+            "City prefab: " + CityPrefabPath + "\n" +
+            "Dependency files: " + dependencies.Length + "\n" +
+            "Mesh sub-assets: " + meshCount + "\n" +
+            "Texture sub-assets: " + textureCount + "\n" +
+            "Unique dependency source size: " +
+            (totalSourceBytes / 1048576.0).ToString("F2", CultureInfo.InvariantCulture) +
+            " MiB\nCSV: " + output);
+
+        EditorUtility.DisplayDialog("City Bundle Content Audit Complete",
+            "Dependency files scanned: " + dependencies.Length +
+            "\nMesh sub-assets: " + meshCount +
+            "\nTexture sub-assets: " + textureCount +
+            "\nUnique source file size: " +
+            (totalSourceBytes / 1048576.0).ToString("F2", CultureInfo.InvariantCulture) +
+            " MiB\n\nReport saved to:\n" + output +
+            "\n\nSource file sizes are not compressed AssetBundle contribution sizes.",
+            "OK");
+    }
+
+    private static string Csv(string value)
+    {
+        value = value ?? string.Empty;
+        return "\"" + value.Replace("\"", "\"\"") + "\"";
+    }
+}
