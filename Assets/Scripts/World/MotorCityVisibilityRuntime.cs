@@ -70,6 +70,20 @@ namespace MotorCity.World
         private float nextVisualScan;
         private readonly Plane[] visualPlanes = new Plane[6];
 
+        private static bool IsInsideBuildings(Transform target)
+        {
+            for (Transform current = target; current != null; current = current.parent)
+            {
+                if (string.Equals(
+                    current.name,
+                    "Buildings",
+                    StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+
+            return false;
+        }
+
         private void WakeVisualCells()
         {
             foreach (var cell in visualCells.Values)
@@ -104,7 +118,7 @@ namespace MotorCity.World
                 {
                     if (!renderer.enabled || !renderer.gameObject.activeInHierarchy ||
                         renderer.forceRenderingOff || renderer.isPartOfStaticBatch ||
-                        !CityOcclusionVisibility.IsInsideBuildings(renderer.transform) ||
+                        !IsInsideBuildings(renderer.transform) ||
                         renderer.HasPropertyBlock() || renderer.bounds.extents.magnitude <= 7f ||
                         renderer.GetComponentInParent<Rigidbody>() != null ||
                         renderer.GetComponentInParent<Animator>() != null ||
