@@ -291,7 +291,7 @@ namespace MotorCity.Gameplay
 
         private void UpdateActive()
         {
-            if (MotorCityInput.CancelPressed)
+            if (MotorCityInput.WasVirtualPressed(MotorCityInputAction.Cancel))
             {
                 CancelActive();
                 return;
