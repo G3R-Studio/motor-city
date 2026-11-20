@@ -339,6 +339,13 @@
       "dependencies": {
         "com.unity.modules.physics": "1.0.0"
       }
+    },
+    "com.whinarn.unitymeshsimplifier": {
+      "version": "https://github.com/Whinarn/UnityMeshSimplifier.git#53fdb3122645bcd3ad2c258235200dff3dfbaa9b",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "53fdb3122645bcd3ad2c258235200dff3dfbaa9b"
     }
   }
 }
