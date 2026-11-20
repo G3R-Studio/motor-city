@@ -499,7 +499,7 @@ namespace MotorCity.UI
                 new Vector2(0f, 0.5f);
             mainMenuContent.pivot = new Vector2(0f, 0.5f);
             mainMenuContent.anchoredPosition = Vector2.zero;
-            mainMenuContent.sizeDelta = new Vector2(680f, 680f);
+            mainMenuContent.sizeDelta = new Vector2(680f, 780f);
 
             // Very soft left-side readability shade. It should disappear into
             // the artwork rather than look like a separate panel.
@@ -607,10 +607,15 @@ namespace MotorCity.UI
                 new Vector2(500f, 82f),
                 ShowSettings);
 
+            Button rankingButton = CreateButton(mainMenuContent,
+                MotorCityLocalization.Text("pause.leaderboards"), new Vector2(0f, -247f),
+                new Vector2(500f, 82f), MotorCityRankingWindow.Open);
+            StyleMainMenuSecondary(rankingButton);
+
             Button experienceButton = CreateButton(
                 mainMenuContent,
                 MotorCityLocalization.Text("ux.home.button"),
-                new Vector2(0f, -247f),
+                new Vector2(0f, -343f),
                 new Vector2(500f, 82f),
                 ShowPlayerExperience);
 
