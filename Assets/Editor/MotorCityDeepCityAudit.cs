@@ -372,8 +372,6 @@ public static class MotorCityDeepCityAudit
         }
         info.Uses++;
 
-        if (renderer != null)
-            AddMaterials(renderer.sharedMaterials, block, materialUses, textureUses);
     }
 
     private static void AddMaterials(Material[] materials, BlockStats block,
