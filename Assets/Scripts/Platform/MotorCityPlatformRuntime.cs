@@ -140,6 +140,17 @@ namespace MotorCity.Platform
                 MotorCityLocalization.SetLanguage(MotorCityPlatform.LanguageCode);
 
             platformLanguageInitialized = true;
+
+            // Platform locale may arrive after runtime UI has been created.
+            // Repaint it immediately so static and data-driven text cannot
+            // remain in two different languages.
+            MotorCity.UI.MotorCityFrontEndFlow frontEnd =
+                UnityEngine.Object.FindAnyObjectByType<MotorCity.UI.MotorCityFrontEndFlow>();
+            if (frontEnd != null)
+                frontEnd.RefreshLocalizationAfterLanguageChange();
+            else
+                UnityEngine.Object.FindAnyObjectByType<MotorCity.UI.PrototypeHud>()?
+                    .RefreshLocalizationAfterLanguageChange();
         }
 
         public static void SetPlatformModalPaused(
