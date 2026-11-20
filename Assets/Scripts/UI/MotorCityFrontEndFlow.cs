@@ -2702,11 +2702,8 @@ namespace MotorCity.UI
         private void ShowControlChoiceAfterLoading()
         {
             ReportLoading(false);
-#if UNITY_WEBGL && !UNITY_EDITOR
-            ChooseControlScheme(MotorCityInput.PreferTouchPrompts && MotorCityInput.CurrentControlScheme == MotorCityControlScheme.Keyboard
-                ? MotorCityControlScheme.Wheel : MotorCityInput.CurrentControlScheme);
+            ChooseControlScheme(MotorCityInput.CurrentControlScheme);
             return;
-#endif
             // Keep gameplay paused until the player explicitly chooses the
             // control scheme. The control screen uses the main-menu artwork.
             Time.timeScale =
