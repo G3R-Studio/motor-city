@@ -175,9 +175,13 @@ namespace MotorCity.UI
             switch (action)
             {
                 case MotorCityInputAction.Interact:
-                case MotorCityInputAction.Cancel:
                     symbol = GarageReferenceGraphic.Symbol.Check;
                     color = Green;
+                    return true;
+
+                case MotorCityInputAction.Cancel:
+                    symbol = GarageReferenceGraphic.Symbol.Close;
+                    color = new Color(1f, 0.25f, 0.28f, 1f);
                     return true;
 
                 case MotorCityInputAction.Retry:
