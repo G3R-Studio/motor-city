@@ -26,6 +26,21 @@ namespace MotorCity.UI
             return circle;
         }
 
+        private static Sprite rounded;
+        public static void RoundTrack(UnityEngine.UI.Image image, bool vertical = false)
+        {
+            if (rounded == null)
+            {
+                // A bordered circle keeps the end caps round when stretched.
+                var original = Circle();
+                rounded = Sprite.Create(original.texture, original.rect, new Vector2(.5f,.5f),
+                    100f, 0, SpriteMeshType.FullRect, new Vector4(31,31,31,31));
+            }
+            image.sprite = rounded;
+            image.type = UnityEngine.UI.Image.Type.Sliced;
+            image.pixelsPerUnitMultiplier = 10f;
+        }
+
         public static UnityEngine.UI.Slider Create(Transform parent, float value, System.Action<float> changed)
         {
             var root = new GameObject("Volume Slider", typeof(RectTransform), typeof(UnityEngine.UI.Slider), typeof(UnityEngine.UI.LayoutElement), typeof(UnityEngine.UI.Image));
@@ -49,6 +64,8 @@ namespace MotorCity.UI
             }
             var track = Part("Track", root.transform, new Vector2(0,.5f), new Vector2(1,.5f), new Vector2(11,-3), new Vector2(-11,3), new Color(.20f,.26f,.38f,1));
             var fill = Part("Fill", track, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, new Color(.12f,.82f,1,1));
+            RoundTrack(track.GetComponent<UnityEngine.UI.Image>());
+            RoundTrack(fill.GetComponent<UnityEngine.UI.Image>());
             var area = Part("Handle Area", root.transform, Vector2.zero, Vector2.one, new Vector2(11,0), new Vector2(-11,0), Color.clear);
             var handle = Part("Handle", area, new Vector2(0,.5f), new Vector2(0,.5f), new Vector2(-8,-10), new Vector2(8,10), new Color(.88f,.94f,1,1));
             handle.anchorMin = handle.anchorMax = new Vector2(0f,.5f);
