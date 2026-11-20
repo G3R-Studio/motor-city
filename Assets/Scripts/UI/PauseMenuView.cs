@@ -64,9 +64,36 @@ namespace MotorCity.UI
                     "Pause Panel",
                     "pause.title",
                     new Vector2(
-                        560f,
-                        548f),
+                        660f,
+                        820f),
                     showHeaderDivider: false);
+
+            // Keep the pause footer fixed; only settings scroll inside the panel.
+            var viewport = new GameObject("Pause Settings Viewport", typeof(RectTransform), typeof(Image), typeof(RectMask2D), typeof(ScrollRect));
+            viewport.transform.SetParent(window.Panel, false);
+            var view = viewport.GetComponent<RectTransform>();
+            view.anchorMin = Vector2.zero; view.anchorMax = Vector2.one;
+            view.offsetMin = new Vector2(38f, 170f); view.offsetMax = new Vector2(-38f, -70f);
+            viewport.GetComponent<Image>().color = Color.clear;
+            var content = window.Content;
+            content.SetParent(view, false);
+            content.anchorMin = new Vector2(0f, 1f); content.anchorMax = Vector2.one;
+            content.pivot = new Vector2(.5f, 1f);
+            content.anchoredPosition = Vector2.zero; content.sizeDelta = new Vector2(0f, 0f);
+            var fit = content.gameObject.AddComponent<ContentSizeFitter>();
+            fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            var scroll = viewport.GetComponent<ScrollRect>();
+            scroll.viewport = view; scroll.content = content; scroll.horizontal = false; scroll.vertical = true;
+            scroll.movementType = ScrollRect.MovementType.Clamped; scroll.scrollSensitivity = 32f;
+
+            var footer = new GameObject("Pause Fixed Footer", typeof(RectTransform), typeof(VerticalLayoutGroup));
+            footer.transform.SetParent(window.Panel, false);
+            var footerRect = footer.GetComponent<RectTransform>();
+            footerRect.anchorMin = Vector2.zero; footerRect.anchorMax = new Vector2(1f, 0f);
+            footerRect.offsetMin = new Vector2(38f, 24f); footerRect.offsetMax = new Vector2(-38f, 138f);
+            var footerLayout = footer.GetComponent<VerticalLayoutGroup>();
+            footerLayout.spacing = 14f; footerLayout.childControlWidth = footerLayout.childControlHeight = true;
+            footerLayout.childForceExpandWidth = true; footerLayout.childForceExpandHeight = false;
 
             MotorCitySettingsRow qualityRow =
                 CreateSettingsRow(
@@ -154,7 +181,7 @@ namespace MotorCity.UI
 
             RectTransform experienceActions =
                 CreateButtonRow(
-                    window.Content,
+                    footerRect,
                     "Pause Player Experience Actions");
 
             CreatePrimaryButton(
@@ -166,7 +193,7 @@ namespace MotorCity.UI
 
             RectTransform actions =
                 CreateButtonRow(
-                    window.Content,
+                    footerRect,
                     "Pause Actions");
 
             CreatePrimaryButton(
