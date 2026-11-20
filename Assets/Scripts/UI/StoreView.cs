@@ -7,6 +7,7 @@ namespace MotorCity.UI
 {
     public sealed partial class PrototypeHud
     {
+        private Text storeTitleText;
         private Text storeNextProductText;
 
         private void HandleStoreInput()
@@ -125,7 +126,7 @@ namespace MotorCity.UI
                 new Vector2(0.5f, 1f),
                 TextColor);
 
-            Text title =
+            storeTitleText =
                 CreateText(
                     panel,
                     "Store Title",
@@ -138,7 +139,7 @@ namespace MotorCity.UI
                     new Vector2(0.5f, 1f),
                     TextColor);
 
-            title.text =
+            storeTitleText.text =
                 MotorCityLocalization.Text(
                     "store.title");
 
@@ -408,6 +409,9 @@ namespace MotorCity.UI
             {
                 return;
             }
+
+            if (storeTitleText != null)
+                storeTitleText.text = MotorCityLocalization.Text("store.title");
 
             if (storeNextProductText != null)
                 storeNextProductText.text =
