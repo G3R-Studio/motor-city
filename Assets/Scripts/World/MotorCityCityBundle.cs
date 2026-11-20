@@ -47,12 +47,6 @@ namespace MotorCity.World
         internal static readonly Dictionary<string, WarmDistrict> Warm = new();
         public static bool DistrictStreamingEnabled => catalog != null;
 
-        // District bundles contain roads, sidewalks and buildings together.
-        // Hiding/unloading an occluded district therefore removes infrastructure
-        // as well as buildings. Keep district-level occlusion streaming disabled
-        // until the content pipeline produces building-only bundles.
-        internal static bool OcclusionStreamingExperimentEnabled => false;
-
         private static IEnumerator WarmSpawnDistricts()
         {
             warmFailed = false;
@@ -364,14 +358,9 @@ namespace MotorCity.World
             public AssetBundle Bundle;
             public bool Busy;
             public float RetryAt;
-            public float OccludedSince = -1f;
         }
         private MeshRenderer[] renderers;
         private readonly List<State> states = new();
-        private readonly HashSet<Collider> buildingOccluders = new();
-        private readonly Plane[] frustumPlanes = new Plane[6];
-        private readonly RaycastHit[] raycastHits = new RaycastHit[96];
-        private bool useOcclusionStreaming;
         private bool loading;
         private bool initialized;
         private float nextCheck;
@@ -380,31 +369,6 @@ namespace MotorCity.World
         {
             if (initialized) return;
             renderers = city.GetComponentsInChildren<MeshRenderer>(true);
-            useOcclusionStreaming = MotorCityCityBundle.OcclusionStreamingExperimentEnabled;
-            if (useOcclusionStreaming)
-            {
-                int occluderCount =
-                    CityOcclusionVisibility.CollectBuildingOccluders(
-                        city,
-                        buildingOccluders);
-
-                if (occluderCount == 0)
-                {
-                    useOcclusionStreaming = false;
-                    Debug.LogWarning(
-                        "Motor City: occlusion-aware district streaming was requested, " +
-                        "but no building colliders were found. Falling back to distance streaming.");
-                }
-                else
-                {
-                    Physics.SyncTransforms();
-                    Debug.Log(
-                        "Motor City: occlusion-aware district streaming enabled. " +
-                        "Building occluders=" + occluderCount +
-                        ". Only visual district meshes are gated; city colliders and shared assets remain resident.");
-                }
-            }
-
             foreach (var data in catalog.districts)
             {
                 if (data.rendererIndices == null || data.meshNames == null ||
@@ -445,47 +409,20 @@ namespace MotorCity.World
             State nearest = null;
             float nearestDistance = float.PositiveInfinity;
 
-            if (useOcclusionStreaming)
-                GeometryUtility.CalculateFrustumPlanes(camera, frustumPlanes);
-
             foreach (var state in states)
             {
                 float distance = Mathf.Sqrt(
                     state.Data.bounds.SqrDistance(camera.transform.position));
 
-                bool visible = !useOcclusionStreaming ||
-                    CityOcclusionVisibility.IsBoundsVisible(
-                        camera,
-                        state.Data.bounds,
-                        null, // A district bundle has no single building Transform root.
-                        buildingOccluders,
-                        frustumPlanes,
-                        raycastHits,
-                        40f);
-
-                if (useOcclusionStreaming)
-                {
-                    if (visible)
-                        state.OccludedSince = -1f;
-                    else if (state.OccludedSince < 0f)
-                        state.OccludedSince = Time.unscaledTime;
-                }
-
-                // Preserve a short grace period when a district leaves view,
-                // then release distant hidden bundles to avoid memory thrashing
-                // during quick camera turns and street corners.
-                bool hiddenLongEnough = useOcclusionStreaming &&
-                    !visible && state.OccludedSince >= 0f &&
-                    Time.unscaledTime - state.OccludedSince >= 1.5f &&
-                    distance > 140f;
-
+                // Keep the existing distance-based district streaming policy.
+                // No camera-occlusion test is performed.
                 if (state.Bundle != null && !state.Busy &&
-                    (distance > radius + 128f || hiddenLongEnough))
+                    distance > radius + 128f)
                     Release(state);
 
                 if (state.Bundle == null && !state.Busy &&
                     Time.unscaledTime >= state.RetryAt &&
-                    distance <= radius && visible &&
+                    distance <= radius &&
                     distance < nearestDistance)
                 {
                     nearest = state;
