@@ -95,6 +95,31 @@ public static class MotorCityOcclusionCullingExperiment
             return;
         }
 
+        if (!pipeline.useSRPBatcher)
+        {
+            EditorUtility.DisplayDialog(
+                "Native GPU Occlusion Pilot",
+                "SRP Batcher is disabled on the temporary URP asset. " +
+                "GPU Resident Drawer requires SRP Batcher. No settings were changed.",
+                "OK");
+            return;
+        }
+
+        if (!pipeline.IsGPUResidentDrawerSupportedBySRP(
+            out string supportMessage,
+            out LogType supportSeverity))
+        {
+            Debug.LogWarning(
+                "[Motor City Native Occlusion] URP rejected GPU Resident Drawer: " +
+                supportMessage);
+            EditorUtility.DisplayDialog(
+                "Native GPU Occlusion Pilot",
+                "URP reports that GPU Resident Drawer is not supported with the current pipeline setup. " +
+                "No settings were changed.\n\n" + supportMessage,
+                "OK");
+            return;
+        }
+
         originalDrawerMode = pipeline.gpuResidentDrawerMode;
         originalGpuOcclusion = pipeline.gpuResidentDrawerEnableOcclusionCullingInCameras;
         activePipeline = pipeline;
