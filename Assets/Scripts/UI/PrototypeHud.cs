@@ -641,8 +641,28 @@ namespace MotorCity.UI
             // Do not change Selectable interactability: its disabled tint affects only buttons.
         }
 
+        private float nextRankingSync;
+#if UNITY_WEBGL && !UNITY_EDITOR
+        [System.Runtime.InteropServices.DllImport("__Internal")]
+        private static extern void MotorCityRankingSubmit(string id, int score);
+#endif
+        private void SyncRankings()
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR && !DEBUG
+            if (activityManager == null || !activityManager.SecondaryProgressionAllowed || Time.unscaledTime < nextRankingSync) return;
+            nextRankingSync = Time.unscaledTime + 30f;
+            MotorCityRankingSubmit("reputation", activityManager.TotalReputation);
+            if (drift != null) MotorCityRankingSubmit("drift_score", drift.BestDrift);
+            if (streetSprint != null && streetSprint.BestTimeSeconds > 0)
+                MotorCityRankingSubmit("race_time", Mathf.RoundToInt(streetSprint.BestTimeSeconds * 1000f));
+            MotorCityRankingSubmit("completed_jobs", MotorCity.Persistence.MotorCitySaveService.GetInt("MotorCity.Ranking.Jobs", 0));
+            MotorCityRankingSubmit("distance", Mathf.FloorToInt(MotorCity.Persistence.MotorCitySaveService.GetFloat("MotorCity.Ranking.DistanceMeters", 0f)));
+#endif
+        }
+
         private void Update()
         {
+            SyncRankings();
             if (moneyText == null)
                 return;
 
