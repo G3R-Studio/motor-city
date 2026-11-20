@@ -982,6 +982,7 @@ namespace MotorCity.Localization
             { "touch.utility.elite", E("Элита", "Elite") },
             { "touch.utility.rescue", E("Спасти", "Rescue") },
             { "touch.utility.pause", E("Пауза", "Pause") },
+            { "touch.utility.ranking", E("Рейтинг", "Ranking") },
             { "touch.utility.more", E("Ещё", "More") },
             { "touch.utility.club", E("Клуб", "Club") },
             { "touch.utility.store", E("Магазин", "Store") },
