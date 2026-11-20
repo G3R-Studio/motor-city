@@ -149,8 +149,7 @@ namespace MotorCity.Platform
             if (frontEnd != null)
                 frontEnd.RefreshLocalizationAfterLanguageChange();
             else
-                UnityEngine.Object.FindAnyObjectByType<MotorCity.UI.PrototypeHud>()?
-                    .RefreshLocalizationAfterLanguageChange();
+                UnityEngine.Object.FindAnyObjectByType<MotorCity.UI.PrototypeHud>()?.RefreshLocalizationAfterLanguageChange();
         }
 
         public static void SetPlatformModalPaused(
