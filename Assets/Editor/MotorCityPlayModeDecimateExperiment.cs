@@ -177,6 +177,17 @@ namespace MotorCity.EditorTools
                         if (skinned != null)
                             TrackRenderer(skinned, skinned.sharedMesh);
                     }
+
+                    ParticleSystemRenderer[] particleRenderers =
+                        root.GetComponentsInChildren<ParticleSystemRenderer>(true);
+
+                    for (int i = 0; i < particleRenderers.Length; i++)
+                    {
+                        ParticleSystemRenderer particleRenderer = particleRenderers[i];
+                        if (particleRenderer != null &&
+                            particleRenderer.renderMode == ParticleSystemRenderMode.Mesh)
+                            TrackRenderer(particleRenderer, particleRenderer.mesh);
+                    }
                 }
             }
         }
@@ -359,6 +370,10 @@ namespace MotorCity.EditorTools
             if (renderer is SkinnedMeshRenderer skinned)
                 return skinned.sharedMesh;
 
+            if (renderer is ParticleSystemRenderer particleRenderer &&
+                particleRenderer.renderMode == ParticleSystemRenderMode.Mesh)
+                return particleRenderer.mesh;
+
             MeshFilter filter = renderer.GetComponent<MeshFilter>();
             return filter != null ? filter.sharedMesh : null;
         }
@@ -368,6 +383,13 @@ namespace MotorCity.EditorTools
             if (renderer is SkinnedMeshRenderer skinned)
             {
                 skinned.sharedMesh = mesh;
+                return;
+            }
+
+            if (renderer is ParticleSystemRenderer particleRenderer &&
+                particleRenderer.renderMode == ParticleSystemRenderMode.Mesh)
+            {
+                particleRenderer.mesh = mesh;
                 return;
             }
 
