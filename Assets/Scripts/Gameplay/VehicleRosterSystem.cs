@@ -37,7 +37,7 @@ namespace MotorCity.Gameplay
 
         public string SelectedName =>
             Valid(SelectedIndex)
-                ? profiles[SelectedIndex].DisplayName
+                ? LocalizedVehicleName(SelectedIndex)
                 : MotorCityLocalization.Text("vehicle.beatall.name");
 
         public int SelectedRequiredRep =>
@@ -126,7 +126,7 @@ namespace MotorCity.Gameplay
         }
 
         public string CatalogVehicleName(int index) =>
-            Valid(index) ? profiles[index].DisplayName : string.Empty;
+            Valid(index) ? LocalizedVehicleName(index) : string.Empty;
         public int CatalogRequiredReputation(int index) =>
             Valid(index) ? profiles[index].RequiredRep : 0;
         public bool CatalogVehicleHasVisual(int index) =>
@@ -559,7 +559,7 @@ namespace MotorCity.Gameplay
                     "vehicle.garage_current",
                     SelectedIndex + 1,
                     profiles.Length,
-                    current.DisplayName);
+                    LocalizedVehicleName(SelectedIndex));
         }
 
         public bool TryGetNextReputationVehicle(
@@ -634,7 +634,7 @@ namespace MotorCity.Gameplay
                 profiles[bestIndex];
 
             vehicleName =
-                target.DisplayName;
+                LocalizedVehicleName(bestIndex);
 
             requiredRep =
                 target.RequiredRep;
@@ -669,7 +669,7 @@ namespace MotorCity.Gameplay
                 return
                     MotorCityLocalization.Format(
                         "vehicle.next_missing",
-                        nextProfile.DisplayName);
+                        LocalizedVehicleName(next));
             }
 
             if (!IsUnlocked(next))
@@ -679,7 +679,7 @@ namespace MotorCity.Gameplay
                     return
                         MotorCityLocalization.Format(
                             "vehicle.next_supporter",
-                            nextProfile.DisplayName);
+                            LocalizedVehicleName(next));
                 }
 
                 int currentRep =
@@ -696,7 +696,7 @@ namespace MotorCity.Gameplay
                 return
                     MotorCityLocalization.Format(
                         "vehicle.next_rep_detailed",
-                        nextProfile.DisplayName,
+                        LocalizedVehicleName(next),
                         currentRep,
                         nextProfile.RequiredRep,
                         remaining);
@@ -705,7 +705,7 @@ namespace MotorCity.Gameplay
             return
                 MotorCityLocalization.Format(
                     "vehicle.next_available",
-                    nextProfile.DisplayName);
+                    LocalizedVehicleName(next));
         }
 
         public string GetMasteryLine()
@@ -847,7 +847,10 @@ namespace MotorCity.Gameplay
             if (!Valid(SelectedIndex))
                 return string.Empty;
 
-            return profiles[SelectedIndex].Character;
+            string localized = MotorCityLocalization.Text("vehicle." + profiles[SelectedIndex].Id + ".desc");
+            return localized.StartsWith("vehicle.", StringComparison.Ordinal)
+                ? profiles[SelectedIndex].Character
+                : localized;
         }
 
         private void ApplySelectedVehicle()
@@ -1140,6 +1143,15 @@ namespace MotorCity.Gameplay
             return profiles != null &&
                 index >= 0 &&
                 index < profiles.Length;
+        }
+
+        private string LocalizedVehicleName(int index)
+        {
+            if (!Valid(index)) return string.Empty;
+            string localized = MotorCityLocalization.Text("vehicle." + profiles[index].Id + ".name");
+            return localized.StartsWith("vehicle.", StringComparison.Ordinal)
+                ? profiles[index].DisplayName
+                : localized;
         }
 
         private static string Signed(
