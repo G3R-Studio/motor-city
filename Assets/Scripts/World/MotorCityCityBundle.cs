@@ -47,6 +47,15 @@ namespace MotorCity.World
         internal static readonly Dictionary<string, WarmDistrict> Warm = new();
         public static bool DistrictStreamingEnabled => catalog != null;
 
+        // Opt-in WebGL experiment. It gates district bundle downloads by camera
+        // frustum and building-collider line of sight. The default release path
+        // remains unchanged until the browser A/B test is accepted.
+        internal static bool OcclusionStreamingExperimentEnabled =>
+            !string.IsNullOrEmpty(Application.absoluteURL) &&
+            Application.absoluteURL.IndexOf(
+                "motorcity_occlusion=on",
+                StringComparison.OrdinalIgnoreCase) >= 0;
+
         private static IEnumerator WarmSpawnDistricts()
         {
             warmFailed = false;
@@ -55,6 +64,12 @@ namespace MotorCity.World
             float radius = MotorCityVisibilityRuntime.FarClipDistance + 160f;
             var nearby = catalog.districts.Where(d => d.bounds.SqrDistance(position) <= radius * radius)
                 .OrderBy(d => d.bounds.SqrDistance(position)).ToArray();
+
+            // The opt-in occlusion test warms only the spawn district. Other
+            // district bundles wait until their bounds enter the camera view
+            // and have a clear line of sight past other building colliders.
+            if (OcclusionStreamingExperimentEnabled)
+                nearby = nearby.Take(1).ToArray();
             foreach (var district in nearby)
             {
                 string url = Application.streamingAssetsPath.TrimEnd('/') + "/" + district.file;
@@ -354,9 +369,14 @@ namespace MotorCity.World
             public AssetBundle Bundle;
             public bool Busy;
             public float RetryAt;
+            public float OccludedSince = -1f;
         }
         private MeshRenderer[] renderers;
         private readonly List<State> states = new();
+        private readonly HashSet<Collider> buildingOccluders = new();
+        private readonly Plane[] frustumPlanes = new Plane[6];
+        private readonly RaycastHit[] raycastHits = new RaycastHit[96];
+        private bool useOcclusionStreaming;
         private bool loading;
         private bool initialized;
         private float nextCheck;
@@ -365,6 +385,31 @@ namespace MotorCity.World
         {
             if (initialized) return;
             renderers = city.GetComponentsInChildren<MeshRenderer>(true);
+            useOcclusionStreaming = MotorCityCityBundle.OcclusionStreamingExperimentEnabled;
+            if (useOcclusionStreaming)
+            {
+                int occluderCount =
+                    CityOcclusionVisibility.CollectBuildingOccluders(
+                        city,
+                        buildingOccluders);
+
+                if (occluderCount == 0)
+                {
+                    useOcclusionStreaming = false;
+                    Debug.LogWarning(
+                        "Motor City: occlusion-aware district streaming was requested, " +
+                        "but no building colliders were found. Falling back to distance streaming.");
+                }
+                else
+                {
+                    Physics.SyncTransforms();
+                    Debug.Log(
+                        "Motor City: occlusion-aware district streaming enabled. " +
+                        "Building occluders=" + occluderCount +
+                        ". Only visual district meshes are gated; city colliders and shared assets remain resident.");
+                }
+            }
+
             foreach (var data in catalog.districts)
             {
                 if (data.rendererIndices == null || data.meshNames == null ||
@@ -400,23 +445,60 @@ namespace MotorCity.World
             nextCheck = Time.unscaledTime + .2f;
             var camera = Camera.main;
             if (camera == null) return;
-            // Full 360-degree reserve, independent of camera heading.
+
             float radius = camera.farClipPlane + 160f;
             State nearest = null;
             float nearestDistance = float.PositiveInfinity;
+
+            if (useOcclusionStreaming)
+                GeometryUtility.CalculateFrustumPlanes(camera, frustumPlanes);
+
             foreach (var state in states)
             {
-                float distance = Mathf.Sqrt(state.Data.bounds.SqrDistance(camera.transform.position));
-                if (state.Bundle != null && !state.Busy && distance > radius + 128f)
+                float distance = Mathf.Sqrt(
+                    state.Data.bounds.SqrDistance(camera.transform.position));
+
+                bool visible = !useOcclusionStreaming ||
+                    CityOcclusionVisibility.IsBoundsVisible(
+                        camera,
+                        state.Data.bounds,
+                        buildingOccluders,
+                        frustumPlanes,
+                        raycastHits,
+                        40f);
+
+                if (useOcclusionStreaming)
+                {
+                    if (visible)
+                        state.OccludedSince = -1f;
+                    else if (state.OccludedSince < 0f)
+                        state.OccludedSince = Time.unscaledTime;
+                }
+
+                // Preserve a short grace period when a district leaves view,
+                // then release distant hidden bundles to avoid memory thrashing
+                // during quick camera turns and street corners.
+                bool hiddenLongEnough = useOcclusionStreaming &&
+                    !visible && state.OccludedSince >= 0f &&
+                    Time.unscaledTime - state.OccludedSince >= 1.5f &&
+                    distance > 140f;
+
+                if (state.Bundle != null && !state.Busy &&
+                    (distance > radius + 128f || hiddenLongEnough))
                     Release(state);
-                if (state.Bundle == null && !state.Busy && Time.unscaledTime >= state.RetryAt &&
-                    distance <= radius && distance < nearestDistance)
+
+                if (state.Bundle == null && !state.Busy &&
+                    Time.unscaledTime >= state.RetryAt &&
+                    distance <= radius && visible &&
+                    distance < nearestDistance)
                 {
                     nearest = state;
                     nearestDistance = distance;
                 }
             }
-            if (!loading && nearest != null) StartCoroutine(Load(nearest));
+
+            if (!loading && nearest != null)
+                StartCoroutine(Load(nearest));
         }
 
         private IEnumerator Load(State state)
