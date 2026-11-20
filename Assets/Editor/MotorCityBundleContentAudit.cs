@@ -59,111 +59,59 @@ public static class MotorCityBundleContentAudit
 
                 string absolute = Path.GetFullPath(path);
                 long bytes = File.Exists(absolute) ? new FileInfo(absolute).Length : 0;
-                UnityEngine.Object asset = AssetDatabase.LoadMainAssetAtPath(path);
-                var row = new Row
+                UnityEngine.Object[] subAssets = AssetDatabase.LoadAllAssetsAtPath(path);
+                bool firstRow = true;
+                foreach (UnityEngine.Object asset in subAssets)
                 {
-                    Path = path,
-                    Type = asset != null ? asset.GetType().Name : "Unknown",
-                    Bytes = bytes
-                };
-
-                Mesh mesh = asset as Mesh;
-                Texture texture = asset as Texture;
-                if (mesh != null)
-                {
-                    row.Vertices = mesh.vertexCount;
-                    long triangles = 0;
-                    for (int s = 0; s < mesh.subMeshCount; s++)
-                        if (mesh.GetTopology(s) == MeshTopology.Triangles)
-                            triangles += (long)mesh.GetIndexCount(s) / 3L;
-                    row.Triangles = triangles;
-                    row.Details = "SubMeshes=" + mesh.subMeshCount +
-                        "; IndexFormat=" + mesh.indexFormat;
-                }
-                else if (texture != null)
-                {
-                    row.Width = texture.width;
-                    row.Height = texture.height;
-                    var importer = AssetImporter.GetAtPath(path) as TextureImporter;
-                    if (importer != null)
+                    if (asset == null) continue;
+                    var row = new Row
                     {
-                        var webgl = importer.GetPlatformTextureSettings("WebGL");
-                        row.Details = "TextureType=" + importer.textureType +
-                            "; WebGLOverride=" + (webgl != null && webgl.overridden) +
-                            "; WebGLMaxSize=" + (webgl != null && webgl.overridden
-                                ? webgl.maxTextureSize : importer.maxTextureSize) +
-                            "; WebGLCompression=" + (webgl != null && webgl.overridden
-                                ? webgl.textureCompression : importer.textureCompression) +
-                            "; Crunch=" + (webgl != null && webgl.overridden &&
-                                webgl.crunchedCompression);
+                        Path = path,
+                        Type = asset.GetType().Name,
+                        // A source file can contain many imported sub-assets (e.g. FBX meshes).
+                        // Count its disk size only once to avoid inflating the total.
+                        Bytes = firstRow ? bytes : 0
+                    };
+                    firstRow = false;
+
+                    Mesh mesh = asset as Mesh;
+                    Texture texture = asset as Texture;
+                    if (mesh != null)
+                    {
+                        row.Vertices = mesh.vertexCount;
+                        long triangles = 0;
+                        for (int s = 0; s < mesh.subMeshCount; s++)
+                            if (mesh.GetTopology(s) == MeshTopology.Triangles)
+                                triangles += (long)mesh.GetIndexCount(s) / 3L;
+                        row.Triangles = triangles;
+                        row.Details = "SubAsset=" + asset.name +
+                            "; SubMeshes=" + mesh.subMeshCount +
+                            "; IndexFormat=" + mesh.indexFormat;
                     }
+                    else if (texture != null)
+                    {
+                        row.Width = texture.width;
+                        row.Height = texture.height;
+                        row.Details = "SubAsset=" + asset.name;
+                        var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+                        if (importer != null)
+                        {
+                            var webgl = importer.GetPlatformTextureSettings("WebGL");
+                            row.Details += "; TextureType=" + importer.textureType +
+                                "; WebGLOverride=" + (webgl != null && webgl.overridden) +
+                                "; WebGLMaxSize=" + (webgl != null && webgl.overridden
+                                    ? webgl.maxTextureSize : importer.maxTextureSize) +
+                                "; WebGLCompression=" + (webgl != null && webgl.overridden
+                                    ? webgl.textureCompression : importer.textureCompression) +
+                                "; Crunch=" + (webgl != null && webgl.overridden &&
+                                    webgl.crunchedCompression);
+                        }
+                    }
+                    else
+                    {
+                        row.Details = "SubAsset=" + asset.name;
+                    }
+                    rows.Add(row);
                 }
-                else if (asset is GameObject)
-                {
-                    var go = asset as GameObject;
-                    row.Details = "PrefabOrModel";
-                }
-
-                rows.Add(row);
-            }
-        }
-        finally
-        {
-            EditorUtility.ClearProgressBar();
-        }
-
-        string output = EditorUtility.SaveFilePanel(
-            "Save City Bundle Content Audit",
-            Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-            "MotorCity_CityBundle_Content_Audit",
-            "csv");
-        if (string.IsNullOrEmpty(output))
-            return;
-
-        var csv = new StringBuilder();
-        csv.AppendLine("AssetPath,Type,SourceBytes,SourceMiB,Vertices,Triangles,Width,Height,Details");
-        foreach (Row r in rows.OrderByDescending(x => x.Bytes))
-        {
-            csv.Append(Csv(r.Path)).Append(',')
-                .Append(Csv(r.Type)).Append(',')
-                .Append(r.Bytes).Append(',')
-                .Append((r.Bytes / 1048576.0).ToString("F3", CultureInfo.InvariantCulture)).Append(',')
-                .Append(r.Vertices).Append(',')
-                .Append(r.Triangles).Append(',')
-                .Append(r.Width).Append(',')
-                .Append(r.Height).Append(',')
-                .Append(Csv(r.Details)).AppendLine();
-        }
-        File.WriteAllText(output, csv.ToString(), new UTF8Encoding(true));
-
-        long total = rows.Sum(r => r.Bytes);
-        int meshCount = rows.Count(r => r.Type == "Mesh");
-        int textureCount = rows.Count(r =>
-            r.Type == "Texture2D" || r.Type == "Cubemap" || r.Type == "Texture");
-
-        Debug.Log("[Motor City City Bundle Content Audit]\n" +
-            "City prefab: " + CityPrefabPath + "\n" +
-            "Unique dependencies: " + rows.Count + "\n" +
-            "Mesh assets: " + meshCount + "\n" +
-            "Texture assets: " + textureCount + "\n" +
-            "Sum of dependency source file sizes (not bundle size): " +
-            (total / 1048576.0).ToString("F2", CultureInfo.InvariantCulture) + " MiB\n" +
-            "CSV: " + output);
-
-        EditorUtility.DisplayDialog("City Bundle Content Audit Complete",
-            "Dependencies scanned: " + rows.Count +
-            "\nMesh assets: " + meshCount +
-            "\nTexture assets: " + textureCount +
-            "\nSource file size sum: " +
-            (total / 1048576.0).ToString("F2", CultureInfo.InvariantCulture) +
-            " MiB\n\nReport saved to:\n" + output +
-            "\n\nNote: source file sizes are not compressed AssetBundle contribution sizes.",
-            "OK");
-    }
-
-    private static string Csv(string value)
-    {
-        value = value ?? string.Empty;
-        return "\"" + value.Replace("\"", "\"\"") + "\"";
-    }
-}
+                if (firstRow)
+                    rows.Add(new Row { Path = path, Type = "Unknown", Bytes = bytes });
