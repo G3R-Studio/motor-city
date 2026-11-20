@@ -67,6 +67,7 @@ public static class HaonByteVisualImporter
 
     private static void TryAutoBuild()
     {
+            if (MotorCity.EditorTools.MotorCityCityBundleExperiment.HasParkedAssets) return;
         if (EditorApplication.isPlayingOrWillChangePlaymode)
             return;
 
