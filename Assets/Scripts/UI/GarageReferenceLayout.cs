@@ -36,6 +36,30 @@ namespace MotorCity.UI
         private static readonly Color GarageReferenceCyan = new(.28f, .78f, 1f, 1f);
         private static readonly Color GarageReferenceGreen = new(.12f, 1f, .55f, 1f);
 
+        private void RefreshGarageLocalizedLabels()
+        {
+            if (garageOverlay == null) return;
+            void Set(string path, string key)
+            {
+                Transform target = garageOverlay.transform.Find("Garage Panel/" + path);
+                Text label = target != null ? target.GetComponent<Text>() : null;
+                if (label != null) label.text = MotorCityLocalization.Text(key);
+            }
+
+            Set("Garage Top Balance/Garage Credits Group/Garage Credits Label", "garage.credits_label");
+            Set("Garage Top Balance/Garage Reputation Group/Garage Reputation Label", "garage.reputation_label");
+            Set("Garage Top Balance/Garage Level Group/Garage Level Label", "garage.level_label");
+            Set("Garage Top Balance/Garage Header Mastery Label", "garage.auto_mastery_label");
+            Set("Garage Vehicle Card/Garage Vehicle Card Title", "garage.my_car");
+            Set("Garage Vehicle Card/Garage Mastery Label", "garage.mastery_label");
+            Set("Garage Appearance Panel/Garage Appearance Title", "garage.appearance_title");
+            Set("Garage City Button/Label", "garage.city_button");
+            Set("Garage Main Menu/Label", "garage.main_menu_button");
+            Set("Garage Appearance Panel/Garage Appearance 0/Label", "touch.garage.color");
+            Set("Garage Appearance Panel/Garage Appearance 1/Label", "touch.garage.wheels");
+            Set("Garage Appearance Panel/Garage Appearance 2/Label", "touch.garage.neon");
+        }
+
         private void BuildGarage(Transform canvas)
         {
             RectTransform overlay = GarageObject(canvas, "Garage Overlay");
