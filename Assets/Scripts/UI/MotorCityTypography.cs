@@ -80,8 +80,7 @@ namespace MotorCity.UI
             layout.childForceExpandHeight = false;
             var fitter = root.AddComponent<UnityEngine.UI.ContentSizeFitter>();
             fitter.verticalFit = UnityEngine.UI.ContentSizeFitter.FitMode.PreferredSize;
-            bool ru = MotorCity.Localization.MotorCityLocalization.LanguageCode == "ru";
-            string L(string a, string b) => ru ? a : b;
+            string L(string a, string b) => MotorCity.Localization.MotorCityLocalization.LanguageCode == "ru" ? a : b;
             UnityEngine.UI.Text Label(Transform owner, string caption)
             {
                 var go = new GameObject(caption, typeof(RectTransform), typeof(UnityEngine.UI.Text), typeof(UnityEngine.UI.LayoutElement));
@@ -160,7 +159,22 @@ namespace MotorCity.UI
                     });
                 }
             }
+            root.AddComponent<MotorCityControlSettingsRefresh>().Bind(Refresh);
             Refresh();
+        }
+    }
+
+    internal sealed class MotorCityControlSettingsRefresh : MonoBehaviour
+    {
+        private System.Action refresh;
+        private string language;
+        private MotorCity.Input.MotorCityControlScheme scheme;
+        public void Bind(System.Action action) { refresh = action; Snapshot(); }
+        private void Snapshot() { language = MotorCity.Localization.MotorCityLocalization.LanguageCode; scheme = MotorCity.Input.MotorCityInput.CurrentControlScheme; }
+        private void Update()
+        {
+            if (language == MotorCity.Localization.MotorCityLocalization.LanguageCode && scheme == MotorCity.Input.MotorCityInput.CurrentControlScheme) return;
+            Snapshot(); refresh?.Invoke();
         }
     }
 
