@@ -1,4 +1,20 @@
 mergeInto(LibraryManager.library, {
+  MotorCityRankingSubmit: function(idPtr, score) {
+    var id = UTF8ToString(idPtr);
+    var b = window.bridge && window.bridge.leaderboards;
+    if (!b || b.type === 'not_available' || !isFinite(score) || score <= 0) return;
+    var state = window.motorCityRankingSent || (window.motorCityRankingSent = {});
+    var previous = state[id];
+    if (previous && (previous.pending || (id === 'race_time' ? previous.score <= score : previous.score >= score))) return;
+    state[id] = {pending:true, score:score};
+    Promise.resolve().then(function(){return b.setScore(id,score);}).then(function(){state[id].pending=false;},function(){if(previous) state[id]=previous; else delete state[id];});
+  },
+  MotorCityRankingOpen: function(idPtr) {
+    var id = UTF8ToString(idPtr);
+    var b = window.bridge && window.bridge.leaderboards;
+    if (!b || b.type === 'not_available') return;
+    if (b.type === 'native_popup') Promise.resolve(b.showNativePopup(id)).catch(function(){});
+  },
   MotorCityWebConfigureBrowser: function() {
     try {
       var canvas =
