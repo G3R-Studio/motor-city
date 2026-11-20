@@ -50,6 +50,7 @@ namespace MotorCity.EditorTools
         private static readonly HashSet<Mesh> FailedMeshes = new HashSet<Mesh>();
         private static readonly HashSet<Renderer> StaticBatchedRenderers = new HashSet<Renderer>();
         private static readonly HashSet<Renderer> BuildingRenderersSeen = new HashSet<Renderer>();
+        private static readonly HashSet<Mesh> NonBuildingMeshesSkipped = new HashSet<Mesh>();
         private static readonly HashSet<Transform> BuildingRootsSeen = new HashSet<Transform>();
         private static readonly Queue<Mesh> PendingMeshes = new Queue<Mesh>();
 
@@ -63,7 +64,6 @@ namespace MotorCity.EditorTools
         private static int skippedTooSmall;
         private static int failedMeshCount;
         private static int unchangedMeshCount;
-        private static int nonBuildingRenderersSkipped;
         private static bool warnedNoBuildingsRoot;
 
         static MotorCityPlayModeDecimateExperiment()
@@ -141,8 +141,8 @@ namespace MotorCity.EditorTools
 
             Debug.Log(
                 "[Motor City Decimate] STARTED. Target quality=0.8 (about 80% of source triangles). " +
-                "Scope: " + scope + ". Non-building city objects are ignored. " +
-                "UV seams, UV foldovers and borders are protected. " +
+                "Scope: " + scope + ". Only known building FBX mesh-name prefixes are processed; " +
+                "decorative props are ignored. UV seams, UV foldovers and borders are protected. " +
                 "Only temporary in-memory meshes are changed. Stop and restore or exit Play Mode.");
         }
 
@@ -316,7 +316,7 @@ namespace MotorCity.EditorTools
             // Only process meshes whose names match actual building FBX assets.
             if (!IsBuildingMesh(source))
             {
-                nonBuildingRenderersSkipped++;
+                NonBuildingMeshesSkipped.Add(source);
                 return;
             }
 
@@ -635,7 +635,7 @@ namespace MotorCity.EditorTools
             report.AppendLine("Failed meshes: " + failedMeshCount);
             report.AppendLine("Buildings hierarchy roots found: " + BuildingRootsSeen.Count);
             report.AppendLine("Building renderers discovered (FBX-name whitelist): " + BuildingRenderersSeen.Count);
-            report.AppendLine("Non-building renderers skipped by mesh name: " + nonBuildingRenderersSkipped);
+            report.AppendLine("Unique non-building meshes skipped by name: " + NonBuildingMeshesSkipped.Count);
             report.AppendLine("Static-batched building renderers skipped: " + StaticBatchedRenderers.Count);
             report.AppendLine("Pending meshes not processed before stop: " + PendingMeshes.Count);
             report.AppendLine("All changed renderer meshes restored: YES");
@@ -669,6 +669,7 @@ namespace MotorCity.EditorTools
             FailedMeshes.Clear();
             StaticBatchedRenderers.Clear();
             BuildingRenderersSeen.Clear();
+            NonBuildingMeshesSkipped.Clear();
             BuildingRootsSeen.Clear();
             PendingMeshes.Clear();
             warnedNoBuildingsRoot = false;
@@ -681,7 +682,6 @@ namespace MotorCity.EditorTools
             skippedTooSmall = 0;
             failedMeshCount = 0;
             unchangedMeshCount = 0;
-            nonBuildingRenderersSkipped = 0;
         }
     }
 }
