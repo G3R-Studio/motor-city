@@ -238,6 +238,7 @@ namespace MotorCity.World
                 bool visible = CityOcclusionVisibility.IsBoundsVisible(
                     targetCamera,
                     building.Bounds,
+                    building.Root,
                     buildingOccluders,
                     frustumPlanes,
                     raycastHits,
