@@ -104,6 +104,7 @@ namespace MotorCity.World
                 {
                     if (!renderer.enabled || !renderer.gameObject.activeInHierarchy ||
                         renderer.forceRenderingOff || renderer.isPartOfStaticBatch ||
+                        !CityOcclusionVisibility.IsInsideBuildings(renderer.transform) ||
                         renderer.HasPropertyBlock() || renderer.bounds.extents.magnitude <= 7f ||
                         renderer.GetComponentInParent<Rigidbody>() != null ||
                         renderer.GetComponentInParent<Animator>() != null ||
