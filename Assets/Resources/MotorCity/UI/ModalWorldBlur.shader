@@ -10,14 +10,13 @@ Shader "MotorCity/UI/ModalWorldBlur"
         float4 _MainTex_TexelSize;
         fixed4 Gaussian(float2 uv, float2 axis)
         {
-            // Contiguous Gaussian kernel, with a slightly softer radius.
+            // Contiguous Gaussian kernel, slightly reduced radius.
             float2 d = abs(_MainTex_TexelSize.xy) * axis;
-            float3 c = tex2D(_MainTex, uv).rgb * 0.100589796;
-            c += (tex2D(_MainTex, uv+d*1.4765797).rgb + tex2D(_MainTex, uv-d*1.4765797).rgb)*0.186265156;
-            c += (tex2D(_MainTex, uv+d*3.4455295).rgb + tex2D(_MainTex, uv-d*3.4455295).rgb)*0.136939957;
-            c += (tex2D(_MainTex, uv+d*5.4148988).rgb + tex2D(_MainTex, uv-d*5.4148988).rgb)*0.078710090;
-            c += (tex2D(_MainTex, uv+d*7.3849121).rgb + tex2D(_MainTex, uv-d*7.3849121).rgb)*0.035367417;
-            c += (tex2D(_MainTex, uv+d*9.3557749).rgb + tex2D(_MainTex, uv-d*9.3557749).rgb)*0.012422482;
+            float3 c = tex2D(_MainTex, uv).rgb * 0.115697629;
+            c += (tex2D(_MainTex, uv+d*1.4694259).rgb + tex2D(_MainTex, uv-d*1.4694259).rgb)*0.209339965;
+            c += (tex2D(_MainTex, uv+d*3.4290534).rgb + tex2D(_MainTex, uv-d*3.4290534).rgb)*0.140343474;
+            c += (tex2D(_MainTex, uv+d*5.3896034).rgb + tex2D(_MainTex, uv-d*5.3896034).rgb)*0.068321080;
+            c += (tex2D(_MainTex, uv+d*7.3515473).rgb + tex2D(_MainTex, uv-d*7.3515473).rgb)*0.024146666;
             return fixed4(c,1);
         }
         fixed4 horizontal(v2f_img i):SV_Target { return Gaussian(i.uv,float2(1,0)); }
