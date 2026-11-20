@@ -583,6 +583,7 @@ namespace MotorCity.UI
             garageUiDirty =
                 true;
 
+            RefreshGarageLocalizedLabels();
             RefreshTouchLocalizedLabels();
         }
 
