@@ -100,6 +100,7 @@ namespace MotorCity.UI
             var trackImage = track.GetComponent<Image>();
             trackImage.color = new Color(0.36f, 0.48f, 0.71f, 0.5f);
             trackImage.raycastTarget = false;
+            MotorCityVolumeSlider.RoundTrack(trackImage, true);
             var handle = new GameObject("Scroll Position", typeof(RectTransform), typeof(Image));
             handle.transform.SetParent(track.transform, false);
             var handleRect = handle.GetComponent<RectTransform>();
@@ -108,6 +109,7 @@ namespace MotorCity.UI
             var handleImage = handle.GetComponent<Image>();
             handleImage.color = new Color(0.40f, 0.86f, 1f, 1f);
             handleImage.raycastTarget = false;
+            MotorCityVolumeSlider.RoundTrack(handleImage, true);
             var arrow = new GameObject("Scroll Down Arrow", typeof(RectTransform), typeof(Text));
             arrow.transform.SetParent(window.Panel, false);
             var hint = arrow.GetComponent<Text>();
