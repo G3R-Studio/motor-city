@@ -462,6 +462,33 @@ namespace MotorCity.Gameplay
 
             if (success)
             {
+                // Count every successful professional job in one central place.
+                // Delivery uses its legacy ID; all other profession activities use
+                // the profession_ prefix (pizza, taxi, mail, ice cream, car wash, tow).
+                bool isProfessionalJob =
+                    activityId == "delivery" ||
+                    activityId == "carwash" ||
+                    activityId == "tow" ||
+                    (!string.IsNullOrEmpty(activityId) &&
+                     activityId.StartsWith(
+                         "profession_",
+                         System.StringComparison.Ordinal));
+
+                if (isProfessionalJob)
+                {
+                    const string jobsKey = "MotorCity.Ranking.Jobs";
+                    int completedJobs = Mathf.Max(
+                        0,
+                        MotorCity.Persistence.MotorCitySaveService.GetInt(
+                            jobsKey,
+                            0));
+
+                    MotorCity.Persistence.MotorCitySaveService.SetInt(
+                        jobsKey,
+                        completedJobs + 1);
+                    MotorCity.Persistence.MotorCitySaveService.Save();
+                }
+
                 ActivityCompleted?.Invoke(
                     activityId);
 

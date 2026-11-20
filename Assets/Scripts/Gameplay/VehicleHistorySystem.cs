@@ -345,11 +345,6 @@ namespace MotorCity.Gameplay
         private void HandleActivityResult(
             string activityId)
         {
-            if (activityId == "delivery" || activityId == "carwash" || activityId == "tow" || activityId.StartsWith("profession"))
-            {
-                MotorCity.Persistence.MotorCitySaveService.SetInt("MotorCity.Ranking.Jobs", MotorCity.Persistence.MotorCitySaveService.GetInt("MotorCity.Ranking.Jobs", 0) + 1);
-                MotorCity.Persistence.MotorCitySaveService.Save();
-            }
             if (activityManager != null && !activityManager.SecondaryProgressionAllowed) return;
             victories++;
 

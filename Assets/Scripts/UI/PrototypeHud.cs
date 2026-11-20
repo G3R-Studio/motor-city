@@ -443,10 +443,16 @@ namespace MotorCity.UI
             driftSpots = driftSpotSystem;
             discoveries = discoverySystem;
             if (activityManager != null)
+            {
                 activityManager.ActivityResultShown -= CaptureJournalBeforeActivityResult;
+                activityManager.ActivityCompleted -= OnRankingActivityCompleted;
+            }
             activityManager = manager;
             if (activityManager != null)
+            {
                 activityManager.ActivityResultShown += CaptureJournalBeforeActivityResult;
+                activityManager.ActivityCompleted += OnRankingActivityCompleted;
+            }
             journalBeforeResult = null;
             journalLastResultName = null;
 
@@ -671,6 +677,13 @@ namespace MotorCity.UI
         [System.Runtime.InteropServices.DllImport("__Internal")]
         private static extern void MotorCityRankingSubmit(string id, int score);
 #endif
+        private void OnRankingActivityCompleted(string activityId)
+        {
+            // A completed activity may change one or more leaderboard values.
+            // Submit on the next HUD update instead of waiting for the 30-second poll.
+            nextRankingSync = 0f;
+        }
+
         private void SyncRankings()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR && !DEBUG
