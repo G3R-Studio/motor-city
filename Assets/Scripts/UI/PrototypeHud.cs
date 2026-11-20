@@ -2194,7 +2194,8 @@ namespace MotorCity.UI
         {
             image = GetComponent<RawImage>();
             material = new Material(shader) { hideFlags = HideFlags.HideAndDontSave };
-            image.material = material;
+            // The snapshot is blurred once, then displayed with normal UI sampling.
+            image.material = null;
             image.raycastTarget = false;
             image.enabled = false;
         }
@@ -2227,7 +2228,7 @@ namespace MotorCity.UI
             yield return new WaitForEndOfFrame();
             if (current == modal && modal.activeInHierarchy)
             {
-                RenderTexture full = null;
+                RenderTexture full = null, intermediate = null, downsampled = null;
                 try
                 {
                     ReleaseSnapshot();
@@ -2237,7 +2238,17 @@ namespace MotorCity.UI
                     snapshot.filterMode = FilterMode.Bilinear;
                     snapshot.wrapMode = TextureWrapMode.Clamp;
                     snapshot.Create();
-                    Graphics.Blit(full, snapshot);
+                    full.filterMode = FilterMode.Bilinear;
+                    downsampled = RenderTexture.GetTemporary(snapshot.width, snapshot.height, 0, RenderTextureFormat.ARGB32);
+                    intermediate = RenderTexture.GetTemporary(snapshot.width, snapshot.height, 0, RenderTextureFormat.ARGB32);
+                    downsampled.filterMode = intermediate.filterMode = FilterMode.Bilinear;
+                    downsampled.wrapMode = intermediate.wrapMode = TextureWrapMode.Clamp;
+                    Graphics.Blit(full, downsampled);
+                    Graphics.Blit(downsampled, intermediate, material, 0);
+                    Graphics.Blit(intermediate, snapshot, material, 1);
+                    // A second separable pass smooths remaining high-frequency detail.
+                    Graphics.Blit(snapshot, intermediate, material, 0);
+                    Graphics.Blit(intermediate, snapshot, material, 1);
                     image.texture = snapshot;
                     // ScreenCapture render targets on top-origin graphics APIs (D3D)
                     // have inverted Y relative to the overlay RawImage UVs.
@@ -2253,7 +2264,12 @@ namespace MotorCity.UI
                     ReleaseSnapshot();
                     Debug.LogWarning("Modal backdrop capture unavailable: " + e.Message);
                 }
-                finally { if (full != null) RenderTexture.ReleaseTemporary(full); }
+                finally
+                {
+                    if (full != null) RenderTexture.ReleaseTemporary(full);
+                    if (intermediate != null) RenderTexture.ReleaseTemporary(intermediate);
+                    if (downsampled != null) RenderTexture.ReleaseTemporary(downsampled);
+                }
             }
             RestoreModal();
             capture = null;
