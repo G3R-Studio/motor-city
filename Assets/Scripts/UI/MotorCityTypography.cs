@@ -71,7 +71,7 @@ namespace MotorCity.UI
 
     internal static class MotorCityControlSettings
     {
-        public static void Create(Transform parent, System.Action changed)
+        public static void Create(Transform parent, System.Action changed, bool frontEnd = false)
         {
             var root = new GameObject("Control Settings", typeof(RectTransform), typeof(UnityEngine.UI.VerticalLayoutGroup), typeof(UnityEngine.UI.LayoutElement));
             root.transform.SetParent(parent, false);
@@ -86,7 +86,7 @@ namespace MotorCity.UI
                 var go = new GameObject(caption, typeof(RectTransform), typeof(UnityEngine.UI.Text), typeof(UnityEngine.UI.LayoutElement));
                 go.transform.SetParent(owner, false);
                 var t = go.GetComponent<UnityEngine.UI.Text>(); t.font = MotorCityTypography.Bold;
-                t.fontSize = 18; t.color = Color.white; t.text = caption; t.alignment = TextAnchor.MiddleLeft;
+                t.fontSize = frontEnd ? 24 : 18; t.fontStyle = FontStyle.Bold; t.color = Color.white; t.text = caption; t.alignment = TextAnchor.MiddleLeft;
                 go.GetComponent<UnityEngine.UI.LayoutElement>().preferredHeight = 36;
                 // Every rebuilt settings label must use the same SDF pipeline as the initial menu.
                 MotorCityTextLayout.Configure(t);
@@ -96,7 +96,7 @@ namespace MotorCity.UI
             {
                 var go = new GameObject("Control Setting Row", typeof(RectTransform), typeof(UnityEngine.UI.LayoutElement), typeof(UnityEngine.UI.HorizontalLayoutGroup));
                 go.transform.SetParent(root.transform, false);
-                var le = go.GetComponent<UnityEngine.UI.LayoutElement>(); le.minHeight = le.preferredHeight = 64;
+                var le = go.GetComponent<UnityEngine.UI.LayoutElement>(); le.minHeight = le.preferredHeight = frontEnd ? 88 : 64;
                 var surface = new GameObject("Reference HUD Surface", typeof(RectTransform), typeof(GarageReferenceGraphic), typeof(UnityEngine.UI.LayoutElement));
                 surface.transform.SetParent(go.transform, false);
                 surface.GetComponent<UnityEngine.UI.LayoutElement>().ignoreLayout = true;
@@ -104,7 +104,7 @@ namespace MotorCity.UI
                 var graphic = surface.GetComponent<GarageReferenceGraphic>(); graphic.symbol = GarageReferenceGraphic.Symbol.Surface; graphic.color = new Color(0.08f,0.13f,0.21f,0.95f); graphic.raycastTarget = false;
                 var group = go.GetComponent<UnityEngine.UI.HorizontalLayoutGroup>(); group.padding = new RectOffset(18,10,8,8); group.spacing = 8;
                 group.childControlWidth = group.childControlHeight = true; group.childForceExpandWidth = false; group.childForceExpandHeight = true;
-                var label = Label(go.transform, caption); label.color = MotorCityUiSkin.AccentCyan; label.fontSize = 13;
+                var label = Label(go.transform, caption); label.color = MotorCityUiSkin.AccentCyan; label.fontSize = frontEnd ? 18 : 15;
                 var labelLayout = label.GetComponent<UnityEngine.UI.LayoutElement>(); labelLayout.minWidth = 142; labelLayout.flexibleWidth = 1;
                 if (!string.IsNullOrEmpty(value))
                 {
@@ -117,10 +117,10 @@ namespace MotorCity.UI
             {
                 var go = new GameObject("Control Setting Button", typeof(RectTransform), typeof(UnityEngine.UI.Image), typeof(UnityEngine.UI.Button), typeof(UnityEngine.UI.LayoutElement));
                 go.transform.SetParent(owner, false);
-                var le = go.GetComponent<UnityEngine.UI.LayoutElement>(); le.minWidth = 104; le.preferredWidth = 104;
+                var le = go.GetComponent<UnityEngine.UI.LayoutElement>(); le.minWidth = le.preferredWidth = frontEnd ? 192 : 104;
                 var button = go.GetComponent<UnityEngine.UI.Button>();
                 MotorCityUiSkin.ApplyVectorButton(button, MotorCityButtonRole.Secondary);
-                var t = Label(go.transform, caption); t.fontSize = 13; t.alignment = TextAnchor.MiddleCenter; t.raycastTarget = false;
+                var t = Label(go.transform, caption); t.fontSize = frontEnd ? 20 : 15; t.alignment = TextAnchor.MiddleCenter; t.raycastTarget = false;
                 var rect = t.rectTransform; rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one; rect.offsetMin = rect.offsetMax = Vector2.zero;
                 button.onClick.AddListener(() => action());
             }
