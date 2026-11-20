@@ -78,6 +78,8 @@ namespace MotorCity.UI
             var layout = root.GetComponent<UnityEngine.UI.VerticalLayoutGroup>();
             layout.spacing = 8; layout.childControlHeight = true; layout.childControlWidth = true;
             layout.childForceExpandHeight = false;
+            var fitter = root.AddComponent<UnityEngine.UI.ContentSizeFitter>();
+            fitter.verticalFit = UnityEngine.UI.ContentSizeFitter.FitMode.PreferredSize;
             bool ru = MotorCity.Localization.MotorCityLocalization.LanguageCode == "ru";
             string L(string a, string b) => ru ? a : b;
             UnityEngine.UI.Text Label(Transform owner, string caption)
@@ -98,10 +100,10 @@ namespace MotorCity.UI
             bool expanded = false;
             void Refresh()
             {
-                foreach (Transform child in root.transform) { child.gameObject.SetActive(false); Object.Destroy(child.gameObject); }
+                for (int i = root.transform.childCount - 1; i >= 0; i--) { var child = root.transform.GetChild(i); child.gameObject.SetActive(false); Object.Destroy(child.gameObject); }
                 var scheme = MotorCity.Input.MotorCityInput.CurrentControlScheme;
                 bool enabled = scheme != MotorCity.Input.MotorCityControlScheme.Keyboard;
-                Button((enabled ? "☑ " : "☐ ") + L("Мобильное управление", "Mobile controls"), () => {
+                Button(L("Мобильное управление: ", "Mobile controls: ") + (enabled ? L("Вкл", "On") : L("Выкл", "Off")), () => {
                     MotorCity.Input.MotorCityInput.SetControlScheme(enabled ? MotorCity.Input.MotorCityControlScheme.Keyboard :
                         (MotorCity.Input.MotorCityControlScheme)PlayerPrefs.GetInt("MotorCity.LastTouchScheme", (int)MotorCity.Input.MotorCityControlScheme.Wheel));
                     changed?.Invoke(); Refresh();
