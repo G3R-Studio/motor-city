@@ -165,7 +165,7 @@ namespace MotorCity.Gameplay
 
         private void UpdateWash()
         {
-            if (MotorCityInput.CancelPressed)
+            if (MotorCityInput.WasVirtualPressed(MotorCityInputAction.Cancel))
             {
                 CancelWash();
                 return;
