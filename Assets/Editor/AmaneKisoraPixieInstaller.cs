@@ -34,6 +34,7 @@ namespace MotorCity.Editor
 
         private static void TryAutomaticInstall()
         {
+            if (MotorCity.EditorTools.MotorCityCityBundleExperiment.HasParkedAssets) return;
             if (AssetDatabase.LoadAssetAtPath<GameObject>(
                     SourceModel) == null ||
                 AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(
