@@ -217,12 +217,14 @@ namespace MotorCity.Vehicle
             if (car == null)
                 return;
 
-            if (muted)
+            // WebGL does not reliably silence looped sources via listener pause alone.
+            // Never restart a vehicle loop while the front end or pause menu owns audio.
+            if (muted || AudioListener.pause)
             {
                 if (engineSource != null)
                 {
-                    engineSource.volume =
-                        0f;
+                    engineSource.volume = 0f;
+                    if (engineSource.isPlaying) engineSource.Stop();
                 }
 
                 if (tireSource != null)
@@ -672,7 +674,7 @@ namespace MotorCity.Vehicle
         private void OnCollisionEnter(
             Collision collision)
         {
-            if (muted)
+            if (muted || AudioListener.pause)
                 return;
 
             if (collision == null ||
