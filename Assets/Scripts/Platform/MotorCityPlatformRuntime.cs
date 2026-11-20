@@ -54,8 +54,7 @@ namespace MotorCity.Platform
         {
             if (MotorCityPlatform.IsInitialized)
             {
-                MotorCityLocalization.SetLanguage(
-                    MotorCityPlatform.LanguageCode);
+                ApplyPlatformLanguage();
 
                 completed?.Invoke(
                     true);
@@ -81,8 +80,7 @@ namespace MotorCity.Platform
 
                     if (success)
                     {
-                        MotorCityLocalization.SetLanguage(
-                            MotorCityPlatform.LanguageCode);
+                        ApplyPlatformLanguage();
                     }
 
                     Action<bool> callbacks =
@@ -97,20 +95,40 @@ namespace MotorCity.Platform
                 });
         }
 
-        private void OnApplicationFocus(
-            bool hasFocus)
+        private void OnApplicationFocus(bool hasFocus)
         {
-            SetPauseReason(
-                PauseReason.FocusLost,
-                !hasFocus);
+            bool showPause = !hasFocus && ShouldOpenPauseForFocusLoss();
+            SetPauseReason(PauseReason.FocusLost, !hasFocus);
+            if (showPause)
+                UnityEngine.Object.FindAnyObjectByType<MotorCity.UI.PrototypeHud>()?.OpenPauseForFocusLoss();
         }
 
-        private void OnApplicationPause(
-            bool paused)
+        private void OnApplicationPause(bool paused)
         {
-            SetPauseReason(
-                PauseReason.ApplicationPaused,
-                paused);
+            bool showPause = paused && ShouldOpenPauseForFocusLoss();
+            SetPauseReason(PauseReason.ApplicationPaused, paused);
+            if (showPause)
+                UnityEngine.Object.FindAnyObjectByType<MotorCity.UI.PrototypeHud>()?.OpenPauseForFocusLoss();
+        }
+
+        private bool ShouldOpenPauseForFocusLoss()
+        {
+            if (!gameplayRunning || uiGameplayPaused || pauseReasons != PauseReason.None)
+                return false;
+
+            MotorCity.UI.MotorCityFrontEndFlow frontEnd =
+                UnityEngine.Object.FindAnyObjectByType<MotorCity.UI.MotorCityFrontEndFlow>();
+            return frontEnd == null || !frontEnd.IsFrontEndVisible;
+        }
+
+        private static void ApplyPlatformLanguage()
+        {
+            string savedOverride = MotorCity.Persistence.MotorCitySaveService.GetString(
+                "MotorCity.Settings.LanguageOverride", string.Empty);
+            MotorCityLocalization.SetLanguage(
+                string.IsNullOrWhiteSpace(savedOverride)
+                    ? MotorCityPlatform.LanguageCode
+                    : savedOverride);
         }
 
         public static void SetPlatformModalPaused(
