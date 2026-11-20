@@ -170,6 +170,9 @@ namespace MotorCity.UI
                 ToggleMusicMute,
                 104f);
 
+            var languageRow = CreateSettingsRow(window.Content, "Pause Language", "pause.language_label");
+            pauseLanguageText = languageRow.Value;
+            CreatePrimaryButton(languageRow.Controls, "Pause Language Toggle", "pause.language_toggle", TogglePauseLanguage, 104f);
             MotorCityControlSettings.Create(window.Content, RefreshMobileControlLayout);
 
 
@@ -361,7 +364,7 @@ namespace MotorCity.UI
 
             bool hudUtilityButton =
                 objectName == "HUD Pause" ||
-                objectName == "HUD More";
+                objectName == "HUD More" || objectName == "HUD Ranking";
 
             Button button =
                 buttonObject.GetComponent<Button>();
@@ -389,7 +392,7 @@ namespace MotorCity.UI
                 TextColor;
 
             bool hasUtilityIcon =
-                allowUtilityIcon &&
+                objectName != "HUD Ranking" && allowUtilityIcon &&
                 MotorCityButtonVisuals.TryForSemantic(
                     objectName + " " + localizationKey,
                     out utilityIcon,
@@ -431,6 +434,15 @@ namespace MotorCity.UI
 
                 icon.raycastTarget =
                     false;
+            }
+
+            if (objectName == "HUD Ranking")
+            {
+                var trophy = GarageObject(rect, "Ranking Trophy");
+                trophy.anchorMin = trophy.anchorMax = new Vector2(0f, .5f);
+                trophy.anchoredPosition = new Vector2(16f, 0f); trophy.sizeDelta = new Vector2(20f,20f);
+                var art = trophy.gameObject.AddComponent<Image>(); art.sprite = MotorCityIconLibrary.Achievement; art.color = new Color(1f,.78f,.22f); art.raycastTarget = false; art.preserveAspect = true;
+                hasUtilityIcon = true;
             }
 
             Text text =
@@ -693,8 +705,19 @@ namespace MotorCity.UI
         }
 
         private Slider pauseAudioSlider, pauseMusicSlider;
+        private Text pauseLanguageText;
+        private void TogglePauseLanguage()
+        {
+            string next = MotorCityLocalization.LanguageCode == "ru" ? "en" : "ru";
+            MotorCityLocalization.SetLanguage(next);
+            MotorCity.Persistence.MotorCitySaveService.SetString("MotorCity.Settings.LanguageOverride", next);
+            MotorCity.Persistence.MotorCitySaveService.Save();
+            RefreshHudLocalizationState();
+            RefreshPauseMenuText();
+        }
         private void RefreshPauseMenuText()
         {
+            if (pauseLanguageText != null) pauseLanguageText.text = MotorCityLocalization.LanguageCode == "ru" ? "Русский" : "English";
             if (pauseAudioSlider != null) pauseAudioSlider.SetValueWithoutNotify(Mathf.RoundToInt(audioVolume * 100f));
             if (pauseMusicSlider != null) pauseMusicSlider.SetValueWithoutNotify(Mathf.RoundToInt(MotorCityMusicRuntime.Volume * 100f));
             if (pauseQualityText != null)
