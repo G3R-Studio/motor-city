@@ -52,12 +52,15 @@ namespace MotorCity.UI
             Set("Garage Top Balance/Garage Header Mastery Label", "garage.auto_mastery_label");
             Set("Garage Vehicle Card/Garage Vehicle Card Title", "garage.my_car");
             Set("Garage Vehicle Card/Garage Mastery Label", "garage.mastery_label");
-            Set("Garage Appearance Panel/Garage Appearance Title", "garage.appearance_title");
-            Set("Garage City Button/Label", "garage.city_button");
-            Set("Garage Main Menu/Label", "garage.main_menu_button");
-            Set("Garage Appearance Panel/Garage Appearance 0/Label", "touch.garage.color");
-            Set("Garage Appearance Panel/Garage Appearance 1/Label", "touch.garage.wheels");
-            Set("Garage Appearance Panel/Garage Appearance 2/Label", "touch.garage.neon");
+            // These controls are children of Garage Action Controls, not
+            // direct children of Garage Panel. Keep the full hierarchy here:
+            // Transform.Find does not search by a descendant's short name.
+            Set("Garage Action Controls/Garage Appearance Panel/Garage Appearance Title", "garage.appearance_title");
+            Set("Garage Action Controls/Garage City Button/Label", "garage.city_button");
+            Set("Garage Action Controls/Garage Main Menu/Label", "garage.main_menu_button");
+            Set("Garage Action Controls/Garage Appearance Panel/Garage Appearance 0/Label", "touch.garage.color");
+            Set("Garage Action Controls/Garage Appearance Panel/Garage Appearance 1/Label", "touch.garage.wheels");
+            Set("Garage Action Controls/Garage Appearance Panel/Garage Appearance 2/Label", "touch.garage.neon");
         }
 
         private void BuildGarage(Transform canvas)
