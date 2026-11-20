@@ -262,7 +262,7 @@ namespace MotorCity.Gameplay
             {
                 IsNearMeeting = false;
 
-                if (MotorCityInput.CancelPressed)
+                if (MotorCityInput.WasVirtualPressed(MotorCityInputAction.Cancel))
                 {
                     CancelRun();
                 }
@@ -275,7 +275,7 @@ namespace MotorCity.Gameplay
                 IsNearMeeting = false;
                 elapsedSeconds += Time.deltaTime;
 
-                if (MotorCityInput.CancelPressed)
+                if (MotorCityInput.WasVirtualPressed(MotorCityInputAction.Cancel))
                 {
                     CancelRun();
                     return;
