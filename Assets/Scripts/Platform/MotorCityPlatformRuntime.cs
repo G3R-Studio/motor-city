@@ -194,7 +194,24 @@ namespace MotorCity.Platform
                 return;
             }
 
-            instance.SetPauseReason(PauseReason.PlatformEvent, paused);
+            // In WebGL the browser visibility / Playgama pause event can arrive
+            // without Unity raising OnApplicationFocus or OnApplicationPause.
+            // Decide before setting the pause reason, otherwise the existing
+            // pauseReasons guard would suppress opening the pause menu.
+            bool showPause =
+                paused &&
+                instance.ShouldOpenPauseForFocusLoss();
+
+            instance.SetPauseReason(
+                PauseReason.PlatformEvent,
+                paused);
+
+            if (showPause)
+            {
+                UnityEngine.Object
+                    .FindAnyObjectByType<MotorCity.UI.PrototypeHud>()
+                    ?.OpenPauseForFocusLoss();
+            }
         }
 
         public static bool IsGameplayResumeReady =>
