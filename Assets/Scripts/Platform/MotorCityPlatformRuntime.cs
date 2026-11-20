@@ -30,15 +30,21 @@ namespace MotorCity.Platform
         private bool pausedAudioListenerState;
         private PauseReason pauseReasons;
         private Action<bool> pendingInitializeCallbacks;
+        private static bool platformLanguageInitialized;
 
         private void Awake()
         {
             instance = this;
+            platformLanguageInitialized = false;
 
             MotorCityInput.RefreshTouchPromptPreference();
 
-            MotorCityLocalization.SetLanguage(
-                "en");
+            // Never force English here. The saved player choice is applied by
+            // the front end, and the platform language is only a first-run fallback.
+            string savedOverride = MotorCity.Persistence.MotorCitySaveService.GetString(
+                "MotorCity.Settings.LanguageOverride", string.Empty);
+            if (!string.IsNullOrWhiteSpace(savedOverride))
+                MotorCityLocalization.SetLanguage(savedOverride);
         }
 
         private void OnDestroy()
@@ -123,12 +129,17 @@ namespace MotorCity.Platform
 
         private static void ApplyPlatformLanguage()
         {
+            if (platformLanguageInitialized)
+                return;
+
             string savedOverride = MotorCity.Persistence.MotorCitySaveService.GetString(
                 "MotorCity.Settings.LanguageOverride", string.Empty);
-            MotorCityLocalization.SetLanguage(
-                string.IsNullOrWhiteSpace(savedOverride)
-                    ? MotorCityPlatform.LanguageCode
-                    : savedOverride);
+            if (!string.IsNullOrWhiteSpace(savedOverride))
+                MotorCityLocalization.SetLanguage(savedOverride);
+            else
+                MotorCityLocalization.SetLanguage(MotorCityPlatform.LanguageCode);
+
+            platformLanguageInitialized = true;
         }
 
         public static void SetPlatformModalPaused(
