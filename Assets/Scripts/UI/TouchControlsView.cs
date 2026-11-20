@@ -1159,6 +1159,51 @@ namespace MotorCity.UI
                 ApplyStoredTouchScale(left, scheme, "SteerLeft");
                 ApplyStoredTouchScale(right, scheme, "SteerRight");
             }
+            ArrangeScaledTouchControls();
+        }
+
+        // Layout offsets are derived from saved positions, never written back.
+        // Use transformed bounds so differing pivots and scales are respected.
+        private static Rect TouchBounds(RectTransform target, RectTransform space)
+        {
+            var b = RectTransformUtility.CalculateRelativeRectTransformBounds(space, target);
+            return new Rect(b.min.x, b.min.y, b.size.x, b.size.y);
+        }
+
+        private static void SeparateTouch(RectTransform moving, RectTransform fixedRect,
+            RectTransform space, bool vertical, bool positive)
+        {
+            if (moving == null || fixedRect == null) return;
+            Rect a = TouchBounds(moving, space), b = TouchBounds(fixedRect, space);
+            const float gap = 16f;
+            float delta = vertical
+                ? (positive ? Mathf.Max(0, b.yMax + gap - a.yMin) : Mathf.Min(0, b.yMin - gap - a.yMax))
+                : (positive ? Mathf.Max(0, b.xMax + gap - a.xMin) : Mathf.Min(0, b.xMin - gap - a.xMax));
+            Vector3 offset = vertical ? new Vector3(0, delta, 0) : new Vector3(delta, 0, 0);
+            moving.position += space.TransformVector(offset);
+        }
+
+        private void ArrangeScaledTouchControls()
+        {
+            if (touchDrivingRootRect == null || touchLayoutEditing) return;
+            var space = touchDrivingRootRect;
+            SeparateTouch(touchBrakeRect, touchThrottleRect, space, false, false);
+            SeparateTouch(touchHandbrakeRect, touchThrottleRect, space, true, true);
+            SeparateTouch(touchHandbrakeRect, touchBrakeRect, space, true, true);
+            SeparateTouch(touchActionRect, touchHandbrakeRect, space, true, true);
+            if (touchActivityCancelRoot != null)
+            {
+                var cancel = touchActivityCancelRoot.transform as RectTransform;
+                cancel.anchoredPosition = new Vector2(-52f, 438f);
+                SeparateTouch(cancel, touchActionRect, space, true, true);
+            }
+            if (MotorCityInput.CurrentControlScheme == MotorCityControlScheme.Arrows)
+            {
+                var left = TouchArrowRect("Steer Left");
+                var right = TouchArrowRect("Steer Right");
+                if (right != null) right.anchoredPosition = new Vector2(164f, 10f);
+                SeparateTouch(right, left, space, false, true);
+            }
         }
 
         private static void ApplyStoredTouchScale(
@@ -2004,8 +2049,13 @@ namespace MotorCity.UI
 
             bool touchUi = MotorCityInput.CurrentControlScheme != MotorCityControlScheme.Keyboard || touchLayoutEditing;
             if (touchActivityCancelRoot != null)
-                ApplyStoredTouchScale(touchActivityCancelRoot.transform as RectTransform,
-                    MotorCityInput.CurrentControlScheme == MotorCityControlScheme.Keyboard ? MotorCityControlScheme.Wheel : MotorCityInput.CurrentControlScheme, "Cancel");
+            {
+                var cancel = touchActivityCancelRoot.transform as RectTransform;
+                ApplyStoredTouchScale(cancel, MotorCityInput.CurrentControlScheme == MotorCityControlScheme.Keyboard ? MotorCityControlScheme.Wheel : MotorCityInput.CurrentControlScheme, "Cancel");
+                cancel.anchoredPosition = new Vector2(-52f, 438f);
+                if (touchUi && touchDrivingRootRect != null && !touchLayoutEditing)
+                    SeparateTouch(cancel, touchActionRect, touchDrivingRootRect, true, true);
+            }
 
             bool garageOpen =
                 garage != null &&
