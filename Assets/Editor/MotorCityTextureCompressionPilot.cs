@@ -13,13 +13,71 @@ public static class MotorCityTextureCompressionPilot
 {
     private const string BackupPath = "Library/MotorCityTextureCompressionPilotBackup.json";
 
-    private static readonly string[] TargetTextures =
+    private sealed class TextureTarget
     {
-        "Assets/Fantastic City Generator/Textures/Atlas-1.tga",
-        "Assets/Fantastic City Generator/Textures/Atlas-1-N.png",
-        "Assets/Fantastic City Generator/Textures/Wins.tga",
-        "Assets/Fantastic City Generator/Textures/Roads.tga"
-    };
+        public string path;
+        public int maxSize;
+        public bool crunch;
+    }
+
+    private static List<TextureTarget> GetTargetTextures()
+    {
+        var targets = new List<TextureTarget>
+        {
+            new TextureTarget { path = "Assets/Fantastic City Generator/Textures/Atlas-1.tga", maxSize = 2048, crunch = true },
+            new TextureTarget { path = "Assets/Fantastic City Generator/Textures/Atlas-1-N.png", maxSize = 1024, crunch = false },
+            new TextureTarget { path = "Assets/Fantastic City Generator/Textures/Wins.tga", maxSize = 1024, crunch = true },
+            new TextureTarget { path = "Assets/Fantastic City Generator/Textures/Roads.tga", maxSize = 1024, crunch = true },
+            new TextureTarget { path = "Assets/Fantastic City Generator/Textures/Roads_N.png", maxSize = 1024, crunch = false },
+            new TextureTarget { path = "Assets/Fantastic City Generator/Textures/Water.png", maxSize = 512, crunch = true },
+            new TextureTarget { path = "Assets/Fantastic City Generator/Textures/Trees-01.png", maxSize = 512, crunch = true },
+            new TextureTarget { path = "Assets/Fantastic City Generator/Textures/Vegetation.png", maxSize = 512, crunch = true },
+            new TextureTarget { path = "Assets/Fantastic City Generator/BackGrounds/Materials/Back-01.png", maxSize = 1024, crunch = true },
+            new TextureTarget { path = "Assets/Fantastic City Generator/SkyBox/Sky.png", maxSize = 1024, crunch = true },
+            new TextureTarget { path = "Assets/Fantastic City Generator/SkyBox/Sky2.png", maxSize = 1024, crunch = true },
+            new TextureTarget { path = "Assets/Resources/MotorCity/UI/Characters/avatar_turbo.png", maxSize = 512, crunch = true }
+        };
+
+        // Sky panoramas are distant background imagery. A 1024px WebGL cap
+        // with Crunch keeps them substantially smaller without touching source
+        // images or the desktop import settings.
+        const string panoramaRoot = "Assets/Fantasy Skybox FREE/Panoramics";
+        if (Directory.Exists(panoramaRoot))
+        {
+            string[] panoramas = Directory.GetFiles(
+                panoramaRoot, "*.png", SearchOption.AllDirectories);
+            Array.Sort(panoramas, StringComparer.OrdinalIgnoreCase);
+            foreach (string panorama in panoramas)
+            {
+                targets.Add(new TextureTarget
+                {
+                    path = panorama.Replace('\\', '/'),
+                    maxSize = 1024,
+                    crunch = true
+                });
+            }
+        }
+
+        // Intro and menu artwork remains at up to 2048px, but uses Crunch.
+        const string introRoot = "Assets/Resources/MotorCity/Intro";
+        if (Directory.Exists(introRoot))
+        {
+            string[] introImages = Directory.GetFiles(
+                introRoot, "*.png", SearchOption.TopDirectoryOnly);
+            Array.Sort(introImages, StringComparer.OrdinalIgnoreCase);
+            foreach (string introImage in introImages)
+            {
+                targets.Add(new TextureTarget
+                {
+                    path = introImage.Replace('\\', '/'),
+                    maxSize = 2048,
+                    crunch = true
+                });
+            }
+        }
+
+        return targets;
+    }
 
     [Serializable]
     private class BackupFile
@@ -41,7 +99,7 @@ public static class MotorCityTextureCompressionPilot
         public bool allowsAlphaSplitting;
     }
 
-    [MenuItem("Tools/Motor City/Texture Compression Pilot/1 - Apply Crunch to Test Textures")]
+    [MenuItem("Tools/Motor City/Texture Compression/1 - Apply Bulk WebGL Texture Compression")]
     private static void ApplyPilot()
     {
         if (File.Exists(BackupPath))
@@ -55,9 +113,11 @@ public static class MotorCityTextureCompressionPilot
 
         BackupFile backup = new BackupFile();
         List<TextureImporter> importers = new List<TextureImporter>();
+        List<TextureTarget> targets = GetTargetTextures();
 
-        foreach (string path in TargetTextures)
+        foreach (TextureTarget target in targets)
         {
+            string path = target.path;
             TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
             if (importer == null)
             {
@@ -96,8 +156,16 @@ public static class MotorCityTextureCompressionPilot
 
                 settings.name = "WebGL";
                 settings.overridden = true;
+                TextureTarget target = targets.Find(item =>
+                    string.Equals(item.path, importer.assetPath, StringComparison.OrdinalIgnoreCase));
+                if (target == null)
+                    throw new InvalidOperationException(
+                        "Compression target disappeared: " + importer.assetPath);
+
+                settings.maxTextureSize = target.maxSize;
                 settings.textureCompression = TextureImporterCompression.Compressed;
-                settings.crunchedCompression = true;
+                settings.compressionQuality = 50;
+                settings.crunchedCompression = target.crunch;
 
                 importer.SetPlatformTextureSettings(settings);
                 EditorUtility.SetDirty(importer);
@@ -111,10 +179,11 @@ public static class MotorCityTextureCompressionPilot
 
             EditorUtility.DisplayDialog(
                 "Texture Compression Pilot Applied",
-                "Crunch compression was enabled for four test textures.\n\n" +
-                "Original WebGL settings are backed up in Library.\n" +
-                "Now make a WebGL build and compare its actual download size and visual quality.\n\n" +
-                "To undo: Tools > Motor City > Texture Compression Pilot > 2 - Restore Original Settings.",
+                "WebGL compression settings were applied to " + targets.Count + " large textures.\n\n" +
+                "City atlases keep their key 2048px resolution; sky panoramas are capped at 1024px; " +
+                "intro artwork stays up to 2048px. Normal maps use standard compression without Crunch.\n\n" +
+                "Original WebGL importer settings are backed up in Library.\n" +
+                "To undo: Tools > Motor City > Texture Compression Pilot > Restore Original Settings.",
                 "OK");
         }
         catch (Exception exception)
@@ -128,7 +197,7 @@ public static class MotorCityTextureCompressionPilot
         }
     }
 
-    [MenuItem("Tools/Motor City/Texture Compression Pilot/2 - Restore Original Settings")]
+    [MenuItem("Tools/Motor City/Texture Compression/2 - Restore Original Settings")]
     private static void RestorePilot()
     {
         if (!File.Exists(BackupPath))
@@ -195,7 +264,7 @@ public static class MotorCityTextureCompressionPilot
             "OK");
     }
 
-    [MenuItem("Tools/Motor City/Texture Compression Pilot/2 - Restore Original Settings", true)]
+    [MenuItem("Tools/Motor City/Texture Compression/2 - Restore Original Settings", true)]
     private static bool ValidateRestore()
     {
         return File.Exists(BackupPath);
