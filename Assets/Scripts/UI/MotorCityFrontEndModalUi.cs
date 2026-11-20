@@ -393,7 +393,7 @@ namespace MotorCity.UI
                 frame.ScrollTrack.offsetMin = new Vector2(
                     20f, compact ? footerTop + 22f : 138f);
                 frame.ScrollTrack.offsetMax = new Vector2(
-                    26f, -header - 24f);
+                    28f, -header - 24f);
                 frame.ScrollArrow.anchoredPosition = new Vector2(
                     23f, compact ? footerTop - 4f : 106f);
             }
@@ -438,7 +438,7 @@ namespace MotorCity.UI
             track.anchorMin = new Vector2(0f, 0f);
             track.anchorMax = new Vector2(0f, 1f);
             track.offsetMin = new Vector2(20f, 138f);
-            track.offsetMax = new Vector2(26f, -headerHeight - 24f);
+            track.offsetMax = new Vector2(28f, -headerHeight - 24f);
             Image background = track.GetComponent<Image>();
             background.color = new Color(0.36f, 0.48f, 0.71f, 0.5f);
             MotorCityVolumeSlider.RoundTrack(background, true);
@@ -469,7 +469,7 @@ namespace MotorCity.UI
             hintRect.anchorMin = Vector2.zero;
             hintRect.anchorMax = Vector2.zero;
             hintRect.pivot = new Vector2(0.5f, 0f);
-            hintRect.anchoredPosition = new Vector2(23f, 106f);
+            hintRect.anchoredPosition = new Vector2(24f, 106f);
             hintRect.sizeDelta = new Vector2(30f, 26f);
             hint.color = new Color(0.52f, 0.84f, 1f, 0.95f);
             hint.raycastTarget = false;
