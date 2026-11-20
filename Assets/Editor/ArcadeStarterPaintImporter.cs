@@ -33,6 +33,7 @@ public static class ArcadeStarterPaintImporter
 
     private static void TryBuild()
     {
+        if (MotorCity.EditorTools.MotorCityCityBundleExperiment.HasParkedAssets) return;
         if (EditorApplication.isPlayingOrWillChangePlaymode ||
             SessionState.GetBool(SessionKey, false))
             return;
