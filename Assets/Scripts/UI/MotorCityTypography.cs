@@ -69,6 +69,68 @@ namespace MotorCity.UI
         }
     }
 
+    internal static class MotorCityControlSettings
+    {
+        public static void Create(Transform parent, System.Action changed)
+        {
+            var root = new GameObject("Control Settings", typeof(RectTransform), typeof(UnityEngine.UI.VerticalLayoutGroup), typeof(UnityEngine.UI.LayoutElement));
+            root.transform.SetParent(parent, false);
+            var layout = root.GetComponent<UnityEngine.UI.VerticalLayoutGroup>();
+            layout.spacing = 8; layout.childControlHeight = true; layout.childControlWidth = true;
+            layout.childForceExpandHeight = false;
+            bool ru = MotorCity.Localization.MotorCityLocalization.LanguageCode == "ru";
+            string L(string a, string b) => ru ? a : b;
+            UnityEngine.UI.Text Label(Transform owner, string caption)
+            {
+                var go = new GameObject(caption, typeof(RectTransform), typeof(UnityEngine.UI.Text), typeof(UnityEngine.UI.LayoutElement));
+                go.transform.SetParent(owner, false);
+                var t = go.GetComponent<UnityEngine.UI.Text>(); t.font = MotorCityTypography.Bold;
+                t.fontSize = 22; t.color = Color.white; t.text = caption; t.alignment = TextAnchor.MiddleLeft;
+                go.GetComponent<UnityEngine.UI.LayoutElement>().preferredHeight = 36;
+                return t;
+            }
+            void Button(string caption, System.Action action)
+            {
+                var t = Label(root.transform, caption);
+                var button = t.gameObject.AddComponent<UnityEngine.UI.Button>();
+                button.targetGraphic = t; button.onClick.AddListener(() => action());
+            }
+            bool expanded = false;
+            void Refresh()
+            {
+                foreach (Transform child in root.transform) { child.gameObject.SetActive(false); Object.Destroy(child.gameObject); }
+                var scheme = MotorCity.Input.MotorCityInput.CurrentControlScheme;
+                bool enabled = scheme != MotorCity.Input.MotorCityControlScheme.Keyboard;
+                Button((enabled ? "☑ " : "☐ ") + L("Мобильное управление", "Mobile controls"), () => {
+                    MotorCity.Input.MotorCityInput.SetControlScheme(enabled ? MotorCity.Input.MotorCityControlScheme.Keyboard :
+                        (MotorCity.Input.MotorCityControlScheme)PlayerPrefs.GetInt("MotorCity.LastTouchScheme", (int)MotorCity.Input.MotorCityControlScheme.Wheel));
+                    changed?.Invoke(); Refresh();
+                });
+                if (!enabled) return;
+                Button(L("Управление: ", "Controls: ") + (scheme == MotorCity.Input.MotorCityControlScheme.Wheel ? L("Руль", "Wheel") : L("Стрелки", "Arrows")), () => {
+                    var next = scheme == MotorCity.Input.MotorCityControlScheme.Wheel ? MotorCity.Input.MotorCityControlScheme.Arrows : MotorCity.Input.MotorCityControlScheme.Wheel;
+                    PlayerPrefs.SetInt("MotorCity.LastTouchScheme", (int)next);
+                    MotorCity.Input.MotorCityInput.SetControlScheme(next); changed?.Invoke(); Refresh();
+                });
+                Button(L("Изменить HUD", "Customize HUD"), () => { expanded = !expanded; Refresh(); });
+                if (!expanded) return;
+                var keys = scheme == MotorCity.Input.MotorCityControlScheme.Wheel ?
+                    new[] {"Steering","Throttle","Brake","Handbrake","Action","Cancel"} :
+                    new[] {"SteerLeft","SteerRight","Throttle","Brake","Handbrake","Action","Cancel"};
+                foreach (var key in keys)
+                {
+                    string caption = key == "Cancel" ? L("Отмена", "Cancel") : MotorCity.Localization.MotorCityLocalization.Text("touch.layout." + (key == "SteerLeft" ? "left" : key == "SteerRight" ? "right" : key.ToLowerInvariant()));
+                    var label = Label(root.transform, caption + "  " + Mathf.RoundToInt(TouchControlLayoutStore.LoadScale(scheme,key)*100) + "%");
+                    MotorCityVolumeSlider.Create(root.transform, (TouchControlLayoutStore.LoadScale(scheme,key)-0.7f)/1.3f, v => {
+                        float scale = 0.7f + v*1.3f; TouchControlLayoutStore.SaveScale(scheme,key,scale);
+                        label.text = caption + "  " + Mathf.RoundToInt(scale*100) + "%"; changed?.Invoke();
+                    });
+                }
+            }
+            Refresh();
+        }
+    }
+
     public static class MotorCityTypography
     {
         private static Font regular;
