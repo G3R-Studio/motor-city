@@ -67,6 +67,11 @@ namespace MotorCity.UI
         private GameObject introRoot;
         private GameObject controlChoiceRoot;
         private Text primaryButtonText;
+        private Text mainMenuSubtitleText;
+        private Text aboutButtonText;
+        private Text settingsButtonText;
+        private Text rankingButtonText;
+        private Text experienceButtonText;
         private Text settingsQualityText;
         private Text settingsDrawDistanceText;
         private Text settingsAudioText;
@@ -551,6 +556,7 @@ namespace MotorCity.UI
                     new Vector2(680f, 48f),
                     new Vector2(0f, 0.5f));
 
+            mainMenuSubtitleText = subtitle;
             subtitle.color =
                 new Color(0.48f, 0.74f, 1f, 1f);
 
@@ -599,6 +605,7 @@ namespace MotorCity.UI
                 new Vector2(0f, -55f),
                 new Vector2(500f, 82f),
                 ShowAbout);
+            aboutButtonText = aboutButton.GetComponentInChildren<Text>();
 
             Button settingsButton = CreateButton(
                 mainMenuContent,
@@ -606,10 +613,12 @@ namespace MotorCity.UI
                 new Vector2(0f, -151f),
                 new Vector2(500f, 82f),
                 ShowSettings);
+            settingsButtonText = settingsButton.GetComponentInChildren<Text>();
 
             Button rankingButton = CreateButton(mainMenuContent,
                 MotorCityLocalization.Text("pause.leaderboards"), new Vector2(0f, -247f),
                 new Vector2(500f, 82f), MotorCityRankingWindow.Open);
+            rankingButtonText = rankingButton.GetComponentInChildren<Text>();
             StyleMainMenuSecondary(rankingButton);
 
             Button experienceButton = CreateButton(
@@ -619,6 +628,7 @@ namespace MotorCity.UI
                 new Vector2(500f, 82f),
                 ShowPlayerExperience);
 
+            experienceButtonText = experienceButton.GetComponentInChildren<Text>();
             StyleMainMenuSecondary(aboutButton);
             StyleMainMenuSecondary(settingsButton);
             StyleMainMenuSecondary(experienceButton);
@@ -2957,13 +2967,33 @@ namespace MotorCity.UI
 
         private void RefreshMainMenuText()
         {
-            if (primaryButtonText == null)
-                return;
+            bool russian = IsRussian();
+            if (primaryButtonText != null)
+                primaryButtonText.text = hasExistingProgress
+                    ? (russian ? "Продолжить" : "Continue")
+                    : (russian ? "Начать играть" : "Start game");
+            if (mainMenuSubtitleText != null)
+                mainMenuSubtitleText.text = russian
+                    ? "Твой город. твоя машина. твой путь."
+                    : "Your city. your car. your road.";
+            if (aboutButtonText != null) aboutButtonText.text = russian ? "Об игре" : "About";
+            if (settingsButtonText != null) settingsButtonText.text = russian ? "Настройки" : "Settings";
+            if (rankingButtonText != null) rankingButtonText.text = MotorCityLocalization.Text("pause.leaderboards");
+            if (experienceButtonText != null) experienceButtonText.text = MotorCityLocalization.Text("ux.home.button");
+        }
 
-            primaryButtonText.text =
-                hasExistingProgress
-                    ? (IsRussian() ? "Продолжить" : "Continue")
-                    : (IsRussian() ? "Начать играть" : "Start game");
+        public bool IsFrontEndVisible =>
+            (mainRoot != null && mainRoot.activeSelf) ||
+            (aboutRoot != null && aboutRoot.activeSelf) ||
+            (settingsRoot != null && settingsRoot.activeSelf) ||
+            (playerExperienceRoot != null && playerExperienceRoot.activeSelf) ||
+            (introRoot != null && introRoot.activeSelf) ||
+            (loadingRoot != null && loadingRoot.activeSelf);
+
+        public void RefreshLocalizationAfterLanguageChange()
+        {
+            RefreshMainMenuText();
+            RefreshSettingsText();
         }
 
         private Slider settingsAudioSlider, settingsMusicSlider;
