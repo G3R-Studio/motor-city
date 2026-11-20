@@ -685,10 +685,14 @@ namespace MotorCity.EditorTools
                     if (ordered.Where(n => n != "motorcity-supporter.bundle").Any(n =>
                         manifest.GetAllDependencies(n).Contains("motorcity-supporter.bundle")))
                         throw new InvalidOperationException("A resident bundle depends on the deferred supporter package.");
+                    // BuildPlayer can destroy the native AssetBundleManifest object.
+                    // Snapshot every hash before entering the player build.
+                    var hashes = ordered.ToDictionary(name => name,
+                        name => manifest.GetAssetBundleHash(name).ToString(), StringComparer.Ordinal);
                     string FileName(string name) => Path.GetFileNameWithoutExtension(name) + "-" +
-                        manifest.GetAssetBundleHash(name) + ".bundle";
+                        hashes[name] + ".bundle";
                     File.WriteAllText(MarkerPath, string.Join("\n", ordered.Select(name =>
-                        name + "|" + manifest.GetAssetBundleHash(name))));
+                        name + "|" + hashes[name])));
                     AssetDatabase.ImportAsset(MarkerPath, ImportAssetOptions.ForceSynchronousImport);
                     BuildReport releaseReport = Build(profile, stripped, Path.Combine(bundles, "Bundles.manifest"));
                     // Record real player overlap before original resource paths are restored.
