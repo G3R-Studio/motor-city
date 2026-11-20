@@ -109,7 +109,7 @@ public static class MotorCityOcclusionCullingExperiment
                 "GPU Occlusion=true; Renderer=" + rendererData.renderingMode +
                 "; API=" + SystemInfo.graphicsDeviceType +
                 "; ComputeShaders=" + SystemInfo.supportsComputeShaders +
-                "; SRPBatcher=" + pipeline.isSRPBatcherEnabled +
+                "; SRPBatcher=" + pipeline.useSRPBatcher +
                 ". This changes only the transient Play Mode URP clone. " +
                 "Use Stop and Restore or exit Play Mode to revert.");
         }
