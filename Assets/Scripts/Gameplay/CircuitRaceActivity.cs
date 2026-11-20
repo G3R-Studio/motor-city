@@ -132,7 +132,7 @@ namespace MotorCity.Gameplay
             {
                 IsNearStart = false;
 
-                if (MotorCityInput.CancelPressed)
+                if (MotorCityInput.WasVirtualPressed(MotorCityInputAction.Cancel))
                 {
                     CancelActivity();
                 }
@@ -144,7 +144,7 @@ namespace MotorCity.Gameplay
             {
                 IsNearStart = false;
 
-                if (MotorCityInput.CancelPressed)
+                if (MotorCityInput.WasVirtualPressed(MotorCityInputAction.Cancel))
                 {
                     CancelActivity();
                     return;
