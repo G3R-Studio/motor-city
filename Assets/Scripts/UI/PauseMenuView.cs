@@ -142,6 +142,8 @@ namespace MotorCity.UI
                 ToggleMusicMute,
                 104f);
 
+            MotorCityControlSettings.Create(window.Content, RefreshMobileControlLayout);
+
             RectTransform experienceActions =
                 CreateButtonRow(
                     window.Content,
