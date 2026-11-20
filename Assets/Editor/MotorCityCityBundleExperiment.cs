@@ -129,7 +129,7 @@ namespace MotorCity.EditorTools
             }
         }
 
-        private static void ParkPilotRoots()
+        private static void ParkPilotRoots(bool split)
         {
             foreach (var path in LocalPilotRoots)
             {
@@ -138,10 +138,12 @@ namespace MotorCity.EditorTools
                 if (!Exists(path)) continue;
                 if (!AssetDatabase.IsValidFolder(path))
                     throw new InvalidOperationException("Unexpected LOD pilot asset: " + path);
+                bool garage = path == "Assets/Resources/MotorCity/Garage";
+                if (garage && !split) continue;
                 // Only generated standalone mesh assets; no deletion or GUID change.
                 var files = AssetDatabase.GetAllAssetPaths().Where(p =>
                     p.StartsWith(path + "/", StringComparison.Ordinal) && !AssetDatabase.IsValidFolder(p));
-                if (files.Any(p => !p.EndsWith(".asset", StringComparison.OrdinalIgnoreCase) ||
+                if (!garage && files.Any(p => !p.EndsWith(".asset", StringComparison.OrdinalIgnoreCase) ||
                     !(AssetDatabase.LoadMainAssetAtPath(p) is Mesh)))
                     throw new InvalidOperationException("Unexpected non-pilot asset in " + path);
                 string error = AssetDatabase.MoveAsset(path, ParkedPilotRoot(path));
@@ -537,7 +539,7 @@ namespace MotorCity.EditorTools
             var originalGuids = ExtraRoots.ToDictionary(n => n, n => AssetDatabase.AssetPathToGUID(EnvironmentRoot + n));
             try
             {
-                ParkPilotRoots();
+                ParkPilotRoots(split);
                 string baseline = Path.Combine(root, "Baseline");
                 long before = 0;
                 if (!split)
