@@ -649,10 +649,10 @@ namespace MotorCity.UI
         private void SyncRankings()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR && !DEBUG
-            if (activityManager == null || !activityManager.SecondaryProgressionAllowed || Time.unscaledTime < nextRankingSync) return;
+            if (activityManager == null || Time.unscaledTime < nextRankingSync) return;
             nextRankingSync = Time.unscaledTime + 30f;
             MotorCityRankingSubmit("reputation", activityManager.TotalReputation);
-            if (drift != null) MotorCityRankingSubmit("drift_score", drift.BestDrift);
+            if (drift != null) MotorCityRankingSubmit("drift_score", Mathf.Max(drift.BestDrift, MotorCity.Persistence.MotorCitySaveService.GetInt("MotorCity.Ranking.BestDrift", 0)));
             if (streetSprint != null && streetSprint.BestTimeSeconds > 0)
                 MotorCityRankingSubmit("race_time", Mathf.RoundToInt(streetSprint.BestTimeSeconds * 1000f));
             MotorCityRankingSubmit("completed_jobs", MotorCity.Persistence.MotorCitySaveService.GetInt("MotorCity.Ranking.Jobs", 0));
