@@ -100,13 +100,9 @@ namespace MotorCity.EditorTools
                 Debug.LogException(exception);
                 EditorUtility.DisplayDialog(
                     "Music Compression Pilot",
-                    "Preview failed. Original tracks were not changed.
-
-" +
+                    "Preview failed. Original tracks were not changed.\n\n" +
                     exception.Message +
-                    "
-
-Install FFmpeg with the libvorbis encoder and make sure ffmpeg is available in PATH.",
+                    "\n\nInstall FFmpeg with the libvorbis encoder and make sure ffmpeg is available in PATH.",
                     "OK");
                 return;
             }
@@ -127,22 +123,14 @@ Install FFmpeg with the libvorbis encoder and make sure ffmpeg is available in P
 
             string summary =
                 "Tracks previewed: " + manifest.entries.Count +
-                "
-Original total: " + MiB(originalTotal) + " MiB" +
-                "
-Preview total: " + MiB(compressedTotal) + " MiB" +
-                "
-Potential saving: " + MiB(saved) + " MiB (" +
+                "\nOriginal total: " + MiB(originalTotal) + " MiB" +
+                "\nPreview total: " + MiB(compressedTotal) + " MiB" +
+                "\nPotential saving: " + MiB(saved) + " MiB (" +
                 percent.ToString("F1") + "%)" +
-                "
+                "\n\nOriginal OGG files were not modified." +
+                "\nListen to the preview files in:\n" + PreviewRoot;
 
-Original OGG files were not modified." +
-                "
-Listen to the preview files in:
-" + PreviewRoot;
-
-            Debug.Log("[Motor City Music Compression]
-" + summary);
+            Debug.Log("[Motor City Music Compression]\n" + summary);
             EditorUtility.DisplayDialog(
                 "Music Compression Preview Complete",
                 summary,
@@ -192,8 +180,7 @@ Listen to the preview files in:
                 {
                     EditorUtility.DisplayDialog(
                         "Music Compression Pilot",
-                        "A source or preview file changed after the preview. Run Preview again.
-" +
+                        "A source or preview file changed after the preview. Run Preview again.\n" +
                         entry.fileName,
                         "OK");
                     return;
@@ -244,16 +231,12 @@ Listen to the preview files in:
             long saved = originalTotal - compressedTotal;
             string summary =
                 "Applied to " + manifest.entries.Count + " music tracks." +
-                "
-Saved: " + MiB(saved) + " MiB (" +
+                "\nSaved: " + MiB(saved) + " MiB (" +
                 (100f * saved / originalTotal).ToString("F1") + "%)." +
-                "
-Originals are backed up in " + BackupRoot +
-                "
-Use Restore Original Music OGGs to undo.";
+                "\nOriginals are backed up in " + BackupRoot +
+                "\nUse Restore Original Music OGGs to undo.";
 
-            Debug.Log("[Motor City Music Compression]
-" + summary);
+            Debug.Log("[Motor City Music Compression]\n" + summary);
             EditorUtility.DisplayDialog(
                 "Music Compression Applied",
                 summary,
