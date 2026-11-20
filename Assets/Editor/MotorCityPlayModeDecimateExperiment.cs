@@ -40,6 +40,8 @@ namespace MotorCity.EditorTools
         private static readonly HashSet<Mesh> QueuedMeshes = new HashSet<Mesh>();
         private static readonly HashSet<Mesh> FailedMeshes = new HashSet<Mesh>();
         private static readonly HashSet<Renderer> StaticBatchedRenderers = new HashSet<Renderer>();
+        private static readonly HashSet<Renderer> BuildingRenderersSeen = new HashSet<Renderer>();
+        private static readonly HashSet<Transform> BuildingRootsSeen = new HashSet<Transform>();
         private static readonly Queue<Mesh> PendingMeshes = new Queue<Mesh>();
 
         private static bool running;
@@ -52,6 +54,7 @@ namespace MotorCity.EditorTools
         private static int skippedTooSmall;
         private static int failedMeshCount;
         private static int unchangedMeshCount;
+        private static bool warnedNoBuildingsRoot;
 
         static MotorCityPlayModeDecimateExperiment()
         {
@@ -59,20 +62,20 @@ namespace MotorCity.EditorTools
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
         }
 
-        [MenuItem("Tools/Motor City/Play Mode Decimate 0.8/Start - all loaded meshes")]
+        [MenuItem("Tools/Motor City/Play Mode Decimate 0.8/Start - buildings only")]
         private static void Start()
         {
             StartInternal(false);
         }
 
-        [MenuItem("Tools/Motor City/Play Mode Decimate 0.8/Start - selected object only")]
+        [MenuItem("Tools/Motor City/Play Mode Decimate 0.8/Start - selected building only")]
         private static void StartSelected()
         {
             StartInternal(true);
         }
 
-        [MenuItem("Tools/Motor City/Play Mode Decimate 0.8/Start - all loaded meshes", true)]
-        [MenuItem("Tools/Motor City/Play Mode Decimate 0.8/Start - selected object only", true)]
+        [MenuItem("Tools/Motor City/Play Mode Decimate 0.8/Start - buildings only", true)]
+        [MenuItem("Tools/Motor City/Play Mode Decimate 0.8/Start - selected building only", true)]
         private static bool ValidateStart()
         {
             return EditorApplication.isPlaying && !running;
@@ -102,7 +105,15 @@ namespace MotorCity.EditorTools
 
             if (onlySelected && Selection.activeGameObject == null)
             {
-                Debug.LogWarning("[Motor City Decimate] Select one building or object in the Hierarchy first.");
+                Debug.LogWarning("[Motor City Decimate] Select a building inside a Buildings hierarchy first.");
+                return;
+            }
+
+            if (onlySelected && FindBuildingsRoot(Selection.activeGameObject.transform) == null)
+            {
+                Debug.LogWarning(
+                    "[Motor City Decimate] Selected object is not inside a hierarchy named 'Buildings'. " +
+                    "Select a building under CityVisual/Buildings.");
                 return;
             }
 
@@ -116,11 +127,12 @@ namespace MotorCity.EditorTools
 
             string scope = onlySelected
                 ? "selected hierarchy object: " + selectedRoot.name
-                : "all loaded scenes, including objects spawned later";
+                : "all loaded Buildings hierarchies only";
 
             Debug.Log(
                 "[Motor City Decimate] STARTED. Target quality=0.8 (about 80% of source triangles). " +
-                "Scope: " + scope + ". UV seams, UV foldovers and borders are protected. " +
+                "Scope: " + scope + ". Non-building city objects are ignored. " +
+                "UV seams, UV foldovers and borders are protected. " +
                 "Only temporary in-memory meshes are changed. Stop and restore or exit Play Mode.");
         }
 
@@ -182,8 +194,50 @@ namespace MotorCity.EditorTools
 
                 GameObject[] roots = scene.GetRootGameObjects();
                 for (int rootIndex = 0; rootIndex < roots.Length; rootIndex++)
-                    ScanRoot(roots[rootIndex]);
+                {
+                    GameObject sceneRoot = roots[rootIndex];
+                    if (sceneRoot == null)
+                        continue;
+
+                    Transform[] transforms = sceneRoot.GetComponentsInChildren<Transform>(true);
+                    for (int i = 0; i < transforms.Length; i++)
+                    {
+                        Transform candidate = transforms[i];
+                        if (candidate == null || !IsBuildingsRoot(candidate))
+                            continue;
+
+                        BuildingRootsSeen.Add(candidate);
+                        // Scan every pass so buildings spawned later under an existing
+                        // Buildings root are picked up as well.
+                        ScanRoot(candidate.gameObject);
+                    }
+                }
             }
+
+            if (BuildingRootsSeen.Count == 0 && !warnedNoBuildingsRoot)
+            {
+                warnedNoBuildingsRoot = true;
+                Debug.LogWarning(
+                    "[Motor City Decimate] No hierarchy named 'Buildings' was found in loaded scenes. " +
+                    "Nothing was changed. Check the runtime Hierarchy and the exact root name.");
+            }
+        }
+
+        private static bool IsBuildingsRoot(Transform target)
+        {
+            return target != null &&
+                string.Equals(target.name, "Buildings", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static Transform FindBuildingsRoot(Transform target)
+        {
+            for (Transform current = target; current != null; current = current.parent)
+            {
+                if (IsBuildingsRoot(current))
+                    return current;
+            }
+
+            return null;
         }
 
         private static void ScanRoot(GameObject root)
@@ -229,6 +283,8 @@ namespace MotorCity.EditorTools
         {
             if (renderer == null || source == null || GeneratedMeshes.Contains(source))
                 return;
+
+            BuildingRenderersSeen.Add(renderer);
 
             if (renderer.isPartOfStaticBatch)
             {
@@ -541,7 +597,9 @@ namespace MotorCity.EditorTools
             report.AppendLine("Skipped tiny meshes (<4 triangles): " + skippedTooSmall);
             report.AppendLine("Unchanged meshes: " + unchangedMeshCount);
             report.AppendLine("Failed meshes: " + failedMeshCount);
-            report.AppendLine("Static-batched renderers skipped: " + StaticBatchedRenderers.Count);
+            report.AppendLine("Buildings hierarchy roots found: " + BuildingRootsSeen.Count);
+            report.AppendLine("Building renderers discovered: " + BuildingRenderersSeen.Count);
+            report.AppendLine("Static-batched building renderers skipped: " + StaticBatchedRenderers.Count);
             report.AppendLine("Pending meshes not processed before stop: " + PendingMeshes.Count);
             report.AppendLine("All changed renderer meshes restored: YES");
 
@@ -573,7 +631,10 @@ namespace MotorCity.EditorTools
             QueuedMeshes.Clear();
             FailedMeshes.Clear();
             StaticBatchedRenderers.Clear();
+            BuildingRenderersSeen.Clear();
+            BuildingRootsSeen.Clear();
             PendingMeshes.Clear();
+            warnedNoBuildingsRoot = false;
             selectedOnly = false;
             selectedRoot = null;
 
