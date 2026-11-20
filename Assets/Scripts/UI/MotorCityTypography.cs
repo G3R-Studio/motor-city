@@ -89,6 +89,8 @@ namespace MotorCity.UI
                 var t = go.GetComponent<UnityEngine.UI.Text>(); t.font = MotorCityTypography.Bold;
                 t.fontSize = 22; t.color = Color.white; t.text = caption; t.alignment = TextAnchor.MiddleLeft;
                 go.GetComponent<UnityEngine.UI.LayoutElement>().preferredHeight = 36;
+                // Every rebuilt settings label must use the same SDF pipeline as the initial menu.
+                MotorCityTextLayout.Configure(t);
                 return t;
             }
             Transform Row(string caption, string value)
