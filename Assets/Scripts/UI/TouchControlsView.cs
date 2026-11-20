@@ -1193,38 +1193,49 @@ namespace MotorCity.UI
                 ApplyStoredTouchScale(cancel, MotorCityInput.CurrentControlScheme, "Cancel");
                 cancel.anchoredPosition = new Vector2(-52f, 438f);
             }
-            // Reserve the upper right HUD (minimap, store, bonus and utility rail).
-            float ceiling = space.rect.yMin + space.rect.height * 0.54f;
+            // Pack pedals at the bottom, then put action buttons beside the
+            // handbrake when the vertical stack would hit the navigator.
+            float ceiling = space.rect.yMax - 24f;
             if (navigatorPanel != null)
             {
                 var bonus = navigatorPanel.transform.Find("HUD Bonus") as RectTransform;
-                if (bonus != null)
-                    ceiling = Mathf.Min(ceiling, TouchBounds(bonus, space).yMin - 20f);
+                if (bonus != null) ceiling = Mathf.Min(ceiling, TouchBounds(bonus, space).yMin - 16f);
             }
-            // Fit the entire pedal/action stack as a unit when requested sizes
-            // exceed the available area. Saved user scales remain unchanged.
             var controls = new[] { touchThrottleRect, touchBrakeRect, touchHandbrakeRect, touchActionRect, cancel };
-            var positions = new Vector2[controls.Length];
-            for (int i = 0; i < controls.Length; i++)
-                if (controls[i] != null) positions[i] = controls[i].anchoredPosition;
-            for (int pass = 0; pass < 12; pass++)
+            void MoveTo(RectTransform control, float right, float bottom)
             {
-                for (int i = 0; i < controls.Length; i++)
-                    if (controls[i] != null) controls[i].anchoredPosition = positions[i];
-                SeparateTouch(touchBrakeRect, touchThrottleRect, space, false, false);
-                SeparateTouch(touchHandbrakeRect, touchThrottleRect, space, true, true);
-                SeparateTouch(touchHandbrakeRect, touchBrakeRect, space, true, true);
-                SeparateTouch(touchActionRect, touchHandbrakeRect, space, true, true);
-                if (cancel != null) SeparateTouch(cancel, touchActionRect, space, true, true);
-                float top = float.MinValue;
+                if (control == null) return;
+                Rect bounds = TouchBounds(control, space);
+                control.position += space.TransformVector(new Vector3(right - bounds.xMax, bottom - bounds.yMin, 0));
+            }
+            float edge = space.rect.xMax - 28f;
+            float floor = space.rect.yMin + 28f;
+            const float gap = 16f;
+            for (int pass = 0; pass < 16; pass++)
+            {
+                MoveTo(touchThrottleRect, edge, floor);
+                MoveTo(touchBrakeRect, TouchBounds(touchThrottleRect, space).xMin - gap, floor);
+                float pedalTop = Mathf.Max(TouchBounds(touchThrottleRect, space).yMax, TouchBounds(touchBrakeRect, space).yMax);
+                MoveTo(touchHandbrakeRect, edge, pedalTop + gap);
+                MoveTo(touchActionRect, edge, TouchBounds(touchHandbrakeRect, space).yMax + gap);
+                if (cancel != null) MoveTo(cancel, edge, TouchBounds(touchActionRect, space).yMax + gap);
+                float top = cancel != null ? TouchBounds(cancel, space).yMax : TouchBounds(touchActionRect, space).yMax;
+                if (top > ceiling)
+                {
+                    // Use horizontal space rather than sacrificing touch target size.
+                    float actionRight = TouchBounds(touchHandbrakeRect, space).xMin - gap;
+                    MoveTo(touchActionRect, actionRight, pedalTop + gap);
+                    if (cancel != null) MoveTo(cancel, actionRight, TouchBounds(touchActionRect, space).yMax + gap);
+                    top = Mathf.Max(TouchBounds(touchHandbrakeRect, space).yMax,
+                        TouchBounds(cancel != null ? cancel : touchActionRect, space).yMax);
+                }
+                float left = float.MaxValue;
                 foreach (var control in controls)
-                    if (control != null) top = Mathf.Max(top, TouchBounds(control, space).yMax);
-                if (top <= ceiling || pass == 11) break;
+                    if (control != null) left = Mathf.Min(left, TouchBounds(control, space).xMin);
+                if (top <= ceiling && left >= space.rect.center.x + 24f) break;
+                if (pass == 15) break;
                 foreach (var control in controls)
-                    if (control != null) control.localScale *= 0.9f;
-                // Compact the authored vertical gaps too.
-                for (int i = 0; i < positions.Length; i++)
-                    positions[i].y *= 0.9f;
+                    if (control != null) control.localScale *= 0.95f;
             }
             if (MotorCityInput.CurrentControlScheme == MotorCityControlScheme.Arrows)
             {
