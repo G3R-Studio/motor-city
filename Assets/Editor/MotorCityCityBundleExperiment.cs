@@ -8,6 +8,7 @@ using UnityEditor;
 using UnityEditor.Build.Profile;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace MotorCity.EditorTools
 {
@@ -348,103 +349,302 @@ namespace MotorCity.EditorTools
         // In a separate candidate, merge distant geometry, not bounds boxes.
         // Only one opaque material, immutable transforms and no lightmap/LOD owners.
         // The authored prefab and all collider meshes remain intact.
+        // Build reversible, material-preserving HLOD proxies for eligible
+        // static opaque renderers under every generated Buildings hierarchy.
+        // Every source renderer is either included completely or left untouched:
+        // transparent/cutout materials, lightmapped objects, dynamic objects,
+        // scripted objects and colliders are never modified.
         private static bool PrepareHlod()
         {
             AssetDatabase.CreateFolder("Assets", "MotorCity_DistrictBuildTemp");
             var source = AssetDatabase.LoadAssetAtPath<GameObject>(TemporaryCity);
+            if (source == null)
+                throw new InvalidOperationException("Temporary CityVisual prefab is missing.");
+
             var clone = (GameObject)PrefabUtility.InstantiatePrefab(source);
+            if (clone == null)
+                throw new InvalidOperationException("Could not instantiate CityVisual for HLOD baking.");
+
             try
             {
                 var renderers = clone.GetComponentsInChildren<MeshRenderer>(true);
                 var groups = new Dictionary<Vector2Int, List<int>>();
-                Material atlas = null;
+                int eligibleRendererCount = 0;
+                long eligibleSourceTriangles = 0;
+
                 for (int i = 0; i < renderers.Length; i++)
                 {
-                    var r = renderers[i];
-                    var f = r.GetComponent<MeshFilter>();
-                    var mesh = f != null ? f.sharedMesh : null;
-                    if (mesh == null || !mesh.isReadable || mesh.subMeshCount != 1 ||
-                        mesh.GetTopology(0) != MeshTopology.Triangles || mesh.vertexCount > 60000 ||
-                        !r.enabled || !r.gameObject.activeInHierarchy || r.forceRenderingOff ||
-                        r.HasPropertyBlock() || r.lightmapIndex >= 0 && r.lightmapIndex < 65534 ||
-                        r.bounds.extents.magnitude <= 7f || r.bounds.extents.magnitude > 32f ||
-                        r.GetComponentInParent<Rigidbody>() != null || r.GetComponentInParent<Animator>() != null ||
-                        r.GetComponentInParent<LODGroup>() != null || r.GetComponent<MonoBehaviour>() != null ||
-                        r.localToWorldMatrix.determinant <= 0f) continue;
-                    var mats = r.sharedMaterials;
-                    if (mats.Length != 1 || mats[0] == null ||
-                        mats[0].name != "Atlas-1_59aa769b" || mats[0].renderQueue != 2000) continue;
-                    if (atlas == null) atlas = mats[0];
-                    if (mats[0] != atlas) continue;
-                    bool protectedPath = false;
-                    for (var t = r.transform; t != clone.transform && t != null; t = t.parent)
+                    MeshRenderer renderer = renderers[i];
+                    if (renderer == null)
+                        continue;
+
+                    Transform buildingsRoot = FindBuildingsRoot(renderer.transform, clone.transform);
+                    if (buildingsRoot == null)
+                        continue;
+
+                    MeshFilter filter = renderer.GetComponent<MeshFilter>();
+                    Mesh mesh = filter != null ? filter.sharedMesh : null;
+                    if (mesh == null || !mesh.isReadable || mesh.vertexCount > 60000 ||
+                        mesh.subMeshCount == 0 || !renderer.enabled ||
+                        !renderer.gameObject.activeInHierarchy || renderer.forceRenderingOff ||
+                        renderer.isPartOfStaticBatch || renderer.HasPropertyBlock() ||
+                        (renderer.lightmapIndex >= 0 && renderer.lightmapIndex < 65534) ||
+                        renderer.bounds.extents.sqrMagnitude <= 4f ||
+                        renderer.GetComponentInParent<Rigidbody>(true) != null ||
+                        renderer.GetComponentInParent<Animator>(true) != null ||
+                        renderer.GetComponentInParent<LODGroup>(true) != null ||
+                        renderer.GetComponent<MonoBehaviour>() != null ||
+                        renderer.localToWorldMatrix.determinant <= 0f)
+                        continue;
+
+                    Material[] materials = renderer.sharedMaterials;
+                    if (materials == null || materials.Length != mesh.subMeshCount)
+                        continue;
+
+                    bool compatible = true;
+                    long rendererTriangles = 0;
+                    for (int submesh = 0; submesh < mesh.subMeshCount; submesh++)
                     {
-                        string n = t.name.ToLowerInvariant();
-                        if (n.Contains("park-") || n.Contains("window") || n.Contains("light") ||
-                            n.Contains("traffic") || n.Contains("tree") || t.GetComponent<MonoBehaviour>() != null)
-                        { protectedPath = true; break; }
+                        Material material = materials[submesh];
+                        if (material == null || material.renderQueue != 2000 ||
+                            mesh.GetTopology(submesh) != MeshTopology.Triangles)
+                        {
+                            compatible = false;
+                            break;
+                        }
+
+                        rendererTriangles += (long)mesh.GetIndexCount(submesh) / 3;
                     }
-                    if (protectedPath) continue;
-                    var c = r.bounds.center;
-                    var key = new Vector2Int(Mathf.FloorToInt(c.x / 128f), Mathf.FloorToInt(c.z / 128f));
-                    if (!groups.TryGetValue(key, out var group)) groups.Add(key, group = new List<int>());
+                    if (!compatible || rendererTriangles <= 0)
+                        continue;
+
+                    bool protectedPath = false;
+                    for (Transform current = renderer.transform;
+                         current != null && current != buildingsRoot;
+                         current = current.parent)
+                    {
+                        string objectName = current.name.ToLowerInvariant();
+                        if (objectName.Contains("traffic") ||
+                            objectName.Contains("tree") ||
+                            objectName.Contains("park-") ||
+                            objectName.Contains("light") ||
+                            current.GetComponent<MonoBehaviour>() != null)
+                        {
+                            protectedPath = true;
+                            break;
+                        }
+                    }
+                    if (protectedPath)
+                        continue;
+
+                    Vector3 center = renderer.bounds.center;
+                    Vector2Int key = new Vector2Int(
+                        Mathf.FloorToInt(center.x / 128f),
+                        Mathf.FloorToInt(center.z / 128f));
+
+                    if (!groups.TryGetValue(key, out List<int> group))
+                        groups.Add(key, group = new List<int>());
+
                     group.Add(i);
+                    eligibleRendererCount++;
+                    eligibleSourceTriangles += rendererTriangles;
                 }
+
                 var cells = new List<CityHlodCell>();
-                foreach (var group in groups.Values)
+                foreach (List<int> group in groups.Values)
                 {
-                    // Cap both peak bake memory and individual proxy index size.
+                    // Bound temporary bake memory and keep each proxy below
+                    // the 16-bit vertex limit where possible.
                     var batch = new List<int>();
-                    int vertices = 0;
+                    int batchVertices = 0;
+
                     void Flush()
                     {
-                        if (batch.Count < 3) { batch.Clear(); vertices = 0; return; }
-                        var combine = new CombineInstance[batch.Count];
-                        var bounds = renderers[batch[0]].bounds;
-                        int triangles = 0;
-                        for (int j = 0; j < batch.Count; j++)
+                        if (batch.Count < 2)
                         {
-                            var r = renderers[batch[j]];
-                            var mesh = r.GetComponent<MeshFilter>().sharedMesh;
-                            combine[j] = new CombineInstance { mesh = mesh, subMeshIndex = 0, transform = r.localToWorldMatrix };
-                            bounds.Encapsulate(r.bounds);
-                            triangles += (int)mesh.GetIndexCount(0) / 3;
+                            batch.Clear();
+                            batchVertices = 0;
+                            return;
                         }
-                        var proxy = new Mesh { name = "HLOD_" + cells.Count };
-                        proxy.CombineMeshes(combine, true, true);
-                        proxy = SimplifyProxy(proxy);
-                        AssetDatabase.CreateAsset(proxy, DistrictRoot + "/" + proxy.name + ".asset");
-                        cells.Add(new CityHlodCell
+
+                        Bounds bounds = renderers[batch[0]].bounds;
+                        int sourceTriangles = 0;
+                        var materialOrder = new List<Material>();
+                        var materialInstances = new Dictionary<Material, List<CombineInstance>>();
+
+                        foreach (int rendererIndex in batch)
                         {
-                            Center = bounds.center, ProxyMesh = proxy, ProxyMaterials = new[] { atlas },
-                            SourceRendererIndices = batch.ToArray(),
-                            SourceRendererNames = batch.Select(i => renderers[i].name).ToArray(),
-                            SourceRendererCenters = batch.Select(i => renderers[i].bounds.center).ToArray(),
-                            SourceTriangles = triangles, ProxyTriangles = (int)proxy.GetIndexCount(0) / 3
-                        });
+                            MeshRenderer renderer = renderers[rendererIndex];
+                            Mesh mesh = renderer.GetComponent<MeshFilter>().sharedMesh;
+                            Material[] materials = renderer.sharedMaterials;
+                            bounds.Encapsulate(renderer.bounds);
+
+                            for (int submesh = 0; submesh < mesh.subMeshCount; submesh++)
+                            {
+                                Material material = materials[submesh];
+                                if (!materialInstances.TryGetValue(material, out List<CombineInstance> instances))
+                                {
+                                    materialInstances.Add(material, instances = new List<CombineInstance>());
+                                    materialOrder.Add(material);
+                                }
+
+                                instances.Add(new CombineInstance
+                                {
+                                    mesh = mesh,
+                                    subMeshIndex = submesh,
+                                    transform = renderer.localToWorldMatrix
+                                });
+
+                                sourceTriangles += (int)(mesh.GetIndexCount(submesh) / 3);
+                            }
+                        }
+
+                        var materialMeshes = new List<Mesh>(materialOrder.Count);
+                        Mesh proxy = null;
+                        try
+                        {
+                            foreach (Material material in materialOrder)
+                            {
+                                List<CombineInstance> instances = materialInstances[material];
+                                long vertexEstimate = instances.Sum(item => (long)item.mesh.vertexCount);
+                                Mesh materialMesh = new Mesh
+                                {
+                                    name = "HLOD_" + cells.Count + "_" + materialMeshes.Count,
+                                    indexFormat = vertexEstimate > 65535
+                                        ? IndexFormat.UInt32
+                                        : IndexFormat.UInt16
+                                };
+                                materialMesh.CombineMeshes(instances.ToArray(), true, true);
+                                materialMesh = SimplifyProxy(materialMesh);
+                                materialMeshes.Add(materialMesh);
+                            }
+
+                            long finalVertexEstimate = materialMeshes.Sum(mesh => (long)mesh.vertexCount);
+                            proxy = new Mesh
+                            {
+                                name = "HLOD_" + cells.Count,
+                                indexFormat = finalVertexEstimate > 65535
+                                    ? IndexFormat.UInt32
+                                    : IndexFormat.UInt16
+                            };
+
+                            var finalInstances = new CombineInstance[materialMeshes.Count];
+                            for (int i = 0; i < materialMeshes.Count; i++)
+                            {
+                                finalInstances[i] = new CombineInstance
+                                {
+                                    mesh = materialMeshes[i],
+                                    subMeshIndex = 0,
+                                    transform = Matrix4x4.identity
+                                };
+                            }
+
+                            // One proxy submesh per shared material. This keeps
+                            // Atlas, window and other opaque building materials
+                            // assigned exactly, without merging unlike shaders.
+                            proxy.CombineMeshes(finalInstances, false, true);
+                            if (proxy.subMeshCount != materialOrder.Count ||
+                                proxy.subMeshCount != materialMeshes.Count)
+                                throw new InvalidOperationException(
+                                    "HLOD proxy material/submesh count mismatch.");
+
+                            int proxyTriangles = 0;
+                            for (int submesh = 0; submesh < proxy.subMeshCount; submesh++)
+                                proxyTriangles += (int)(proxy.GetIndexCount(submesh) / 3);
+
+                            AssetDatabase.CreateAsset(
+                                proxy,
+                                DistrictRoot + "/" + proxy.name + ".asset");
+
+                            cells.Add(new CityHlodCell
+                            {
+                                Center = bounds.center,
+                                ProxyMesh = proxy,
+                                ProxyMaterials = materialOrder.ToArray(),
+                                SourceRendererIndices = batch.ToArray(),
+                                SourceRendererNames = batch.Select(index => renderers[index].name).ToArray(),
+                                SourceRendererCenters = batch.Select(index => renderers[index].bounds.center).ToArray(),
+                                SourceTriangles = sourceTriangles,
+                                ProxyTriangles = proxyTriangles
+                            });
+
+                            proxy = null; // AssetDatabase owns the mesh now.
+                        }
+                        finally
+                        {
+                            if (proxy != null)
+                                UnityEngine.Object.DestroyImmediate(proxy);
+
+                            foreach (Mesh materialMesh in materialMeshes)
+                                if (materialMesh != null)
+                                    UnityEngine.Object.DestroyImmediate(materialMesh);
+                        }
+
                         batch.Clear();
-                        vertices = 0;
+                        batchVertices = 0;
                     }
-                    foreach (int index in group)
+
+                    foreach (int rendererIndex in group)
                     {
-                        int count = renderers[index].GetComponent<MeshFilter>().sharedMesh.vertexCount;
-                        if (vertices + count > 60000) Flush();
-                        batch.Add(index);
-                        vertices += count;
+                        int vertexCount = renderers[rendererIndex]
+                            .GetComponent<MeshFilter>().sharedMesh.vertexCount;
+
+                        if (batch.Count > 0 && batchVertices + vertexCount > 60000)
+                            Flush();
+
+                        batch.Add(rendererIndex);
+                        batchVertices += vertexCount;
                     }
+
                     Flush();
                 }
-                if (cells.Count == 0) return false;
+
+                if (cells.Count == 0)
+                    return false;
+
                 var data = ScriptableObject.CreateInstance<CityHlodData>();
                 data.SourceRendererCount = renderers.Length;
                 data.Cells = cells.ToArray();
-                data.SourceTriangles = cells.Sum(c => c.SourceTriangles);
-                data.ProxyTriangles = cells.Sum(c => c.ProxyTriangles);
+                data.SourceTriangles = cells.Sum(cell => cell.SourceTriangles);
+                data.ProxyTriangles = cells.Sum(cell => cell.ProxyTriangles);
                 AssetDatabase.CreateAsset(data, HlodPath);
                 AssetDatabase.SaveAssets();
+
+                double reduction = data.SourceTriangles > 0
+                    ? 100.0 * (data.SourceTriangles - data.ProxyTriangles) / data.SourceTriangles
+                    : 0.0;
+
+                Debug.Log(
+                    "[MotorCity][HLOD] Buildings bake complete. " +
+                    "EligibleRenderers=" + eligibleRendererCount +
+                    ", Cells=" + cells.Count +
+                    ", SourceTriangles=" + data.SourceTriangles +
+                    ", ProxyTriangles=" + data.ProxyTriangles +
+                    ", TriangleReduction=" + reduction.ToString("F1") + "%, " +
+                    "ExcludedRendererCount=" + (renderers.Length - eligibleRendererCount) +
+                    ". Only static opaque renderers below Buildings roots are proxied; " +
+                    "original meshes, materials, colliders and gameplay hierarchy remain unchanged.");
+
                 return true;
             }
-            finally { UnityEngine.Object.DestroyImmediate(clone); }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(clone);
+            }
+        }
+
+        private static Transform FindBuildingsRoot(Transform target, Transform cityRoot)
+        {
+            for (Transform current = target;
+                 current != null && current != cityRoot;
+                 current = current.parent)
+            {
+                if (string.Equals(current.name, "Buildings",
+                    StringComparison.OrdinalIgnoreCase))
+                    return current;
+            }
+
+            return null;
         }
 
         private static string Address(string path)
